@@ -75,7 +75,8 @@ async def on_message(message):
 
             loop = asyncio.get_event_loop()
             end_time = loop.time() + duration_time
-
+            
+            await asyncio.sleep(5)
             while True:
                 cat_url = requests.get('http://random.cat/meow').json()['file']
                 await client.send_message(message.channel, cat_url)
