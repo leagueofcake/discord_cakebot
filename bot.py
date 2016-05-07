@@ -86,13 +86,14 @@ async def on_message(message):
             await client.send_message(message.channel, 'Finished sending cats!')
         else:
             await client.send_message(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
-    elif content.startswith('!help'):
-        tmp = await client.send_message(message.channel, cakebot_config.help_text)
-        await(asyncio.sleep(5))
         await client.delete_message(tmp)
-    elif content.startswith('!'):
-        tmp = await client.send_message(message.channel, 'Unknown command! Type !help for commands')
-        await(asyncio.sleep(5))
-        await client.delete_message(tmp)
+    # elif content.startswith('!help'):
+        # tmp = await client.send_message(message.channel, cakebot_config.help_text)
+        # await(asyncio.sleep(5))
+        # await client.delete_message(tmp)
+    # elif content.startswith('!'):
+        # tmp = await client.send_message(message.channel, 'Unknown command! Type !help for commands')
+        # await(asyncio.sleep(5))
+        # await client.delete_message(tmp)
 
 client.run(cakebot_config.token)
