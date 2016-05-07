@@ -15,19 +15,8 @@ async def on_ready():
 @client.event
 async def on_message(message):
     content = message.content
-    if content.startswith('!test'):
-        counter = 0
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        async for log in client.logs_from(message.channel, limit=100):
-            if log.author == message.author:
-                counter += 1
 
-        await client.edit_message(tmp, 'You have {} messages.'.format(counter))
-    elif content.startswith('!sleep'):
-        await client.send_message(message.channel, 'Sleeping for 5 seconds!')
-        await asyncio.sleep(5)
-        await client.send_message(message.channel, 'Done sleeping!')
-    elif content.startswith('!hello'):
+    if content.startswith('!hello'):
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
     elif content.startswith('!'):
         await client.send_message(message.channel, 'Unknown command!')
