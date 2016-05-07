@@ -29,7 +29,11 @@ async def on_message(message):
 
     if content.startswith('!hello'):
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
+    elif content.startswith('!help'):
+        tmp = await client.send_message(message.channel, cakebot_config.help_text)
     elif content.startswith('!'):
-        await client.send_message(message.channel, 'Unknown command!')
+        tmp = await client.send_message(message.channel, 'Unknown command! Type !help for commands')
+        await(asyncio.sleep(5))
+        await client.delete_message(tmp)
 
 client.run(cakebot_config.token)
