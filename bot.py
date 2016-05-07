@@ -1,6 +1,7 @@
 import discord
 import asyncio
 import requests
+import datetime
 import cakebot_config
 
 client = discord.Client()
@@ -86,6 +87,28 @@ async def on_message(message):
             await client.send_message(message.channel, 'Finished sending cats!')
         else:
             await client.send_message(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
+    elif content.startswith('!find'):
+        args = parse_command_args(content)
+        user_id = message.raw_mentions[0] # Find id of first mentioned user
+        keyword = args[0]
+        tmp = await client.send_message(message.channel, 'Trying to find the first message in the last 500 lines by {} containing `{}`'.format(args[1], keyword))
+        await asyncio.sleep(5)
+        found = False
+        if len(args) > 1:
+            async for log in client.logs_from(message.channel, limit=500):
+                if log.author.id == user_id and keyword in log.content and log.id != message.id:
+                    try:
+                        await client.send_message(message.channel, '{} said at {}:\n```{}```'.format(args[1], log.timestamp.strftime('%H:%M, %d/%m/%Y'), log.clean_content))
+                    except:
+                        print('Untranslatable message')
+                    found = True
+                    break
+            if not found:
+                not_found = await client.send_message(message.channel, 'Couldn\'t find message!')
+                await asyncio.sleep(5)
+                client.delete_message(not_found)
+        else:
+            await client.send_message(message.channel, 'Not enough arguments! Expecting 2')
         await client.delete_message(tmp)
     # elif content.startswith('!help'):
         # tmp = await client.send_message(message.channel, cakebot_config.help_text)
