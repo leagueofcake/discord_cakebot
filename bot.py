@@ -97,7 +97,7 @@ async def on_message(message):
                 user_id = message.raw_mentions[0] # Find id of first mentioned user
 
             async for log in client.logs_from(message.channel, limit=500):
-                if keyword in log.content and log.id != message.id:
+                if keyword.lower() in log.content.lower() and log.id != message.id:
                     if user_id == None or log.author.id == user_id:
                         try:
                             timestamp = log.timestamp.strftime('%H:%M, %d/%m/%Y')
