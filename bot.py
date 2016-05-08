@@ -9,9 +9,7 @@ invite = 'https://discordapp.com/oauth2/authorize?client_id=178312661233172480&s
 
 def parse_command_args(command):
     splitted = command.split(' ')
-    if len(splitted) >= 2:
-        return splitted[1:]
-    return None
+    return splitted
 
 def is_integer(text):
     try:
