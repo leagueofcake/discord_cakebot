@@ -49,14 +49,14 @@ async def on_message(message):
 
             args = parse_command_args(content)
 
-            if len(args) > 0:
-                arg_times = args[0]
+            if len(args) > 1:
+                arg_times = args[1]
                 if is_integer(arg_times):
                     if int(arg_times) <= 60:
                         times = int(arg_times)
 
-                if len(args) > 1:
-                    arg_duration = args[1]
+                if len(args) > 2:
+                    arg_duration = args[2]
                     if arg_duration in cakebot_config.time_map:
                         duration_str = arg_duration
 
@@ -74,7 +74,7 @@ async def on_message(message):
 
             loop = asyncio.get_event_loop()
             end_time = loop.time() + duration_time
-            
+
             await asyncio.sleep(5)
             while True:
                 cat_url = requests.get('http://random.cat/meow').json()['file']
@@ -87,27 +87,31 @@ async def on_message(message):
             await client.send_message(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
     elif content.startswith('!find'):
         args = parse_command_args(content)
-        user_id = message.raw_mentions[0] # Find id of first mentioned user
-        keyword = args[0]
-        tmp = await client.send_message(message.channel, 'Trying to find the first message in the last 500 lines by {} containing `{}`'.format(args[1], keyword))
-        await asyncio.sleep(5)
         found = False
-        if len(args) > 1:
+
+        if len(args) > 2:
+            keyword = args[1]
+            username = args[2]
+            user_id = None
+            if message.raw_mentions:
+                user_id = message.raw_mentions[0] # Find id of first mentioned user
+
             async for log in client.logs_from(message.channel, limit=500):
-                if log.author.id == user_id and keyword in log.content and log.id != message.id:
-                    try:
-                        await client.send_message(message.channel, '{} said at {}:\n```{}```'.format(args[1], log.timestamp.strftime('%H:%M, %d/%m/%Y'), log.clean_content))
-                    except:
-                        print('Untranslatable message')
-                    found = True
-                    break
+                if keyword in log.content and log.id != message.id:
+                    if user_id == None or log.author.id == user_id:
+                        try:
+                            timestamp = log.timestamp.strftime('%H:%M, %d/%m/%Y')
+                            await client.send_message(message.channel, '{} said at {}:\n```{}```'.format(log.author, timestamp, log.clean_content))
+                            found = True
+                        except:
+                            print('Untranslatable message')
+                        break # terminate after finding first message
             if not found:
                 not_found = await client.send_message(message.channel, 'Couldn\'t find message!')
                 await asyncio.sleep(5)
                 client.delete_message(not_found)
         else:
             await client.send_message(message.channel, 'Not enough arguments! Expecting 2')
-        await client.delete_message(tmp)
     # elif content.startswith('!help'):
         # tmp = await client.send_message(message.channel, cakebot_config.help_text)
         # await(asyncio.sleep(5))
