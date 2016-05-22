@@ -2,6 +2,7 @@ import discord
 import asyncio
 import requests
 import datetime
+import random
 import cakebot_config
 
 client = discord.Client()
@@ -18,6 +19,21 @@ def is_integer(text):
     except ValueError:
         return False
 
+def select_repl(char):
+    try:
+        weight = 8
+        key = int(random.random() * (len(cakebot_config.repl_dict[char]) + weight))
+        if key < weight + 1: return cakebot_config.repl_dict[char][0] # Below weight, key equals 0 (key for first/default character)
+        else: return cakebot_config.repl_dict[char][key - weight]
+    except KeyError: # Return original char if char not found in dict
+        return char
+
+def return_troll(url):
+    prefix = ''
+    if 'https://' in url: prefix = 'https://'
+    elif 'http://' in url: prefix = 'http://'
+    return prefix + ''.join([select_repl(x) for x in url[len(prefix):]])
+        
 # @client.event
 # async def on_server_join(server):
 #     pass
@@ -97,7 +113,7 @@ async def on_message(message):
                 user_id = message.raw_mentions[0] # Find id of first mentioned user
 
             async for log in client.logs_from(message.channel, limit=500):
-                if keyword.lower() in log.content.lower() and log.id != message.id:
+                if keyword.lower() in log.content.lower() and log.id != message.id and log.author != client.user:
                     if user_id == None or log.author.id == user_id:
                         try:
                             timestamp = log.timestamp.strftime('%H:%M, %d/%m/%Y')
@@ -109,9 +125,26 @@ async def on_message(message):
             if not found:
                 not_found = await client.send_message(message.channel, 'Couldn\'t find message!')
                 await asyncio.sleep(5)
-                client.delete_message(not_found)
+                await client.delete_message(not_found)
         else:
             await client.send_message(message.channel, 'Not enough arguments! Expecting 2')
+    elif content.startswith('!trollurl'):
+        args = parse_command_args(content)
+        url = args[1]
+        await client.send_message(message.channel, return_troll(url))
+        await client.delete_message(message)
+    elif content.startswith('!google'):
+        args = parse_command_args(content)
+        words = args[1:]
+        url = 'https://www.google.com/#q=' + '+'.join(words)
+        await client.send_message(message.channel, url)
+    elif content.startswith('!redirect'):
+        args = parse_command_args(content)
+        room = message.channel_mentions[0]
+        tmp = await client.send_message(room, '`{}` redirected:'.format(message.author))
+        tmp = await client.send_message(room, ' '.join(args[2:]))
+        #await asyncio.sleep(3)
+        await client.delete_message(message)
     # elif content.startswith('!help'):
         # tmp = await client.send_message(message.channel, cakebot_config.help_text)
         # await(asyncio.sleep(5))
