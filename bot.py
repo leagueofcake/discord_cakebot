@@ -152,27 +152,56 @@ async def on_message(message):
         await client.delete_message(message)
     elif content.startswith('!play'): # Play song by title
         args = parse_command_args(content)
-        if content.startswith('!playalbum'):
-            album_name = ' '.join(args[1:])
-            c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", (album_name.lower(),))
-        elif content.startswith('!playid'):
-            id = args[1]
-            c.execute("SELECT * FROM songs WHERE id LIKE ?", (id,))
-        else:
+        if args[0] == '!play':
             song_name = ' '.join(args[1:])
-            c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (song_name.lower(), song_name.lower()))
+            s = '%{}%'.format(song_name.lower())
+            c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (s, s))
+            found = c.fetchmany(size=15)
 
-        found = c.fetchmany(size=30)
-
-        if found:
-            for song in found:
-                #await client.send_message(message.channel, found)
-                confirm = await client.send_message(message.channel, "~play {}".format(song[4]))
-                await client.send_message(message.channel, "{} queued: {}".format(message.author, song[1]))
+            if len(found) == 1:
+                confirm = await client.send_message(message.channel, "~play {}".format(found[0][4]))
+                await client.send_message(message.channel, "{} queued: {}".format(message.author, found[0][1]))
                 await(asyncio.sleep(3))
                 await client.delete_message(confirm)
+            elif len(found) > 1:
+                results = "\nFound multiple matches: (limited to 15). Use ``!playid <id>``\n```"
+                s = '%{}%'.format(song_name.lower())
+                c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (s, s))
+                found = c.fetchmany(size=15)
+                results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(50, ' '), 'Artist'.ljust(20, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
+                if found:
+                    for song in found:
+                        id, name, artist, album, alias = song[0], song[1], song[2], song[3], song[5]
+                        id = str(id).ljust(4, ' ')
+                        name = name.ljust(50, ' ')
+                        artist = str(artist).ljust(20, ' ')
+                        album = str(album).ljust(35, ' ')
+                        alias = str(alias).ljust(20, ' ')
+
+                        formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
+                        results += '\n' + formatted
+                    await client.send_message(message.channel, results + '```')
+            else:
+                await client.send_message(message.channel, "Couldn't find that song!")
         else:
-            await client.send_message(message.channel, "Couldn't find that song!")
+            if content.startswith('!playalbum'):
+                album_name = ' '.join(args[1:])
+                c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", ('%{}%'.format(album_name.lower())))
+            elif content.startswith('!playid'):
+                id = args[1]
+                c.execute("SELECT * FROM songs WHERE id LIKE ?", (id,))
+            found = c.fetchmany(size=15)
+
+            if found:
+                for song in found:
+                    #await client.send_message(message.channel, found)
+                    confirm = await client.send_message(message.channel, "~play {}".format(song[4]))
+                    await client.send_message(message.channel, "{} queued: {}".format(message.author, song[1]))
+                    await(asyncio.sleep(3))
+                    await client.delete_message(confirm)
+            else:
+                await client.send_message(message.channel, "Couldn't find that song!")
+
     elif content.startswith('!addsong'):
         if str(message.author.id) == '139345807944974336':
             # name, artist, album, link
@@ -189,19 +218,20 @@ async def on_message(message):
         args = parse_command_args(content)
         search_str = ' '.join(args[1:])
         s = '%{}%'.format(search_str.lower())
-        c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ?", (s, s, s))
+        c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ? OR LOWER(alias) LIKE ?", (s, s, s, s))
         found = c.fetchmany(size=15)
         results = '\nSongs found (limited to 15):\n```'
-        results += '{} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(50, ' '), 'Artist'.ljust(20, ' '), 'Album'.ljust(30, ' '))
+        results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(50, ' '), 'Artist'.ljust(20, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
         if found:
             for song in found:
-                id, name, artist, album = song[0], song[1], song[2], song[3]
+                id, name, artist, album, alias = song[0], song[1], song[2], song[3], song[5]
                 id = str(id).ljust(4, ' ')
                 name = name.ljust(50, ' ')
                 artist = str(artist).ljust(20, ' ')
-                album = str(album).ljust(30, ' ')
+                album = str(album).ljust(35, ' ')
+                alias = str(alias).ljust(20, ' ')
 
-                formatted = "{} {} {} {}".format(id, name, artist, album)
+                formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
                 results += '\n' + formatted
             await client.send_message(message.channel, results + '```')
         else:
