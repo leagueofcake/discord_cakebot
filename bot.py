@@ -188,7 +188,8 @@ async def on_message(message):
     elif content.startswith('!search'):
         args = parse_command_args(content)
         search_str = ' '.join(args[1:])
-        c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ?", (search_str.lower(), search_str.lower(), search_str.lower()))
+        s = '%{}%'.format(search_str.lower())
+        c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ?", (s, s, s))
         found = c.fetchmany(size=15)
         results = '\nSongs found (limited to 15):\n```'
         results += '{} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(50, ' '), 'Artist'.ljust(20, ' '), 'Album'.ljust(30, ' '))
