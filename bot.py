@@ -160,7 +160,7 @@ async def on_message(message):
             c.execute("SELECT * FROM songs WHERE id LIKE ?", (id,))
         else:
             song_name = ' '.join(args[1:])
-            c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ?", (song_name.lower(),))
+            c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (song_name.lower(), song_name.lower()))
 
         found = c.fetchmany(size=30)
 
