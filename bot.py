@@ -3,10 +3,15 @@ import asyncio
 import requests
 import datetime
 import random
+import sqlite3
 import cakebot_config
 
 client = discord.Client()
+conn = sqlite3.connect('music.db')
+c = conn.cursor()
+
 invite = 'https://discordapp.com/oauth2/authorize?client_id=178312661233172480&scope=bot&permissions=66186303'
+normal_invite = 'https://discordapp.com/oauth2/authorize?client_id=178312661233172480&scope=bot&permissions=67356673'
 
 def parse_command_args(command):
     splitted = command.split(' ')
@@ -33,7 +38,7 @@ def return_troll(url):
     if 'https://' in url: prefix = 'https://'
     elif 'http://' in url: prefix = 'http://'
     return prefix + ''.join([select_repl(x) for x in url[len(prefix):]])
-        
+
 # @client.event
 # async def on_server_join(server):
 #     pass
@@ -145,6 +150,30 @@ async def on_message(message):
         tmp = await client.send_message(room, ' '.join(args[2:]))
         #await asyncio.sleep(3)
         await client.delete_message(message)
+    elif content.startswith('!play'):
+        args = parse_command_args(content)
+        c.execute("SELECT * FROM songs WHERE name = ?", (args[1],))
+        found = c.fetchone()
+        if found:
+            confirm = await client.send_message(message.channel, "~play {}".format(found[2]))
+            #await asyncio.sleep(3)
+            #await client.delete_message(confirm)
+            await client.send_message(message.channel, "Queued: {}".format(args[1]))
+
+        else:
+            await client.send_message(message.channel, "Couldn't find that song!")
+    elif content.startswith('!addsong'):
+        if str(message.author.id) == '139345807944974336':
+            # name, artist, album, link
+            args = parse_command_args(content)
+            name, link = args[1], args[2]
+            confirm = "Adding song: {} with link {}".format(name, link)
+            await client.send_message(message.channel, confirm)
+            song_properties = (name, link)
+            c.execute("INSERT INTO songs (name, link) VALUES (?, ?)", song_properties)
+            conn.commit()
+        else:
+            await client.send_message(message.channel, 'Only leagueofcake can send add songs right now, sorry :(')
     # elif content.startswith('!help'):
         # tmp = await client.send_message(message.channel, cakebot_config.help_text)
         # await(asyncio.sleep(5))
