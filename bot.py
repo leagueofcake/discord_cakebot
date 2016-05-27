@@ -59,7 +59,7 @@ async def on_message(message):
     if content.startswith('!hello'):
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
     elif content.startswith('!timedcats'):
-        if str(message.author) == 'leagueofcake#5979':
+        if str(message.author.id) == '139345807944974336':
             times = 5
             duration_str = 'm'
 
