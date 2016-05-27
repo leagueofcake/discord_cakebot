@@ -150,16 +150,27 @@ async def on_message(message):
         tmp = await client.send_message(room, ' '.join(args[2:]))
         #await asyncio.sleep(3)
         await client.delete_message(message)
-    elif content.startswith('!play'):
+    elif content.startswith('!play'): # Play song by title
         args = parse_command_args(content)
-        c.execute("SELECT * FROM songs WHERE name = ?", (args[1],))
-        found = c.fetchone()
-        if found:
-            confirm = await client.send_message(message.channel, "~play {}".format(found[2]))
-            #await asyncio.sleep(3)
-            #await client.delete_message(confirm)
-            await client.send_message(message.channel, "Queued: {}".format(args[1]))
+        if content.startswith('!playalbum'):
+            album_name = ' '.join(args[1:])
+            c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", (album_name.lower(),))
+        elif content.startswith('!playid'):
+            id = args[1]
+            c.execute("SELECT * FROM songs WHERE id LIKE ?", (id,))
+        else:
+            song_name = ' '.join(args[1:])
+            c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ?", (song_name.lower(),))
 
+        found = c.fetchmany(size=30)
+
+        if found:
+            for song in found:
+                #await client.send_message(message.channel, found)
+                confirm = await client.send_message(message.channel, "~play {}".format(song[4]))
+                await client.send_message(message.channel, "{} queued: {}".format(message.author, song[1]))
+                await(asyncio.sleep(3))
+                await client.delete_message(confirm)
         else:
             await client.send_message(message.channel, "Couldn't find that song!")
     elif content.startswith('!addsong'):
@@ -174,6 +185,26 @@ async def on_message(message):
             conn.commit()
         else:
             await client.send_message(message.channel, 'Only leagueofcake can send add songs right now, sorry :(')
+    elif content.startswith('!search'):
+        args = parse_command_args(content)
+        search_str = ' '.join(args[1:])
+        c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ?", (search_str.lower(), search_str.lower(), search_str.lower()))
+        found = c.fetchmany(size=15)
+        results = '\nSongs found (limited to 15):\n```'
+        results += '{} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(50, ' '), 'Artist'.ljust(20, ' '), 'Album'.ljust(30, ' '))
+        if found:
+            for song in found:
+                id, name, artist, album = song[0], song[1], song[2], song[3]
+                id = str(id).ljust(4, ' ')
+                name = name.ljust(50, ' ')
+                artist = str(artist).ljust(20, ' ')
+                album = str(album).ljust(30, ' ')
+
+                formatted = "{} {} {} {}".format(id, name, artist, album)
+                results += '\n' + formatted
+            await client.send_message(message.channel, results + '```')
+        else:
+            await client.send_message(message.channel, "Couldn't find any songs!")
     # elif content.startswith('!help'):
         # tmp = await client.send_message(message.channel, cakebot_config.help_text)
         # await(asyncio.sleep(5))
