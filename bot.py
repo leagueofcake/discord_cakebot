@@ -241,7 +241,7 @@ async def on_message(message):
             tmp = await client.send_message(message.channel, cakebot_help.generate_summary())
 
         # Delete message after 5 seconds
-        await(asyncio.sleep(5))
+        await(asyncio.sleep(10))
         await client.delete_message(tmp)
     # elif content.startswith('!'):
         # tmp = await client.send_message(message.channel, 'Unknown command! Type !help for commands')
