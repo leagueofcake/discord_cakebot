@@ -238,10 +238,10 @@ async def on_message(message):
             await client.send_message(message.channel, results + '```')
         else:
             await client.send_message(message.channel, "Couldn't find any songs!")
-    # elif content.startswith('!help'):
-        # tmp = await client.send_message(message.channel, cakebot_config.help_text)
-        # await(asyncio.sleep(5))
-        # await client.delete_message(tmp)
+    elif content.startswith('!help'):
+        tmp = await client.send_message(message.channel, cakebot_config.help_text)
+        await(asyncio.sleep(5))
+        await client.delete_message(tmp)
     # elif content.startswith('!'):
         # tmp = await client.send_message(message.channel, 'Unknown command! Type !help for commands')
         # await(asyncio.sleep(5))
