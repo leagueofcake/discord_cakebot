@@ -5,6 +5,7 @@ import datetime
 import random
 import sqlite3
 import cakebot_config
+import cakebot_help
 
 client = discord.Client()
 conn = sqlite3.connect('music.db')
@@ -239,7 +240,7 @@ async def on_message(message):
         else:
             await client.send_message(message.channel, "Couldn't find any songs!")
     elif content.startswith('!help'):
-        tmp = await client.send_message(message.channel, cakebot_config.help_text)
+        tmp = await client.send_message(message.channel, cakebot_help.help_text)
         await(asyncio.sleep(5))
         await client.delete_message(tmp)
     # elif content.startswith('!'):
