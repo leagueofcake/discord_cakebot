@@ -113,9 +113,8 @@ async def on_message(message):
         args = parse_command_args(content)
         found = False
 
-        if len(args) > 2:
+        if len(args) > 1:
             keyword = args[1]
-            username = args[2]
             user_id = None
             if message.raw_mentions:
                 user_id = message.raw_mentions[0] # Find id of first mentioned user
@@ -135,7 +134,7 @@ async def on_message(message):
                 await asyncio.sleep(5)
                 await client.delete_message(not_found)
         else:
-            await client.send_message(message.channel, 'Not enough arguments! Expecting 2')
+            await client.send_message(message.channel, 'Not enough arguments! Expecting 1')
     elif content.startswith('!trollurl'):
         args = parse_command_args(content)
         url = args[1]
