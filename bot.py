@@ -215,7 +215,7 @@ async def on_message(message):
             c.execute("INSERT INTO songs (name, link) VALUES (?, ?)", song_properties)
             conn.commit()
         else:
-            await client.send_message(message.channel, 'Fill this in and PM leagueofcake: http://puu.sh/p6W2w/f576281093.csv')
+            await client.send_message(message.channel, 'Fill this in and PM leagueofcake: http://goo.gl/forms/LesR4R9oXUalDRLz2')
     elif content.startswith('!search'):
         args = parse_command_args(content)
         search_str = ' '.join(args[1:])
