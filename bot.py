@@ -182,7 +182,9 @@ async def on_message(message):
 
                         formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
                         results += '\n' + formatted
-                    await client.send_message(message.channel, results + '```')
+                    tmp = await client.send_message(message.channel, results + '```')
+                    await(asyncio.sleep(8))
+                    await client.delete_message(tmp)
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
         else:
@@ -225,7 +227,9 @@ async def on_message(message):
 
                 formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
                 results += '\n' + formatted
-            await client.send_message(message.channel, results + '```')
+            tmp = await client.send_message(message.channel, results + '```')
+            await(asyncio.sleep(8))
+            await client.delete_message(tmp)
         else:
             await client.send_message(message.channel, "Couldn't find any songs!")
     elif content.startswith('!help'):
