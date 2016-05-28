@@ -206,17 +206,7 @@ async def on_message(message):
                 await client.send_message(message.channel, "Couldn't find that song!")
 
     elif content.startswith('!addsong'):
-        if str(message.author.id) == '139345807944974336':
-            # name, artist, album, link
-            args = parse_command_args(content)
-            name, link = args[1], args[2]
-            confirm = "Adding song: {} with link {}".format(name, link)
-            await client.send_message(message.channel, confirm)
-            song_properties = (name, link)
-            c.execute("INSERT INTO songs (name, link) VALUES (?, ?)", song_properties)
-            conn.commit()
-        else:
-            await client.send_message(message.channel, 'Fill this in and PM leagueofcake: http://goo.gl/forms/LesR4R9oXUalDRLz2')
+        await client.send_message(message.channel, 'Fill this in and PM leagueofcake: http://goo.gl/forms/LesR4R9oXUalDRLz2')
     elif content.startswith('!search'):
         args = parse_command_args(content)
         search_str = ' '.join(args[1:])
