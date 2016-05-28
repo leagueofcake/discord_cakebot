@@ -63,6 +63,8 @@ async def on_message(message):
     content = message.content
     if content.startswith('!hello'):
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
+    elif content.startswith('!invite'):
+        await client.send_message(message.channel, 'Add me to your server! Click here: {}!'.format(normal_invite))
     elif content.startswith('!timedcats'):
         if str(message.author.id) == '139345807944974336':
             times = 5
