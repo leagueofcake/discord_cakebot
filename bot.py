@@ -229,7 +229,18 @@ async def on_message(message):
         else:
             await client.send_message(message.channel, "Couldn't find any songs!")
     elif content.startswith('!help'):
-        tmp = await client.send_message(message.channel, cakebot_help.help_text)
+        args = parse_command_args(content)
+        if len(args) > 1: # specific command
+            command = args[1]
+            try:
+                entry = cakebot_help.get_entry(command)
+                tmp = await client.send_message(message.channel, cakebot_help.get_entry(command))
+            except KeyError:
+                tmp = await client.send_message(message.channel, 'Command not found! Do ``!help`` for the command list.')
+        else: # command list summary
+            tmp = await client.send_message(message.channel, cakebot_help.generate_summary())
+
+        # Delete message after 5 seconds
         await(asyncio.sleep(5))
         await client.delete_message(tmp)
     # elif content.startswith('!'):
