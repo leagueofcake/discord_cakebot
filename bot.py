@@ -186,7 +186,7 @@ async def on_message(message):
         else:
             if content.startswith('!playalbum'):
                 album_name = ' '.join(args[1:])
-                c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", ('%{}%'.format(album_name.lower(),)))
+                c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", ('%{}%'.format(album_name.lower()),))
             elif content.startswith('!playid'):
                 id = args[1]
                 c.execute("SELECT * FROM songs WHERE id LIKE ?", (id,))
