@@ -170,13 +170,13 @@ async def on_message(message):
                 s = '%{}%'.format(song_name.lower())
                 c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (s, s))
                 found = c.fetchmany(size=15)
-                results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(50, ' '), 'Artist'.ljust(20, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
+                results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(45, ' '), 'Artist'.ljust(25, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
                 if found:
                     for song in found:
                         id, name, artist, album, alias = song[0], song[1], song[2], song[3], song[5]
                         id = str(id).ljust(4, ' ')
-                        name = name.ljust(50, ' ')
-                        artist = str(artist).ljust(20, ' ')
+                        name = name.ljust(45, ' ')
+                        artist = str(artist).ljust(25, ' ')
                         album = str(album).ljust(35, ' ')
                         alias = str(alias).ljust(20, ' ')
 
@@ -215,13 +215,13 @@ async def on_message(message):
         c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ? OR LOWER(alias) LIKE ?", (s, s, s, s))
         found = c.fetchmany(size=15)
         results = '\nSongs found (limited to 15):\n```'
-        results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(50, ' '), 'Artist'.ljust(20, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
+        results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(45, ' '), 'Artist'.ljust(25, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
         if found:
             for song in found:
                 id, name, artist, album, alias = song[0], song[1], song[2], song[3], song[5]
                 id = str(id).ljust(4, ' ')
-                name = name.ljust(50, ' ')
-                artist = str(artist).ljust(20, ' ')
+                name = name.ljust(45, ' ')
+                artist = str(artist).ljust(25, ' ')
                 album = str(album).ljust(35, ' ')
                 alias = str(alias).ljust(20, ' ')
 
