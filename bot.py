@@ -158,7 +158,7 @@ async def on_message(message):
             song_name = ' '.join(args[1:])
             s = '%{}%'.format(song_name.lower())
             c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (s, s))
-            found = c.fetchmany(size=15)
+            found = c.fetchmany(size=13)
 
             if len(found) == 1:
                 confirm = await client.send_message(message.channel, "~play {}".format(found[0][4]))
@@ -166,19 +166,19 @@ async def on_message(message):
                 await(asyncio.sleep(3))
                 await client.delete_message(confirm)
             elif len(found) > 1:
-                results = "\nFound multiple matches: (limited to 15). Use ``!playid <id>``\n```"
+                results = "\nFound multiple matches: (limited to 13). Use ``!playid <id>``\n```"
                 s = '%{}%'.format(song_name.lower())
                 c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (s, s))
-                found = c.fetchmany(size=15)
+                found = c.fetchmany(size=13)
                 results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(45, ' '), 'Artist'.ljust(25, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
                 if found:
                     for song in found:
                         id, name, artist, album, alias = song[0], song[1], song[2], song[3], song[5]
                         id = str(id).ljust(4, ' ')
-                        name = name.ljust(45, ' ')
-                        artist = str(artist).ljust(25, ' ')
-                        album = str(album).ljust(35, ' ')
-                        alias = str(alias).ljust(20, ' ')
+                        name = name[:45].ljust(45, ' ')
+                        artist = str(artist)[:25].ljust(25, ' ')
+                        album = str(album)[:35].ljust(35, ' ')
+                        alias = str(alias)[:20].ljust(20, ' ')
 
                         formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
                         results += '\n' + formatted
@@ -213,17 +213,17 @@ async def on_message(message):
         search_str = ' '.join(args[1:])
         s = '%{}%'.format(search_str.lower())
         c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ? OR LOWER(alias) LIKE ?", (s, s, s, s))
-        found = c.fetchmany(size=15)
-        results = '\nSongs found (limited to 15):\n```'
+        found = c.fetchmany(size=13)
+        results = '\nSongs found (limited to 13):\n```'
         results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(45, ' '), 'Artist'.ljust(25, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
         if found:
             for song in found:
                 id, name, artist, album, alias = song[0], song[1], song[2], song[3], song[5]
                 id = str(id).ljust(4, ' ')
-                name = name.ljust(45, ' ')
-                artist = str(artist).ljust(25, ' ')
-                album = str(album).ljust(35, ' ')
-                alias = str(alias).ljust(20, ' ')
+                name = name[:45].ljust(45, ' ')
+                artist = str(artist)[:25].ljust(25, ' ')
+                album = str(album)[:35].ljust(35, ' ')
+                alias = str(alias)[:20].ljust(20, ' ')
 
                 formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
                 results += '\n' + formatted
