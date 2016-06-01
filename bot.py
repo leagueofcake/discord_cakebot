@@ -207,7 +207,7 @@ async def on_message(message):
                 await client.send_message(message.channel, "Couldn't find that song!")
 
     elif content.startswith('!reqsong'):
-        await client.send_message(message.channel, 'Fill this in and PM leagueofcake: http://goo.gl/forms/LesR4R9oXUalDRLz2')
+        await client.send_message(message.channel, 'Fill this in and PM leagueofcake: http://goo.gl/forms/LesR4R9oXUalDRLz2\nOr this (multiple songs): https://puu.sh/p6W2w/f576281093.csv')
     elif content.startswith('!search'):
         args = parse_command_args(content)
         search_str = ' '.join(args[1:])
