@@ -40,6 +40,13 @@ def return_troll(url):
     elif 'http://' in url: prefix = 'http://'
     return prefix + ''.join([select_repl(x) for x in url[len(prefix):]])
 
+def find_permissions(perms, word):
+    if perms:
+        for perm in perms:
+            if word == perm:
+                return True
+    return False
+
 # @client.event
 # async def on_server_join(server):
 #     pass
@@ -64,11 +71,46 @@ async def on_message(message):
     content = message.content
     if content.startswith('!hello'):
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
+    elif content.startswith('!permissions'):
+        args = parse_command_args(content)
+        user = message.author
+        server_id = message.server.id;
+        if message.mentions:
+            user = message.mentions[0] # Find id of first mentioned user
+
+        #await client.send_message(message.channel, 'Detected: {} with id {}'.format(user, user.id))
+
+        c.execute("SELECT permissions FROM permissions WHERE user_id = ? AND server_id = ?", (user.id, server_id))
+        found = c.fetchone()
+        if len(args) == 2:
+            if found:
+                await client.send_message(message.channel, 'Permissions for {}: {}'.format(user, found))
+            else:
+                await client.send_message(message.channel, 'There are no set permissions for: {}'.format(user))
+
+        elif str(message.author.id) == '139345807944974336' and len(args) > 2:
+            if found:
+                current_perms = found[0]
+                new_perms = current_perms + ',' + ','.join(args[2:])
+                c.execute("UPDATE permissions SET permissions = ? WHERE user_id = ? AND server_id = ?", (new_perms, user.id, server_id))
+                await client.send_message(message.channel, 'Added permissions: `{}` to {}'.format(','.join(args[2:]), user))
+                conn.commit()
+            else:
+                c.execute("INSERT INTO permissions (user_id, server_id, permissions) VALUES (?, ?, ?)", (user.id, server_id, ','.join(args[2:])))
+                await client.send_message(message.channel, 'Added permissions: `{}` to {}'.format(','.join(args[2:]), user))
+                conn.commit()
+        else:
+            pass
     elif content.startswith('!musicprefix'):
         args = parse_command_args(content)
         #await client.send_message(message.channel, 'Server: {}'.format(message.server.id))
         server_id = message.server.id
+
+        c.execute("SELECT permissions FROM permissions WHERE user_id = ? AND server_id = ?", (message.author.id, message.server.id))
+        found = c.fetchone()
+
         can_manage_server = message.channel.permissions_for(message.author).manage_server
+        has_musicprefix_perm = find_permissions(found, 'musicprefix')
 
         if len(args) == 1:
             c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
@@ -83,7 +125,7 @@ async def on_message(message):
                 await client.delete_message(tmp)
         else:
             # tmp = await client.send_message(message.channel, 'Can update music prefix: {}'.format(can_manage_server))#.can_manage_server(message.author)))
-            if can_manage_server:
+            if can_manage_server or has_musicprefix_perm:
                 prefix = ' '.join(args[1:])
 
                 c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
@@ -263,7 +305,7 @@ async def on_message(message):
                 await client.send_message(message.channel, "Couldn't find that song!")
 
     elif content.startswith('!reqsong'):
-        await client.send_message(message.channel, 'Fill this in and PM leagueofcake: http://goo.gl/forms/LesR4R9oXUalDRLz2\nOr this (multiple songs): https://puu.sh/p6W2w/f576281093.csv')
+        await client.send_message(message.channel, '\nFill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
     elif content.startswith('!search'):
         args = parse_command_args(content)
         search_str = ' '.join(args[1:])
