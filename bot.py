@@ -1,3 +1,4 @@
+import sys
 import discord
 import asyncio
 import requests
@@ -71,6 +72,12 @@ async def on_message(message):
     content = message.content
     if content.startswith('!hello'):
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
+    if content.startswith('!bye'):
+        if str(message.author.id) == '139345807944974336':
+            await client.send_message(message.channel, 'Logging out, bye!')
+            sys.exit()
+        else:
+            await client.send_message(message.channel, 'I\'m not going anywhere!')
     elif content.startswith('!permissions'):
         args = parse_command_args(content)
         user = message.author
