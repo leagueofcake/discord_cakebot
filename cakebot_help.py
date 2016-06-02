@@ -52,7 +52,7 @@ playid_desc = 'Queues music by id\n' \
               'Variant of !play: to see other variants do !help play'
 playid_usage = '!playid <id>\n' \
                '<id> - number, can be found with !search <keyword>\n\n' \
-               'Example: !play 315'
+               'Example: !playid 316'
 playid_help = help_entry('!playid', playid_desc, playid_usage)
 
 playalbum_desc = 'Queues an entire album\n' \
