@@ -8,7 +8,7 @@ import cakebot_config
 import cakebot_help
 
 client = discord.Client()
-conn = sqlite3.connect('music.db')
+conn = sqlite3.connect('cakebot.db')
 c = conn.cursor()
 
 invite = 'https://discordapp.com/oauth2/authorize?client_id=178312661233172480&scope=bot&permissions=66186303'
