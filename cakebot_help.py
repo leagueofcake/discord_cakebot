@@ -85,6 +85,14 @@ invite_desc = 'Generates a link to invite cakebot to your server'
 invite_usage = '!invite\n'
 invite_help = help_entry('!invite', invite_desc, invite_usage)
 
+musicprefix_desc = 'Sets the prefix for queueing music for your server\'s music bot.'
+musicprefix_usage = '!musicprefix - displays the current prefix set for the server\n' \
+                    '!musicprefix <prefix>\n' \
+                    'Sets the music prefix to <prefix>. Requires manage_server permission.\n' \
+                    '<prefix> - can be multiple words.\n\n' \
+                    'Example: !musicprefix ~play, !musicprefix ! lm play'
+musicprefix_help = help_entry('!musicprefix', musicprefix_desc, musicprefix_usage)
+
 help_desc = 'Displays this message.'
 help_usage = '!help'
 help_help = help_entry('!help', help_desc, help_usage)
@@ -102,6 +110,7 @@ help_dict = {
                 'google':    google_help,
                 'trollurl':  trollurl_help,
                 'invite':    invite_help,
+                'musicprefix': musicprefix_help
             }
 
 # Interface functions
