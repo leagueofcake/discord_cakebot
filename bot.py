@@ -289,25 +289,26 @@ async def on_message(message):
             elif content.startswith('!playid'):
                 id = args[1]
                 c.execute("SELECT * FROM songs WHERE id LIKE ?", (id,))
-                found = c.fetchmany(size=15)
-                server_id = message.server.id
 
-                if found:
-                    for song in found:
-                        #await client.send_message(message.channel, found)
-                        # Find music_prefix in db
-                        c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
-                        prefix = c.fetchone()
-                        if prefix:
-                            prefix = prefix[0]
-                            confirm = await client.send_message(message.channel, "{} {}".format(prefix, song[4]))
-                            await client.send_message(message.channel, "{} queued: {}".format(message.author, song[1]))
-                            await(asyncio.sleep(3))
-                            await client.delete_message(confirm)
-                        else:
-                            tmp = await client.send_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
-                            await(asyncio.sleep(5))
-                            await client.delete_message(tmp)
+            found = c.fetchmany(size=15)
+            server_id = message.server.id
+
+            if found:
+                for song in found:
+                    #await client.send_message(message.channel, found)
+                    # Find music_prefix in db
+                    c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
+                    prefix = c.fetchone()
+                    if prefix:
+                        prefix = prefix[0]
+                        confirm = await client.send_message(message.channel, "{} {}".format(prefix, song[4]))
+                        await client.send_message(message.channel, "{} queued: {}".format(message.author, song[1]))
+                        await(asyncio.sleep(3))
+                        await client.delete_message(confirm)
+                    else:
+                        tmp = await client.send_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
+                        await(asyncio.sleep(5))
+                        await client.delete_message(tmp)
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
 
