@@ -1,5 +1,4 @@
 import asyncio
-import random
 import sqlite3
 import sys
 
@@ -9,27 +8,11 @@ import requests
 import cakebot_config
 import cakebot_help
 from modules.helpers import parse_command_args, is_integer
+from modules.troll import return_troll
 
 client = discord.Client()
 conn = sqlite3.connect(cakebot_config.DB_PATH)
 c = conn.cursor()
-
-
-def select_repl(char):
-    try:
-        weight = 8
-        key = int(random.random() * (len(cakebot_config.repl_dict[char]) + weight))
-        if key < weight + 1: return cakebot_config.repl_dict[char][0] # Below weight, key equals 0 (key for first/default character)
-        else: return cakebot_config.repl_dict[char][key - weight]
-    except KeyError: # Return original char if char not found in dict
-        return char
-
-
-def return_troll(url):
-    prefix = ''
-    if 'https://' in url: prefix = 'https://'
-    elif 'http://' in url: prefix = 'http://'
-    return prefix + ''.join([select_repl(x) for x in url[len(prefix):]])
 
 
 def find_permissions(perms, word):
