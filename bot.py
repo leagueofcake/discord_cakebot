@@ -31,7 +31,7 @@ async def on_message(message):
     if content.startswith('!hello'):
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
     if content.startswith('!bye'):
-        if str(message.author.id) == '139345807944974336':
+        if str(message.author.id) == cakebot_config.OWNER_ID:
             await client.send_message(message.channel, 'Logging out, bye!')
             sys.exit()
         else:
@@ -52,7 +52,7 @@ async def on_message(message):
                 await client.send_message(message.channel, 'Permissions for {}: {}'.format(user, perms))
             else:
                 await client.send_message(message.channel, 'There are no set permissions for: {}'.format(user))
-        elif str(message.author.id) == '139345807944974336' and len(args) > 2:
+        elif str(message.author.id) == cakebot_config.OWNER_ID and len(args) > 2:
             add_perms = args[2:]
             if perms:
                 current_perms = perms[0]
@@ -91,7 +91,7 @@ async def on_message(message):
     elif content.startswith('!invite'):
         await client.send_message(message.channel, 'Add me to your server! Click here: {}!'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif content.startswith('!timedcats'):
-        if str(message.author.id) == '139345807944974336':
+        if str(message.author.id) == cakebot_config.OWNER_ID:
             times = 5
             duration_str = 'm'
 
