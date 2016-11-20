@@ -8,7 +8,7 @@ import requests
 import cakebot_config
 import cakebot_help
 from modules.helpers import parse_command_args, is_integer, temp_message
-from modules.troll import return_troll
+from modules.misc import return_troll
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
 
