@@ -36,16 +36,19 @@ async def on_message(message):
             await client.send_message(message.channel, 'I\'m not going anywhere!')
     elif content.startswith('!permissions'):
         args = parse_command_args(content)
-        user = message.author
-        server_id = message.server.id;
+        server_id = message.server.id
+
+        # Gets permissions for mentioned user if given, otherwise gets permissions of calling user
         if message.mentions:
-            user = message.mentions[0] # Find id of first mentioned user
+            user = message.mentions[0]  # Find id of first mentioned user
+        else:
+            user = message.author
 
         # await client.send_message(message.channel, 'Detected: {} with id {}'.format(user, user.id))
 
         c.execute("SELECT permissions FROM permissions WHERE user_id = ? AND server_id = ?", (user.id, server_id))
         found = c.fetchone()
-        if len(args) == 2:
+        if len(args) == 1 or len(args) == 2:
             if found:
                 await client.send_message(message.channel, 'Permissions for {}: {}'.format(user, found))
             else:
