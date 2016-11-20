@@ -2,7 +2,6 @@ import sys
 import discord
 import asyncio
 import requests
-import datetime
 import random
 import sqlite3
 import cakebot_config
@@ -12,12 +11,10 @@ client = discord.Client()
 conn = sqlite3.connect('cakebot.db')
 c = conn.cursor()
 
-invite = 'https://discordapp.com/oauth2/authorize?client_id=178312661233172480&scope=bot&permissions=66186303'
-normal_invite = 'https://discordapp.com/oauth2/authorize?client_id=178312661233172480&scope=bot&permissions=67356673'
 
 def parse_command_args(command):
-    splitted = command.split(' ')
-    return splitted
+    return command.split(' ')
+
 
 def is_integer(text):
     try:
@@ -25,6 +22,7 @@ def is_integer(text):
         return True
     except ValueError:
         return False
+
 
 def select_repl(char):
     try:
@@ -35,11 +33,13 @@ def select_repl(char):
     except KeyError: # Return original char if char not found in dict
         return char
 
+
 def return_troll(url):
     prefix = ''
     if 'https://' in url: prefix = 'https://'
     elif 'http://' in url: prefix = 'http://'
     return prefix + ''.join([select_repl(x) for x in url[len(prefix):]])
+
 
 def find_permissions(perms, word):
     if perms:
@@ -56,6 +56,7 @@ def find_permissions(perms, word):
 #         if str(channel.type) == 'text':
 #             await client.send_message(channel, 'Hi everyone!')
 
+
 @client.event
 async def on_ready():
     print('Logged in as')
@@ -66,6 +67,7 @@ async def on_ready():
     # for channel in channels:
     #     if str(channel.type) == 'text':
     #         await client.send_message(channel, 'Hi everyone! I\'m online now!')
+
 
 @client.event
 async def on_message(message):
@@ -151,7 +153,7 @@ async def on_message(message):
                 await client.delete_message(tmp)
 
     elif content.startswith('!invite'):
-        await client.send_message(message.channel, 'Add me to your server! Click here: {}!'.format(normal_invite))
+        await client.send_message(message.channel, 'Add me to your server! Click here: {}!'.format(cakebot_config.normal_invite_link))
     elif content.startswith('!timedcats'):
         if str(message.author.id) == '139345807944974336':
             times = 5

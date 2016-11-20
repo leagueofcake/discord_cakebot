@@ -1,5 +1,8 @@
 token = 'YOUR TOKEN HERE'
 
+privileged_invite_link = 'LINK HERE'
+normal_invite_link = 'LINK HERE'
+
 time_map = {
     'm': (60, 'minute', 'minutes'),
     'h': (3600, 'hour', 'hours')
