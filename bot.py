@@ -6,22 +6,11 @@ import random
 import sqlite3
 import cakebot_config
 import cakebot_help
+from helpers import parse_command_args, is_integer
 
 client = discord.Client()
 conn = sqlite3.connect('cakebot.db')
 c = conn.cursor()
-
-
-def parse_command_args(command):
-    return command.split(' ')
-
-
-def is_integer(text):
-    try:
-        int(text)
-        return True
-    except ValueError:
-        return False
 
 
 def select_repl(char):
@@ -87,7 +76,7 @@ async def on_message(message):
         if message.mentions:
             user = message.mentions[0] # Find id of first mentioned user
 
-        #await client.send_message(message.channel, 'Detected: {} with id {}'.format(user, user.id))
+        # await client.send_message(message.channel, 'Detected: {} with id {}'.format(user, user.id))
 
         c.execute("SELECT permissions FROM permissions WHERE user_id = ? AND server_id = ?", (user.id, server_id))
         found = c.fetchone()
@@ -112,7 +101,7 @@ async def on_message(message):
             pass
     elif content.startswith('!musicprefix'):
         args = parse_command_args(content)
-        #await client.send_message(message.channel, 'Server: {}'.format(message.server.id))
+        # await client.send_message(message.channel, 'Server: {}'.format(message.server.id))
         server_id = message.server.id
 
         c.execute("SELECT permissions FROM permissions WHERE user_id = ? AND server_id = ?", (message.author.id, message.server.id))
@@ -205,18 +194,18 @@ async def on_message(message):
             keyword = args[1]
             user_id = None
             if message.raw_mentions:
-                user_id = message.raw_mentions[0] # Find id of first mentioned user
+                user_id = message.raw_mentions[0]  # Find id of first mentioned user
 
             async for log in client.logs_from(message.channel, limit=500):
                 if keyword.lower() in log.content.lower() and log.id != message.id and log.author != client.user:
-                    if user_id == None or log.author.id == user_id:
+                    if user_id is None or log.author.id == user_id:
                         try:
                             timestamp = log.timestamp.strftime('%H:%M, %d/%m/%Y')
                             await client.send_message(message.channel, '{} said at {}:\n```{}```'.format(log.author, timestamp, log.clean_content))
                             found = True
                         except:
                             print('Untranslatable message')
-                        break # terminate after finding first message
+                        break  # terminate after finding first message
             if not found:
                 not_found = await client.send_message(message.channel, 'Couldn\'t find message!')
                 await asyncio.sleep(5)
@@ -238,7 +227,7 @@ async def on_message(message):
         room = message.channel_mentions[0]
         tmp = await client.send_message(room, '`{}` redirected:'.format(message.author))
         tmp = await client.send_message(room, ' '.join(args[2:]))
-        #await asyncio.sleep(3)
+        # await asyncio.sleep(3)
         await client.delete_message(message)
     elif content.startswith('!play'): # Play song by title
         args = parse_command_args(content)
@@ -297,7 +286,7 @@ async def on_message(message):
 
             if found:
                 for song in found:
-                    #await client.send_message(message.channel, found)
+                    # await client.send_message(message.channel, found)
                     # Find music_prefix in db
                     c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
                     prefix = c.fetchone()
@@ -345,7 +334,6 @@ async def on_message(message):
         if len(args) > 1: # specific command
             command = args[1]
             try:
-                entry = cakebot_help.get_entry(command)
                 tmp = await client.send_message(message.channel, cakebot_help.get_entry(command))
             except KeyError:
                 tmp = await client.send_message(message.channel, 'Command not found! Do ``!help`` for the command list.')
