@@ -8,3 +8,11 @@ def is_integer(text):
         return True
     except ValueError:
         return False
+
+
+def find_permissions(perms, word):
+    if perms:
+        for perm in perms:
+            if word == perm:
+                return True
+    return False

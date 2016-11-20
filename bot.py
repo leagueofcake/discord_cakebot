@@ -7,20 +7,13 @@ import requests
 
 import cakebot_config
 import cakebot_help
-from modules.helpers import parse_command_args, is_integer
+from modules.helpers import parse_command_args, is_integer, find_permissions
 from modules.troll import return_troll
 
 client = discord.Client()
 conn = sqlite3.connect(cakebot_config.DB_PATH)
 c = conn.cursor()
 
-
-def find_permissions(perms, word):
-    if perms:
-        for perm in perms:
-            if word == perm:
-                return True
-    return False
 
 # @client.event
 # async def on_server_join(server):
