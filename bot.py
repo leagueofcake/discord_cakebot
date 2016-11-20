@@ -7,7 +7,7 @@ import requests
 
 import cakebot_config
 import cakebot_help
-from modules.helpers import parse_command_args, is_integer
+from modules.helpers import parse_command_args, is_integer, temp_message
 from modules.troll import return_troll
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
@@ -73,13 +73,9 @@ async def on_message(message):
         music_prefix = get_music_prefix(c, message.server.id)
         if len(args) == 1:
             if music_prefix:
-                tmp = await client.send_message(message.channel, 'Current music prefix for this server is: `{}`'.format(music_prefix[0]))
-                await(asyncio.sleep(5))
-                await client.delete_message(tmp)
+                await temp_message(client, message.channel, 'Current music prefix for this server is: `{}`'.format(music_prefix[0]))
             else:
-                tmp = await client.send_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
-                await(asyncio.sleep(5))
-                await client.delete_message(tmp)
+                await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
         else:
             if can_manage_server or has_musicprefix_perm:
                 new_prefix = ' '.join(args[1:])
@@ -91,10 +87,7 @@ async def on_message(message):
                     await client.send_message(message.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
                 conn.commit()
             else:
-                tmp = await client.send_message(message.channel, 'You don\'t have the permissions to do that! Message a moderator to change it.')
-                await(asyncio.sleep(5))
-                await client.delete_message(tmp)
-
+                await temp_message(client, message.channel, 'You don\'t have the permissions to do that! Message a moderator to change it.')
     elif content.startswith('!invite'):
         await client.send_message(message.channel, 'Add me to your server! Click here: {}!'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif content.startswith('!timedcats'):
@@ -161,9 +154,7 @@ async def on_message(message):
                             print('Untranslatable message')
                         break  # terminate after finding first message
             if not found:
-                not_found = await client.send_message(message.channel, 'Couldn\'t find message!')
-                await asyncio.sleep(5)
-                await client.delete_message(not_found)
+                await temp_message(client, message.channel, 'Couldn\'t find message!')
         else:
             await client.send_message(message.channel, 'Not enough arguments! Expecting 1')
     elif content.startswith('!trollurl'):
@@ -179,9 +170,8 @@ async def on_message(message):
     elif content.startswith('!redirect'):
         args = parse_command_args(content)
         room = message.channel_mentions[0]
-        tmp = await client.send_message(room, '`{}` redirected:'.format(message.author))
-        tmp = await client.send_message(room, ' '.join(args[2:]))
-        # await asyncio.sleep(3)
+        await client.send_message(room, '`{}` redirected:'.format(message.author))
+        await client.send_message(room, ' '.join(args[2:]))
         await client.delete_message(message)
     elif content.startswith('!play'): # Play song by title
         args = parse_command_args(content)
@@ -197,14 +187,10 @@ async def on_message(message):
                 prefix = c.fetchone()
                 if prefix:
                     prefix = prefix[0]
-                    confirm = await client.send_message(message.channel, "{} {}".format(prefix, found[0][4]))
-                    await client.send_message(message.channel, "{} queued: {}".format(message.author, found[0][1]))
-                    await(asyncio.sleep(3))
-                    await client.delete_message(confirm)
+                    await temp_message(client, message.channel, '{} {}'.format(prefix, found[0][4]))
+                    await client.send_message(message.channel, '{} queued: {}'.format(message.author, found[0][1]))
                 else:
-                    tmp = await client.send_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
-                    await(asyncio.sleep(5))
-                    await client.delete_message(tmp)
+                    await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
             elif len(found) > 1:
                 results = "\nFound multiple matches: (limited to 13). Use ``!playid <id>``\n```"
                 s = '%{}%'.format(song_name.lower())
@@ -222,9 +208,7 @@ async def on_message(message):
 
                         formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
                         results += '\n' + formatted
-                    tmp = await client.send_message(message.channel, results + '```')
-                    await(asyncio.sleep(8))
-                    await client.delete_message(tmp)
+                    await temp_message(client, message.channel, results + '```', time=8)
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
         else:
@@ -246,14 +230,10 @@ async def on_message(message):
                     prefix = c.fetchone()
                     if prefix:
                         prefix = prefix[0]
-                        confirm = await client.send_message(message.channel, "{} {}".format(prefix, song[4]))
-                        await client.send_message(message.channel, "{} queued: {}".format(message.author, song[1]))
-                        await(asyncio.sleep(3))
-                        await client.delete_message(confirm)
+                        await temp_message(client, message.channel, '{} {}'.format(prefix, song[4]), time=3)
+                        await client.send_message(message.channel, '{} queued: {}'.format(message.author, song[1]))
                     else:
-                        tmp = await client.send_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
-                        await(asyncio.sleep(5))
-                        await client.delete_message(tmp)
+                        await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
 
@@ -278,28 +258,20 @@ async def on_message(message):
 
                 formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
                 results += '\n' + formatted
-            tmp = await client.send_message(message.channel, results + '```')
-            await(asyncio.sleep(8))
-            await client.delete_message(tmp)
+            await temp_message(client, message.channel, results + '```', time=8)
         else:
             await client.send_message(message.channel, "Couldn't find any songs!")
     elif content.startswith('!help'):
         args = parse_command_args(content)
-        if len(args) > 1: # specific command
+        if len(args) > 1:  # specific command
             command = args[1]
             try:
-                tmp = await client.send_message(message.channel, cakebot_help.get_entry(command))
+                await temp_message(client, message.channel, cakebot_help.get_entry(command), time=10)
             except KeyError:
-                tmp = await client.send_message(message.channel, 'Command not found! Do ``!help`` for the command list.')
-        else: # command list summary
-            tmp = await client.send_message(message.channel, cakebot_help.generate_summary())
-
-        # Delete message after 5 seconds
-        await(asyncio.sleep(10))
-        await client.delete_message(tmp)
+                await temp_message(client, message.channel, 'Command not found! Do ``!help`` for the command list.', time=10)
+        else:  # command list summary
+            await temp_message(client, message.channel, cakebot_help.generate_summary(), time=10)
     # elif content.startswith('!'):
-        # tmp = await client.send_message(message.channel, 'Unknown command! Type !help for commands')
-        # await(asyncio.sleep(5))
-        # await client.delete_message(tmp)
+        # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
 client.run(cakebot_config.TOKEN)
