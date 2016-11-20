@@ -7,9 +7,9 @@ import requests
 
 import cakebot_config
 import cakebot_help
-from modules.helpers import parse_command_args, is_integer, find_permissions
+from modules.helpers import parse_command_args, is_integer
 from modules.troll import return_troll
-from modules.permissions import get_permissions, set_permissions, update_permissions
+from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions
 
 client = discord.Client()
 conn = sqlite3.connect(cakebot_config.DB_PATH)
@@ -64,17 +64,14 @@ async def on_message(message):
             await client.send_message(message.channel, add_message)
     elif content.startswith('!musicprefix'):
         args = parse_command_args(content)
-        # await client.send_message(message.channel, 'Server: {}'.format(message.server.id))
-        server_id = message.server.id
 
-        c.execute("SELECT permissions FROM permissions WHERE user_id = ? AND server_id = ?", (message.author.id, message.server.id))
-        found = c.fetchone()
+        perms = get_permissions(c, message.author.id, message.server.id)
 
         can_manage_server = message.channel.permissions_for(message.author).manage_server
-        has_musicprefix_perm = find_permissions(found, 'musicprefix')
+        has_musicprefix_perm = find_permissions(perms, 'musicprefix')
 
         if len(args) == 1:
-            c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
+            c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (message.server.id, ))
             found = c.fetchone()
             if found:
                 tmp = await client.send_message(message.channel, 'Current music prefix for this server is: `{}`'.format(found[0]))
@@ -89,14 +86,14 @@ async def on_message(message):
             if can_manage_server or has_musicprefix_perm:
                 prefix = ' '.join(args[1:])
 
-                c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
+                c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (message.server.id, ))
                 found = c.fetchone()
                 if found:
-                    c.execute("UPDATE music_prefix SET prefix = ? WHERE server_id = ?", (prefix, server_id))
+                    c.execute("UPDATE music_prefix SET prefix = ? WHERE server_id = ?", (prefix, message.server.id))
                     conn.commit()
                     await client.send_message(message.channel, 'Updated music prefix for this server to: `{}`'.format(prefix))
                 else:
-                    c.execute("INSERT INTO music_prefix(server_id, prefix) VALUES (?, ?)", (server_id, prefix))
+                    c.execute("INSERT INTO music_prefix(server_id, prefix) VALUES (?, ?)", (message.server.id, prefix))
                     conn.commit()
                     await client.send_message(message.channel, 'Set music prefix for this server to: `{}`'.format(prefix))
             else:
