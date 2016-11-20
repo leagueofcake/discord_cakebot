@@ -1,6 +1,7 @@
 import asyncio
 import sqlite3
 import sys
+from datetime import datetime
 
 import discord
 import requests
@@ -11,6 +12,7 @@ from modules.helpers import is_integer, temp_message
 from modules.misc import return_troll
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
+from modules.logging import get_log_channel_id, add_log_channel, update_log_channel, get_log_channel
 
 client = discord.Client()
 conn = sqlite3.connect(cakebot_config.DB_PATH)
@@ -261,7 +263,63 @@ async def on_message(message):
                 await temp_message(client, message.channel, 'Command not found! Do ``!help`` for the command list.', time=10)
         else:  # command list summary
             await temp_message(client, message.channel, cakebot_help.generate_summary(), time=10)
+    elif content.startswith('!logchannel'):
+        perms = get_permissions(c, message.author.id, message.server.id)
+        can_manage_server = message.channel.permissions_for(message.author).manage_server
+        has_logchannel_perm = find_permissions(perms, 'logchannel')
+
+        logchannel = get_log_channel_id(c, message.server.id)
+        if len(args) == 1:
+            if logchannel:
+                await temp_message(client, message.channel,
+                                   'Log channel is: `{}`'.format(logchannel[0]))
+            else:
+                await temp_message(client, message.channel,
+                                   'No log channel configured! Add one with `!logchannel set`')
+        else:
+            if len(args) == 2:
+                if args[1] == 'set':
+                    if can_manage_server or has_logchannel_perm:
+                        if logchannel:
+                            update_log_channel(c, message.server.id, message.channel.id)
+                        else:
+                            add_log_channel(c, message.server.id, message.channel.id)
+                        await client.send_message(message.channel, 'Set {} as the log channel!'.format(message.channel.mention))
+                        conn.commit()
+                    else:
+                        await temp_message(client, message.channel,
+                                           'You don\'t have the permissions to do that! Message a moderator to change it.')
     # elif content.startswith('!'):
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
+
+
+# Logging functionality
+@client.event
+async def on_message_edit(before, after):
+    log_channel = get_log_channel(c, before.server)
+    author = before.author
+
+    if author.id != client.user.id and log_channel:
+        before_content = before.content
+        after_content = after.content
+
+        local_message_time = datetime.now().strftime("%H:%M:%S")
+        channel_name = before.channel.mention
+        username = '{}#{}'.format(author.display_name, author.discriminator)
+        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter: {}'.format(local_message_time, username, channel_name, before_content, after_content))
+
+
+@client.event
+async def on_message_delete(message):
+    log_channel = get_log_channel(c, message.server)
+    author = message.author
+
+    if author.id != client.user.id and log_channel:
+        content = message.content
+        local_message_time = datetime.now().strftime("%H:%M:%S")
+        channel_name = message.channel.mention
+        username = '{}#{}'.format(author.display_name, author.discriminator)
+        await client.send_message(log_channel, '[{}] {} *deleted their message in* {}\n{}'.format(local_message_time, username, channel_name, content))
+
 
 client.run(cakebot_config.TOKEN)
