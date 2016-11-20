@@ -1,7 +1,9 @@
-token = 'YOUR TOKEN HERE'
+TOKEN = 'YOUR TOKEN HERE'
 
-privileged_invite_link = 'LINK HERE'
-normal_invite_link = 'LINK HERE'
+DB_PATH = 'cakebot.db'
+
+PRIVILEGED_INVITE_LINK  = 'LINK HERE'
+NORMAL_INVITE_LINK = 'LINK HERE'
 
 time_map = {
     'm': (60, 'minute', 'minutes'),

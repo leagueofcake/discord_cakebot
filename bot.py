@@ -11,7 +11,7 @@ import cakebot_help
 from modules.helpers import parse_command_args, is_integer
 
 client = discord.Client()
-conn = sqlite3.connect('cakebot.db')
+conn = sqlite3.connect(cakebot_config.DB_PATH)
 c = conn.cursor()
 
 
@@ -144,7 +144,7 @@ async def on_message(message):
                 await client.delete_message(tmp)
 
     elif content.startswith('!invite'):
-        await client.send_message(message.channel, 'Add me to your server! Click here: {}!'.format(cakebot_config.normal_invite_link))
+        await client.send_message(message.channel, 'Add me to your server! Click here: {}!'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif content.startswith('!timedcats'):
         if str(message.author.id) == '139345807944974336':
             times = 5
@@ -350,4 +350,4 @@ async def on_message(message):
         # await(asyncio.sleep(5))
         # await client.delete_message(tmp)
 
-client.run(cakebot_config.token)
+client.run(cakebot_config.TOKEN)
