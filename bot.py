@@ -299,7 +299,7 @@ async def on_message_edit(before, after):
     log_channel = get_log_channel(c, before.server)
     author = before.author
 
-    if author.id != client.user.id and log_channel:
+    if log_channel:
         before_content = before.content
         after_content = after.content
 
@@ -314,7 +314,7 @@ async def on_message_delete(message):
     log_channel = get_log_channel(c, message.server)
     author = message.author
 
-    if author.id != client.user.id and log_channel:
+    if log_channel:
         content = message.content
         local_message_time = datetime.now().strftime("%H:%M:%S")
         channel_name = message.channel.mention
