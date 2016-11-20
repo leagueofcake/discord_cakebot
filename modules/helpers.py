@@ -1,10 +1,6 @@
 import asyncio
 
 
-def parse_command_args(command):
-    return command.split(' ')
-
-
 def is_integer(text):
     try:
         int(text)
