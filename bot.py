@@ -90,7 +90,7 @@ async def on_message(message):
             else:
                 await temp_message(client, message.channel, 'You don\'t have the permissions to do that! Message a moderator to change it.')
     elif content.startswith('!invite'):
-        await client.send_message(message.channel, 'Add me to your server! Click here: {}!'.format(cakebot_config.NORMAL_INVITE_LINK))
+        await client.send_message(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif content.startswith('!timedcats'):
         if str(message.author.id) == cakebot_config.OWNER_ID:
             times = 5
@@ -306,7 +306,7 @@ async def on_message_edit(before, after):
         local_message_time = datetime.now().strftime("%H:%M:%S")
         channel_name = before.channel.mention
         username = '{}#{}'.format(author.display_name, author.discriminator)
-        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter: {}'.format(local_message_time, username, channel_name, before_content, after_content))
+        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter+: {}'.format(local_message_time, username, channel_name, before_content, after_content))
 
 
 @client.event
