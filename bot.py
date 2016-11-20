@@ -15,25 +15,12 @@ conn = sqlite3.connect(cakebot_config.DB_PATH)
 c = conn.cursor()
 
 
-# @client.event
-# async def on_server_join(server):
-#     pass
-#     channels = client.get_all_channels()
-#     for channel in channels:
-#         if str(channel.type) == 'text':
-#             await client.send_message(channel, 'Hi everyone!')
-
-
 @client.event
 async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
-    # channels = client.get_all_channels()
-    # for channel in channels:
-    #     if str(channel.type) == 'text':
-    #         await client.send_message(channel, 'Hi everyone! I\'m online now!')
 
 
 @client.event
