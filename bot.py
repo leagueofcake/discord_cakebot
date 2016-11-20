@@ -9,6 +9,7 @@ import cakebot_config
 import cakebot_help
 from modules.helpers import parse_command_args, is_integer, find_permissions
 from modules.troll import return_troll
+from modules.permissions import get_permissions, set_permissions, update_permissions
 
 client = discord.Client()
 conn = sqlite3.connect(cakebot_config.DB_PATH)
@@ -36,37 +37,31 @@ async def on_message(message):
             await client.send_message(message.channel, 'I\'m not going anywhere!')
     elif content.startswith('!permissions'):
         args = parse_command_args(content)
-        server_id = message.server.id
 
-        # Gets permissions for mentioned user if given, otherwise gets permissions of calling user
+        # Gets permissions for mentioned user if given, otherwise defaults to calling user
+        user = message.author
         if message.mentions:
             user = message.mentions[0]  # Find id of first mentioned user
-        else:
-            user = message.author
 
         # await client.send_message(message.channel, 'Detected: {} with id {}'.format(user, user.id))
 
-        c.execute("SELECT permissions FROM permissions WHERE user_id = ? AND server_id = ?", (user.id, server_id))
-        found = c.fetchone()
+        perms = get_permissions(c, user.id, message.server.id)
         if len(args) == 1 or len(args) == 2:
-            if found:
-                await client.send_message(message.channel, 'Permissions for {}: {}'.format(user, found))
+            if perms:
+                await client.send_message(message.channel, 'Permissions for {}: {}'.format(user, perms))
             else:
                 await client.send_message(message.channel, 'There are no set permissions for: {}'.format(user))
-
         elif str(message.author.id) == '139345807944974336' and len(args) > 2:
-            if found:
-                current_perms = found[0]
-                new_perms = current_perms + ',' + ','.join(args[2:])
-                c.execute("UPDATE permissions SET permissions = ? WHERE user_id = ? AND server_id = ?", (new_perms, user.id, server_id))
-                await client.send_message(message.channel, 'Added permissions: `{}` to {}'.format(','.join(args[2:]), user))
-                conn.commit()
+            add_perms = args[2:]
+            if perms:
+                current_perms = perms[0]
+                new_perms = current_perms + ',' + ','.join(add_perms)
+                update_permissions(c, user.id, message.server.id, new_perms)
             else:
-                c.execute("INSERT INTO permissions (user_id, server_id, permissions) VALUES (?, ?, ?)", (user.id, server_id, ','.join(args[2:])))
-                await client.send_message(message.channel, 'Added permissions: `{}` to {}'.format(','.join(args[2:]), user))
-                conn.commit()
-        else:
-            pass
+                set_permissions(c, user.id, message.server.id, add_perms)
+            conn.commit()
+            add_message = 'Added permissions: `{}` to {}'.format(','.join(add_perms), user)
+            await client.send_message(message.channel, add_message)
     elif content.startswith('!musicprefix'):
         args = parse_command_args(content)
         # await client.send_message(message.channel, 'Server: {}'.format(message.server.id))
