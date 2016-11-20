@@ -1,12 +1,14 @@
-import sys
-import discord
 import asyncio
-import requests
 import random
 import sqlite3
+import sys
+
+import discord
+import requests
+
 import cakebot_config
 import cakebot_help
-from helpers import parse_command_args, is_integer
+from modules.helpers import parse_command_args, is_integer
 
 client = discord.Client()
 conn = sqlite3.connect('cakebot.db')
