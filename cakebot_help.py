@@ -88,10 +88,16 @@ invite_help = help_entry('!invite', invite_desc, invite_usage)
 musicprefix_desc = 'Sets the prefix for queueing music for your server\'s music bot.'
 musicprefix_usage = '!musicprefix - displays the current prefix set for the server\n' \
                     '!musicprefix <prefix>\n' \
-                    'Sets the music prefix to <prefix>. Requires manage_server permission.\n' \
+                    'Sets the music prefix to <prefix>. Requires manage_server or musicprefix permission.\n' \
                     '<prefix> - can be multiple words.\n\n' \
                     'Example: !musicprefix ~play, !musicprefix ! lm play'
 musicprefix_help = help_entry('!musicprefix', musicprefix_desc, musicprefix_usage)
+
+logchannel_desc = 'Sets the channel for logging output.'
+logchannel_usage = '!logchannel - displays the current channel for logging output\n' \
+                   '!logchannel set - sets the current channel as the logging channel. Requires manage_server ' \
+                   'or logchannel permission.'
+logchannel_help = help_entry('!logchannel', logchannel_desc, logchannel_usage)
 
 help_desc = 'Displays this message.'
 help_usage = '!help'
@@ -110,7 +116,8 @@ help_dict = {
                 'google':    google_help,
                 'trollurl':  trollurl_help,
                 'invite':    invite_help,
-                'musicprefix': musicprefix_help
+                'musicprefix': musicprefix_help,
+                'logchannel': logchannel_help
             }
 
 # Interface functions
