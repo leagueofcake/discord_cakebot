@@ -99,6 +99,16 @@ logchannel_usage = '!logchannel - displays the current channel for logging outpu
                    'or logchannel permission.'
 logchannel_help = help_entry('!logchannel', logchannel_desc, logchannel_usage)
 
+permissions_desc = 'Gets or sets the cakebot permissions for a given user.'
+permissions_usage = 'NOTE: This does NOT set server permissions but only permissions for cakebot commands.' \
+                    'Permissions are required for: !musicprefix (set), !permissions (set), !logchannel (set)' \
+                    '!permissions - displays your current cakebot permissions.\n' \
+                    '!permissions <user mention> - displays current cakebot permissions for the mentioned user.\n' \
+                    '!permissions <user mention> <command|commands> - add permissions to the given user. Requires' \
+                    'manage_server permission.' \
+                    'Example: !permissions @Clyde#1234 musicprefix, !permissions @Clyde#1234 musicprefix logchannel'
+permissions_help = help_entry('!permissions', permissions_desc, permissions_usage)
+
 help_desc = 'Displays this message.'
 help_usage = '!help'
 help_help = help_entry('!help', help_desc, help_usage)
@@ -117,12 +127,14 @@ help_dict = {
                 'trollurl':  trollurl_help,
                 'invite':    invite_help,
                 'musicprefix': musicprefix_help,
-                'logchannel': logchannel_help
+                'logchannel': logchannel_help,
+                'permissions': permissions_help
             }
 
 # Interface functions
 def get_entry(name):
     return help_dict[name].get_entry()
+
 
 def generate_summary():
     sorted_keys = sorted(help_dict)
@@ -130,7 +142,7 @@ def generate_summary():
     summary = head
     summary += '```'
     for command in sorted_keys:
-        summary += help_dict[command].command.ljust(12, ' ')
+        summary += help_dict[command].command.ljust(14, ' ')
         summary += help_dict[command].short_description + '\n'
     summary += '```'
     return summary
