@@ -299,14 +299,11 @@ async def on_message_edit(before, after):
     log_channel = get_log_channel(c, before.server)
     author = before.author
 
-    if log_channel:
-        before_content = before.content
-        after_content = after.content
-
+    if log_channel and before.content != after.content:
         local_message_time = datetime.now().strftime("%H:%M:%S")
         channel_name = before.channel.mention
         username = '{}#{}'.format(author.display_name, author.discriminator)
-        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter: {}'.format(local_message_time, username, channel_name, before_content, after_content))
+        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter: {}'.format(local_message_time, username, channel_name, before.content, after.content))
 
 
 @client.event
