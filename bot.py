@@ -303,7 +303,14 @@ async def on_message_edit(before, after):
         local_message_time = datetime.now().strftime("%H:%M:%S")
         channel_name = before.channel.mention
         username = '{}#{}'.format(author.display_name, author.discriminator)
-        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter: {}'.format(local_message_time, username, channel_name, before.content, after.content))
+
+        before_attachment_url = None
+        after_attachment_url = None
+        if before.attachments:
+            before_attachment_url = before.attachments[0]['proxy_url']
+        if after.attachments:
+            after_attachment_url = after.attachments[0]['proxy_url']
+        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}{}\nAfter: {}{}'.format(local_message_time, username, channel_name, before.content, before_attachment_url, after.content, after_attachment_url))
 
 
 @client.event
@@ -311,12 +318,19 @@ async def on_message_delete(message):
     log_channel = get_log_channel(c, message.server)
     author = message.author
 
+    print(message.content)
+
     if log_channel:
         content = message.content
         local_message_time = datetime.now().strftime("%H:%M:%S")
         channel_name = message.channel.mention
         username = '{}#{}'.format(author.display_name, author.discriminator)
-        await client.send_message(log_channel, '[{}] {} *deleted their message in* {}\n{}'.format(local_message_time, username, channel_name, content))
+
+        attachment_url = None
+        if message.attachments:
+            attachment_url = message.attachments[0]['proxy_url']
+
+        await client.send_message(log_channel, '[{}] {} *deleted their message in* {}\n{}{}'.format(local_message_time, username, channel_name, content, attachment_url))
 
 
 client.run(cakebot_config.TOKEN)
