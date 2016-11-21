@@ -309,8 +309,8 @@ async def on_message_edit(before, after):
     author = before.author
 
     if log_channel and before.content != after.content:
-        before_content = before.content
-        after_content = after.content
+        before_content = before.clean_content
+        after_content = after.clean_content
         local_message_time = datetime.now().strftime("%H:%M:%S")
         channel_name = before.channel.mention
         username = '{}#{}'.format(author.display_name, author.discriminator)
@@ -328,7 +328,7 @@ async def on_message_delete(message):
     author = message.author
 
     if log_channel:
-        content = message.content
+        content = message.clean_content
         local_message_time = datetime.now().strftime("%H:%M:%S")
         channel_name = message.channel.mention
         username = '{}#{}'.format(author.display_name, author.discriminator)
