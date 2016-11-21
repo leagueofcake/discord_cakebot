@@ -12,7 +12,7 @@ from modules.helpers import is_integer, temp_message
 from modules.misc import return_troll
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
-from modules.logging import get_log_channel_id, add_log_channel, update_log_channel, get_log_channel
+from modules.logging import add_log_channel, update_log_channel, get_log_channel
 
 client = discord.Client()
 conn = sqlite3.connect(cakebot_config.DB_PATH)
@@ -268,11 +268,11 @@ async def on_message(message):
         can_manage_server = message.channel.permissions_for(message.author).manage_server
         has_logchannel_perm = find_permissions(perms, 'logchannel')
 
-        logchannel = get_log_channel_id(c, message.server.id)
+        logchannel = get_log_channel(c, message.server)
         if len(args) == 1:
             if logchannel:
                 await temp_message(client, message.channel,
-                                   'Log channel is: `{}`'.format(logchannel[0]))
+                                   'Log channel is: {}'.format(logchannel.mention))
             else:
                 await temp_message(client, message.channel,
                                    'No log channel configured! Add one with `!logchannel set`')
@@ -317,8 +317,6 @@ async def on_message_edit(before, after):
 async def on_message_delete(message):
     log_channel = get_log_channel(c, message.server)
     author = message.author
-
-    print(message.content)
 
     if log_channel:
         content = message.content
