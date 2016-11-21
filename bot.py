@@ -307,9 +307,9 @@ async def on_message_edit(before, after):
         username = '{}#{}'.format(author.display_name, author.discriminator)
 
         if before.attachments:
-            before_content += before.attachments[0]['proxy_url']
+            before_content += ' ' + before.attachments[0]['proxy_url']
         if after.attachments:
-            after_content += after.attachments[0]['proxy_url']
+            after_content += ' ' + after.attachments[0]['proxy_url']
         await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter: {}'.format(local_message_time, username, channel_name, before_content, after_content))
 
 
@@ -327,7 +327,7 @@ async def on_message_delete(message):
         username = '{}#{}'.format(author.display_name, author.discriminator)
 
         if message.attachments:
-            content += message.attachments[0]['proxy_url']
+            content += ' ' + message.attachments[0]['proxy_url']
 
         await client.send_message(log_channel, '[{}] {} *deleted their message in* {}\n{}'.format(local_message_time, username, channel_name, content))
 
