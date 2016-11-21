@@ -10,7 +10,8 @@ import cakebot_config
 import cakebot_help
 from modules.helpers import is_integer, temp_message
 from modules.misc import return_troll
-from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions
+from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
+    allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
 from modules.logging import add_log_channel, update_log_channel, get_log_channel
 
@@ -59,16 +60,20 @@ async def on_message(message):
                 perm_message += '\nThis user has manage_server permissions.'
             await client.send_message(message.channel, perm_message)
         elif (can_manage_server or str(message.author.id) == cakebot_config.OWNER_ID) and len(args) > 2:
-            add_perms = args[2:]
-            if perms:
-                current_perms = perms[0]
-                new_perms = current_perms + ',' + ','.join(add_perms)
-                update_permissions(c, user.id, message.server.id, new_perms)
+            add_perms = [comm for comm in args[2:] if comm in allowed_perm_commands]  # Filter allowed permission commands
+
+            if add_perms:
+                if perms:
+                    current_perms = perms[0]
+                    new_perms = current_perms + ',' + ','.join(add_perms)
+                    update_permissions(c, user.id, message.server.id, new_perms)
+                else:
+                    set_permissions(c, user.id, message.server.id, add_perms)
+                conn.commit()
+                add_message = 'Added permissions: `{}` to {}'.format(','.join(add_perms), user)
+                await client.send_message(message.channel, add_message)
             else:
-                set_permissions(c, user.id, message.server.id, add_perms)
-            conn.commit()
-            add_message = 'Added permissions: `{}` to {}'.format(','.join(add_perms), user)
-            await client.send_message(message.channel, add_message)
+                await client.send_message(message.channel, 'No permissions were added to {}!'.format(user))
     elif content.startswith('!musicprefix'):
         perms = get_permissions(c, message.author.id, message.server.id)
 

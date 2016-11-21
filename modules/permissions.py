@@ -19,3 +19,5 @@ def find_permissions(perms, word):
             if word == perm:
                 return True
     return False
+
+allowed_perm_commands = ['musicprefix', 'logchannel']
