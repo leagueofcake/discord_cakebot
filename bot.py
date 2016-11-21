@@ -48,13 +48,17 @@ async def on_message(message):
 
         # await client.send_message(message.channel, 'Detected: {} with id {}'.format(user, user.id))
 
+        can_manage_server = message.channel.permissions_for(user).manage_server
         perms = get_permissions(c, user.id, message.server.id)
         if len(args) == 1 or len(args) == 2:
             if perms:
-                await client.send_message(message.channel, 'Permissions for {}: {}'.format(user, perms))
+                perm_message = 'Permissions for {}: {}'.format(user, perms)
             else:
-                await client.send_message(message.channel, 'There are no set permissions for: {}'.format(user))
-        elif str(message.author.id) == cakebot_config.OWNER_ID and len(args) > 2:
+                perm_message = 'There are no set permissions for: {}'.format(user)
+            if can_manage_server:
+                perm_message += '\nThis user has manage_server permissions.'
+            await client.send_message(message.channel, perm_message)
+        elif (can_manage_server or str(message.author.id) == cakebot_config.OWNER_ID) and len(args) > 2:
             add_perms = args[2:]
             if perms:
                 current_perms = perms[0]
