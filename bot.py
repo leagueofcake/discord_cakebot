@@ -319,7 +319,7 @@ async def on_message_edit(before, after):
             before_content += ' ' + before.attachments[0]['proxy_url']
         if after.attachments:
             after_content += ' ' + after.attachments[0]['proxy_url']
-        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter: {}'.format(local_message_time, username, channel_name, before_content, after_content))
+        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter+: {}'.format(local_message_time, username, channel_name, before_content, after_content))
 
 
 @client.event
