@@ -281,6 +281,19 @@ async def on_message(message):
                     else:
                         await temp_message(client, message.channel,
                                            'You don\'t have the permissions to do that! Message a moderator to change it.')
+    elif content.startswith('!purge'):
+        can_manage_server = message.channel.permissions_for(message.author).manage_server
+
+        if can_manage_server:
+            if len(args) < 2:
+                await client.send_message(message.channel, "Please specify the number of messages to purge.")
+            else:
+                num = int(args[1])
+
+                await client.purge_from(message.channel, limit=num+1)
+                await client.send_message(message.channel, "Purged {} messages.".format(num))
+        else:
+            await client.send_message(message.channel, "You don't have the permissions to do that!".format(num))
     # elif content.startswith('!'):
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
