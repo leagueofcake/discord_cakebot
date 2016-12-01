@@ -13,7 +13,8 @@ from modules.misc import return_troll
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
-from modules.modtools import add_log_channel, update_log_channel, get_log_channel
+from modules.modtools import add_log_channel, update_log_channel, get_log_channel, gen_edit_message_log, \
+    gen_delete_message_log
 
 client = discord.Client()
 conn = sqlite3.connect(cakebot_config.DB_PATH)
@@ -306,37 +307,17 @@ async def on_message(message):
 @client.event
 async def on_message_edit(before, after):
     log_channel = get_log_channel(c, before.server)
-    author = before.author
 
     if log_channel and before.content != after.content:
-        before_content = before.clean_content
-        after_content = after.clean_content
-        local_message_time = datetime.now().strftime("%H:%M:%S")
-        channel_name = before.channel.mention
-        username = '{}#{}'.format(author.display_name, author.discriminator)
-
-        if before.attachments:
-            before_content += ' ' + before.attachments[0]['proxy_url']
-        if after.attachments:
-            after_content += ' ' + after.attachments[0]['proxy_url']
-        await client.send_message(log_channel, '[{}] {} *edited their message in* {}\nBefore: {}\nAfter+: {}'.format(local_message_time, username, channel_name, before_content, after_content))
+        await client.send_message(log_channel, gen_edit_message_log(before, after))
 
 
 @client.event
 async def on_message_delete(message):
     log_channel = get_log_channel(c, message.server)
-    author = message.author
 
     if log_channel:
-        content = message.clean_content
-        local_message_time = datetime.now().strftime("%H:%M:%S")
-        channel_name = message.channel.mention
-        username = '{}#{}'.format(author.display_name, author.discriminator)
-
-        if message.attachments:
-            content += ' ' + message.attachments[0]['proxy_url']
-
-        await client.send_message(log_channel, '[{}] {} *deleted their message in* {}\n{}'.format(local_message_time, username, channel_name, content))
+        await client.send_message(log_channel, gen_delete_message_log(message))
 
 
 client.run(cakebot_config.TOKEN)
