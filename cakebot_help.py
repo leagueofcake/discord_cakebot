@@ -109,6 +109,12 @@ permissions_usage = 'NOTE: This does NOT set server permissions but only permiss
                     'Example: !permissions @Clyde#1234 musicprefix, !permissions @Clyde#1234 musicprefix logchannel'
 permissions_help = help_entry('!permissions', permissions_desc, permissions_usage)
 
+purge_desc = 'Purges a given amount of messages from the current channel.'
+purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server' \
+              'permission.\n' \
+              'Example: !purge 5'
+purge_help = help_entry('!purge', purge_desc, purge_usage)
+
 help_desc = 'Displays this message.'
 help_usage = '!help'
 help_help = help_entry('!help', help_desc, help_usage)
@@ -128,7 +134,8 @@ help_dict = {
                 'invite':    invite_help,
                 'musicprefix': musicprefix_help,
                 'logchannel': logchannel_help,
-                'permissions': permissions_help
+                'permissions': permissions_help,
+                'purge': purge_help
             }
 
 # Interface functions
