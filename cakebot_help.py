@@ -112,7 +112,8 @@ permissions_help = help_entry('!permissions', permissions_desc, permissions_usag
 purge_desc = 'Purges a given amount of messages from the current channel.'
 purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server' \
               'permission.\n' \
-              'Example: !purge 5'
+              '!purge <mention> <limit> - purges any messages by <mention> within the last <limit> messages.' \
+              'Example: !purge 5, !purge @Clyde 10'
 purge_help = help_entry('!purge', purge_desc, purge_usage)
 
 help_desc = 'Displays this message.'

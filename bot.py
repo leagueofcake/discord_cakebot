@@ -285,15 +285,26 @@ async def on_message(message):
         can_manage_server = message.channel.permissions_for(message.author).manage_server
 
         if can_manage_server:
+            await client.delete_message(message)
             if len(args) < 2:
                 await client.send_message(message.channel, "Please specify the number of messages to purge.")
             else:
-                num = int(args[1])
+                if message.mentions and len(args) >= 3:
+                    purge_user_id = message.mentions[0].id  # Find id of first mentioned user
 
-                await client.purge_from(message.channel, limit=num+1)
-                await client.send_message(message.channel, "Purged {} messages.".format(num))
+                    def is_purge_user(m):
+                        return m.author.id == purge_user_id
+
+                    num = int(args[2])
+                    deleted = await client.purge_from(message.channel, limit=num, check=is_purge_user)
+                    await client.send_message(message.channel, "Purged {} messages from {}.".format(len(deleted), message.mentions[0]))
+                else:
+                    num = int(args[1])
+                    deleted = await client.purge_from(message.channel, limit=num)
+                    await client.send_message(message.channel, "Purged {} messages.".format(len(deleted)))
+
         else:
-            await client.send_message(message.channel, "You don't have the permissions to do that!".format(num))
+            await client.send_message(message.channel, "You don't have the permissions to do that!")
     # elif content.startswith('!'):
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
