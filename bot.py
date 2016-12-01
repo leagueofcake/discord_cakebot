@@ -1,15 +1,14 @@
 import asyncio
 import sqlite3
 import sys
-from datetime import datetime
 
 import discord
 import requests
 
 import cakebot_config
 import cakebot_help
-from modules.helpers import is_integer, temp_message
-from modules.misc import return_troll
+from modules.helpers import temp_message
+from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
@@ -103,22 +102,9 @@ async def on_message(message):
         await client.send_message(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif content.startswith('!timedcats'):
         if str(message.author.id) == cakebot_config.OWNER_ID:
-            times = 5
-            duration_str = 'm'
-
-            if len(args) > 1:
-                arg_times = args[1]
-                if is_integer(arg_times):
-                    if int(arg_times) <= 60:
-                        times = int(arg_times)
-
-                if len(args) > 2:
-                    arg_duration = args[2]
-                    if arg_duration in cakebot_config.time_map:
-                        duration_str = arg_duration
+            times, duration_str = parse_duration_str(args)
 
             unit_time = cakebot_config.time_map[duration_str][0]
-            duration_time = unit_time * times
 
             unit_duration_str = cakebot_config.time_map[duration_str][1]
             long_duration_str = cakebot_config.time_map[duration_str][2]
@@ -129,17 +115,13 @@ async def on_message(message):
             sending_msg = 'Sending cats every {} for {} {}!'.format(unit_duration_str, times, long_duration_str)
             await client.send_message(message.channel, sending_msg)
 
-            loop = asyncio.get_event_loop()
-            end_time = loop.time() + duration_time
-
-            await asyncio.sleep(5)
-            while True:
+            for i in range(times):
                 cat_url = requests.get('http://random.cat/meow').json()['file']
                 await client.send_message(message.channel, cat_url)
-                if (loop.time() + unit_time) >= end_time:
+                if i == times - 1:
+                    await client.send_message(message.channel, 'Finished sending cats!')
                     break
-                await(asyncio.sleep(unit_time))
-            await client.send_message(message.channel, 'Finished sending cats!')
+                await asyncio.sleep(unit_time)
         else:
             await client.send_message(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
     elif content.startswith('!find'):
@@ -178,7 +160,7 @@ async def on_message(message):
         await client.send_message(room, '`{}` redirected:'.format(message.author))
         await client.send_message(room, ' '.join(args[2:]))
         await client.delete_message(message)
-    elif content.startswith('!play'): # Play song by title
+    elif content.startswith('!play'):  # Play song by title
         if args[0] == '!play':
             song_name = ' '.join(args[1:])
             s = '%{}%'.format(song_name.lower())
