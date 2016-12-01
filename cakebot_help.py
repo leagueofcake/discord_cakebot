@@ -1,4 +1,4 @@
-class help_entry():
+class HelpEntry():
     def __init__(self, command, description, usage):
         self.command = command
         self.description = description
@@ -13,14 +13,14 @@ class help_entry():
 
 hello_desc = 'cakebot says hello!'
 hello_usage = '!hello'
-hello_help = help_entry('!hello', hello_desc, hello_usage)
+hello_help = HelpEntry('!hello', hello_desc, hello_usage)
 
 timedcats_desc = 'Sends random cat images in timed intervals :3'
 timedcats_usage = '!timedcats <number> <interval>\n' \
                   '<interval> - m (minute) or h (hour)\n\n' \
                   'Example: !timedcats 3 m - send random cat images each minute for 3 minutes\n' \
                   'Default is 5 m'
-timedcats_help = help_entry('!timedcats', timedcats_desc, timedcats_usage)
+timedcats_help = HelpEntry('!timedcats', timedcats_desc, timedcats_usage)
 
 find_desc = 'Searches the last 500 messages in current channel for a message containing a keyword'
 find_usage = '!find <keyword> <user mention>\n' \
@@ -28,13 +28,13 @@ find_usage = '!find <keyword> <user mention>\n' \
              'Returns a message with the author of found message and timestamp.\n\n' \
              'Example: !find fruit @leagueofcake\n (user specified)' \
              'Example: !find fruit (user not specified)'
-find_help = help_entry('!find', find_desc, find_usage)
+find_help = HelpEntry('!find', find_desc, find_usage)
 
 redirect_desc = 'Redirects a message to another channel.'
 redirect_usage = '!redirect <channel> <message>\n\n' \
                  '<channel> - Must be in #form Example:  #main\n\n' \
                  'Example: !redirect #alt Hi guys, from the main channel! - redirects message to #alt with message'
-redirect_help = help_entry('!redirect', redirect_desc, redirect_usage)
+redirect_help = HelpEntry('!redirect', redirect_desc, redirect_usage)
 
 play_desc = 'Queues music\n' \
             'Variants: for more info do !help <variant>\n' \
@@ -46,44 +46,44 @@ play_usage = '!play <keyword/title/alias>\n' \
              'Example: !play snow (will have multiple matches)\n' \
              'Example: !play sound of silence (exact match, plays song)\n' \
              'Example: !play haifuriop (exact match for alias)'
-play_help = help_entry('!play', play_desc, play_usage)
+play_help = HelpEntry('!play', play_desc, play_usage)
 
 playid_desc = 'Queues music by id\n' \
               'Variant of !play: to see other variants do !help play'
 playid_usage = '!playid <id>\n' \
                '<id> - number, can be found with !search <keyword>\n\n' \
                'Example: !playid 316'
-playid_help = help_entry('!playid', playid_desc, playid_usage)
+playid_help = HelpEntry('!playid', playid_desc, playid_usage)
 
 playalbum_desc = 'Queues an entire album\n' \
                  'Variant of !play: to see other variants do !help play'
 playalbum_usage = '!playalbum <name/keyword>\n' \
                   '<name> - Not case sensitive\n\n' \
                   'Example: !play snow halation'
-playalbum_help = help_entry('!playalbum', playalbum_desc, playalbum_usage)
+playalbum_help = HelpEntry('!playalbum', playalbum_desc, playalbum_usage)
 
 reqsong_desc = 'Sends link to a form for requesting songs to be added to the database.'
 reqsong_usage = '!reqsong'
-reqsong_help = help_entry('!reqsong', reqsong_desc, reqsong_usage)
+reqsong_help = HelpEntry('!reqsong', reqsong_desc, reqsong_usage)
 
 search_desc = 'Searches the song database for a keyword'
 search_usage = '!search <keyword>\n' \
                '<keyword> - Alias/song/artist/album name. Not case sensitive.\n\n' \
                'Example: !search snow\n' \
                'Returns up to 15 results.'
-search_help = help_entry('!search', search_desc, search_usage)
+search_help = HelpEntry('!search', search_desc, search_usage)
 
 google_desc = 'Generates a Google search link for a keyword. For lazy people like me.'
 google_usage = '!google <keyword>\n'
-google_help = help_entry('!google', google_desc, google_usage)
+google_help = HelpEntry('!google', google_desc, google_usage)
 
 trollurl_desc = 'Replaces characters in a URL to make a similar looking one'
 trollurl_usage = '!trollurl <url>\n'
-trollurl_help = help_entry('!trollurl', trollurl_desc, trollurl_usage)
+trollurl_help = HelpEntry('!trollurl', trollurl_desc, trollurl_usage)
 
 invite_desc = 'Generates a link to invite cakebot to your server'
 invite_usage = '!invite\n'
-invite_help = help_entry('!invite', invite_desc, invite_usage)
+invite_help = HelpEntry('!invite', invite_desc, invite_usage)
 
 musicprefix_desc = 'Sets the prefix for queueing music for your server\'s music bot.'
 musicprefix_usage = '!musicprefix - displays the current prefix set for the server\n' \
@@ -91,13 +91,13 @@ musicprefix_usage = '!musicprefix - displays the current prefix set for the serv
                     'Sets the music prefix to <prefix>. Requires manage_server or musicprefix permission.\n' \
                     '<prefix> - can be multiple words.\n\n' \
                     'Example: !musicprefix ~play, !musicprefix ! lm play'
-musicprefix_help = help_entry('!musicprefix', musicprefix_desc, musicprefix_usage)
+musicprefix_help = HelpEntry('!musicprefix', musicprefix_desc, musicprefix_usage)
 
 logchannel_desc = 'Sets the channel for logging output.'
 logchannel_usage = '!logchannel - displays the current channel for logging output\n' \
                    '!logchannel set - sets the current channel as the logging channel. Requires manage_server ' \
                    'or logchannel permission.'
-logchannel_help = help_entry('!logchannel', logchannel_desc, logchannel_usage)
+logchannel_help = HelpEntry('!logchannel', logchannel_desc, logchannel_usage)
 
 permissions_desc = 'Gets or sets the cakebot permissions for a given user.'
 permissions_usage = 'NOTE: This does NOT set server permissions but only permissions for cakebot commands.' \
@@ -107,7 +107,7 @@ permissions_usage = 'NOTE: This does NOT set server permissions but only permiss
                     '!permissions <user mention> <command|commands> - add permissions to the given user. Requires' \
                     'manage_server permission.' \
                     'Example: !permissions @Clyde#1234 musicprefix, !permissions @Clyde#1234 musicprefix logchannel'
-permissions_help = help_entry('!permissions', permissions_desc, permissions_usage)
+permissions_help = HelpEntry('!permissions', permissions_desc, permissions_usage)
 
 purge_desc = 'Purges a given amount of messages from the current channel.'
 purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server' \
@@ -116,11 +116,11 @@ purge_usage = '!purge <number> - purges <number> of messages in the current chan
               'Requires manage_server permission\n' \
               '!cleanpurge - cleans up all purge-related messages from cakebot.' \
               'Example: !purge 5, !purge @Clyde#1234 10'
-purge_help = help_entry('!purge', purge_desc, purge_usage)
+purge_help = HelpEntry('!purge', purge_desc, purge_usage)
 
 help_desc = 'Displays this message.'
 help_usage = '!help'
-help_help = help_entry('!help', help_desc, help_usage)
+help_help = HelpEntry('!help', help_desc, help_usage)
 
 help_dict = {
                 'hello':     hello_help,
@@ -140,6 +140,7 @@ help_dict = {
                 'permissions': permissions_help,
                 'purge': purge_help
             }
+
 
 # Interface functions
 def get_entry(name):
