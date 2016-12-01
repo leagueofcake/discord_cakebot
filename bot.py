@@ -312,7 +312,7 @@ async def on_message(message):
         if can_manage_server:
             def is_cakebot_purge_message(m):
                 return m.author.id == client.user.id and (m.content.startswith('Purged') or m.content == 'Please specify the number of messages to purge.')
-            await client.purge_from(message.channel, check=is_cakebot_purge_message())
+            await client.purge_from(message.channel, check=is_cakebot_purge_message)
     # elif content.startswith('!'):
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
