@@ -309,7 +309,7 @@ async def on_message(message):
 
         else:
             await client.send_message(message.channel, "You don't have the permissions to do that!")
-    elif content.startswith('!cleanpurge'):
+    elif content.strip() == ('!cleanpurge'):
         await client.delete_message(message)
         can_manage_server = message.channel.permissions_for(message.author).manage_server
 
@@ -317,6 +317,13 @@ async def on_message(message):
             def is_cakebot_purge_message(m):
                 return m.author.id == client.user.id and (m.content.startswith('Purged') or m.content == 'Please specify the number of messages to purge.')
             await client.purge_from(message.channel, check=is_cakebot_purge_message)
+    elif content.strip() == '!del':
+        await client.delete_message(message)
+        async for log in client.logs_from(message.channel, limit=500):
+            if log.author.id == message.author.id:
+                await client.delete_message(log)
+                break
+
     # elif content.startswith('!'):
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 

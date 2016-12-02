@@ -118,6 +118,11 @@ purge_usage = '!purge <number> - purges <number> of messages in the current chan
               'Example: !purge 5, !purge @Clyde#1234 10'
 purge_help = HelpEntry('!purge', purge_desc, purge_usage)
 
+del_desc = 'Deletes your previous message. Searches up to the previous 500 messages in the channel.'
+del_usage = '!del - Deletes your previous message.\n' \
+              'Example: !del'
+del_help = HelpEntry('!del', del_desc, del_usage)
+
 help_desc = 'Displays this message.'
 help_usage = '!help'
 help_help = HelpEntry('!help', help_desc, help_usage)
@@ -138,7 +143,8 @@ help_dict = {
                 'musicprefix': musicprefix_help,
                 'logchannel': logchannel_help,
                 'permissions': permissions_help,
-                'purge': purge_help
+                'purge': purge_help,
+                'del': del_help
             }
 
 
