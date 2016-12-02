@@ -112,7 +112,7 @@ permissions_help = HelpEntry('!permissions', permissions_desc, permissions_usage
 purge_desc = 'Purges a given amount of messages from the current channel.'
 purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server' \
               'permission.\n' \
-              '!purge <mention> <limit> - purges any messages by <mention> within the last <limit> messages. ' \
+              '!purge <mention> <number> - purges <number> of messages by <mention> within the last 500 messages. ' \
               'Requires manage_server permission\n' \
               '!cleanpurge - cleans up all purge-related messages from cakebot.' \
               'Example: !purge 5, !purge @Clyde#1234 10'
