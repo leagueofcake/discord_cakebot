@@ -1,3 +1,6 @@
+import re
+
+
 class HelpEntry():
     def __init__(self, command, description, usage, category, example=None):
         self.command = command
@@ -6,6 +9,23 @@ class HelpEntry():
         self.example = example
         self.category = category
         self.short_description = description.split('\n')[0]
+
+    def get_markdown(self):
+        attr = [self.command, self.description, self.usage]
+        for i in range(len(attr)):
+            attr[i] = re.sub(r'(!.+)(\s-\s)', r'`\1`\2', attr[i])    # Make usage command lines as code blocks
+            attr[i] = re.sub(r'^(!.+)(\s-\s)?', r'`\1`\2', attr[i])  # Make usage command lines as code blocks
+
+        marked_down = '### {}\n{}  \n\n### Usage\n{}'.format(*attr)
+        if self.example:
+            example = re.sub(r'(.*): (!.*)', r'\1: `\2`', self.example)  # Make example command lines as code blocks
+            marked_down += '\n\n### Examples\n{}'.format(example)
+
+        marked_down = marked_down.replace('_', '\_')     # Escape underscores
+        marked_down = marked_down.replace('\n', '  \n')  # Add two spaces to end of line for Markdown line breaks
+        marked_down += '  \n'  # Ending newline
+        return marked_down
+
     def get_entry(self):
         formatted = '\n' \
                     '**Command:** ``' + self.command + '``\n\n' \
@@ -21,20 +41,19 @@ hello_usage = '!hello'
 
 timedcats_desc = 'Sends random cat images in timed intervals :3'
 timedcats_usage = '!timedcats <number> <interval>\n' \
-                  '<interval> - m (minute) or h (hour)\n\n' \
-                  'Default interval is 5 m.'
+                  'The interval can be m (minute) or h (hour).\n\n' \
+                  'Default number and interval is 5 m.'
 timedcats_example = 'Send cat images for 3 minutes: !timedcats 3 m' \
 
 find_desc = 'Searches the last 500 messages in current channel for a message containing a keyword.'
-find_usage = '!find <keyword> <user mention>\n' \
-             'NOTE: <user mention> is optional, Example:  @leagueofcake\n' \
+find_usage = '!find <keyword> - find a message with the specified keyword\n' \
+             '!find <keyword> <user mention> - find a message with specified keyword by specified user\n' \
              'Returns a message with the author of found message and timestamp.\n\n'
 find_example = 'User specified: !find fruit @leagueofcake#1234\n' \
-               'User not specified: Example: !find fruit'
+               'User not specified: !find fruit'
 
 redirect_desc = 'Redirects a message to another channel.'
-redirect_usage = '!redirect <channel> <message>\n\n' \
-                    '<channel> - Must be in channel mention \n\n'
+redirect_usage = '!redirect <channel mention> <message>'
 redirect_example = 'Redirects message to #alt with message: !redirect #alt Hi guys, from the main channel!'
 
 play_desc = 'Queues music using the musicprefix for the channel (check with !musicprefix)'
@@ -50,39 +69,38 @@ play_example = 'Will have multiple matches: !play snow\n' \
                'Exact match for alias: !play haifuriop'
 
 playid_desc = 'Queues music by id - variant of !play'
-playid_usage = '!playid <id>\n' \
-               '<id> - number, can be found with !search <keyword>\n\n'
+playid_usage = '!playid <id number>\n' \
+               'A song\'s id can be found with !search <keyword>'
 playid_example = 'Play song with id 316: !playid 316'
 
 playalbum_desc = 'Queues an entire album - variant of !play'
 playalbum_usage = '!playalbum <name/keyword>\n' \
-                  '<name> - Not case sensitive\n\n'
+                  'Name/keyword is not case sensitive.'
 playalbum_example = 'Play album named snow halation: !play snow halation'
 
 reqsong_desc = 'Shows links to forms for requesting songs to be added to the database.'
 reqsong_usage = '!reqsong'
 
-search_desc = 'Searches the song database for a keyword'
-search_usage = '!search <keyword>\n' \
-               '<keyword> - Alias/song/artist/album name. Not case sensitive.\n\n' \
-               'Returns up to 15 results.'
+search_desc = 'Searches the song database for an alias/song/artist/album name.'
+search_usage = '!search <keyword>\n\n' \
+               'Returns up to 15 results. Not case sensitive.'
 search_example = 'Search for songs with the keyword snow: !search snow'
 
 google_desc = 'Generates a Google search link for a keyword. For lazy people like me.'
 google_usage = '!google <keyword>'
 
-trollurl_desc = 'Replaces characters in a URL to make a similar looking one'
+trollurl_desc = 'Replaces characters in a URL to make a similar looking one.'
 trollurl_usage = '!trollurl <url>'
 
 
-invite_desc = 'Generates a link to invite cakebot to your server'
+invite_desc = 'Generates a link to invite cakebot to your server.'
 invite_usage = '!invite'
 
 musicpre_desc = 'Sets the prefix for queueing music for your server\'s music bot.'
 musicpre_usage = '!musicprefix - displays the current prefix set for the server\n' \
                  '!musicprefix <prefix> - ' \
-                 'Sets the music prefix to <prefix>. Requires manage_server or musicprefix permission.\n' \
-                 'NOTE: <prefix> - can be multiple words.\n\n'
+                 'Sets the music prefix to <prefix>. Requires manage_server or musicprefix permission.\n\n' \
+                 'The prefix can be multiple words.'
 musicpre_example = 'Set music prefix to ~play: !musicprefix ~play\n' \
                    'Set music prefix to ! lm play: !musicprefix ! lm play'
 
@@ -105,11 +123,10 @@ perms_example = 'Give Clyde musicprefix permissions: !permissions @Clyde#1234 mu
                 'Give Clyde musicprefix and logchannel permissions: !permissions @Clyde#1234 musicprefix logchannel' \
 
 purge_desc = 'Purges a given amount of messages from the current channel.'
-purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server' \
+purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server ' \
               'permission.\n' \
-              '!purge <mention> <number> - purges <number> of messages by <mention> within the last 500 messages. ' \
-              'Requires manage_server permission\n' \
-              '!cleanpurge - cleans up all purge-related messages from cakebot.'
+              '!purge <user mention> <number> - purges <number> of messages by <user mention> within the last ' \
+              '500 messages. Requires manage_server permission.\n'
 purge_example = 'Purge last 5 messages: !purge 5\n' \
                 'Purge Clyde\'s last 10 messages: !purge @Clyde#1234 10'
 
