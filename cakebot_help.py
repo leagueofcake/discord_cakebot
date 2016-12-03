@@ -11,19 +11,19 @@ class HelpEntry():
         self.short_description = description.split('\n')[0]
 
     def get_markdown(self):
-        attr = [self.command, self.description, self.usage]
+        attr = [self.description, self.usage]
         for i in range(len(attr)):
             attr[i] = re.sub(r'(!.+)(\s-\s)', r'`\1`\2', attr[i])    # Make usage command lines as code blocks
             attr[i] = re.sub(r'^(!.+)(\s-\s)?', r'`\1`\2', attr[i])  # Make usage command lines as code blocks
 
-        marked_down = '### {}\n{}  \n\n### Usage\n{}'.format(*attr)
+        marked_down = '## {}\n{}  \n\n### Usage\n{}'.format(self.command, *attr)
         if self.example:
             example = re.sub(r'(.*): (!.*)', r'\1: `\2`', self.example)  # Make example command lines as code blocks
             marked_down += '\n\n### Examples\n{}'.format(example)
 
         marked_down = marked_down.replace('_', '\_')     # Escape underscores
         marked_down = marked_down.replace('\n', '  \n')  # Add two spaces to end of line for Markdown line breaks
-        marked_down += '  \n'  # Ending newline
+        marked_down += '  \n  \n'  # Ending newline
         return marked_down
 
     def get_entry(self):
@@ -43,12 +43,12 @@ timedcats_desc = 'Sends random cat images in timed intervals :3'
 timedcats_usage = '!timedcats <number> <interval>\n' \
                   'The interval can be m (minute) or h (hour).\n\n' \
                   'Default number and interval is 5 m.'
-timedcats_example = 'Send cat images for 3 minutes: !timedcats 3 m' \
+timedcats_example = 'Send cat images for 3 minutes: !timedcats 3 m'
 
 find_desc = 'Searches the last 500 messages in current channel for a message containing a keyword.'
 find_usage = '!find <keyword> - find a message with the specified keyword\n' \
              '!find <keyword> <user mention> - find a message with specified keyword by specified user\n' \
-             'Returns a message with the author of found message and timestamp.\n\n'
+             'Returns a message with the author of found message and timestamp.'
 find_example = 'User specified: !find fruit @leagueofcake#1234\n' \
                'User not specified: !find fruit'
 
@@ -98,8 +98,8 @@ invite_usage = '!invite'
 
 musicpre_desc = 'Sets the prefix for queueing music for your server\'s music bot.'
 musicpre_usage = '!musicprefix - displays the current prefix set for the server\n' \
-                 '!musicprefix <prefix> - ' \
-                 'Sets the music prefix to <prefix>. Requires manage_server or musicprefix permission.\n\n' \
+                 '!musicprefix <prefix> - Sets the music prefix to <prefix>. ' \
+                 'Requires manage_server or musicprefix permission.\n\n' \
                  'The prefix can be multiple words.'
 musicpre_example = 'Set music prefix to ~play: !musicprefix ~play\n' \
                    'Set music prefix to ! lm play: !musicprefix ! lm play'
@@ -126,12 +126,12 @@ purge_desc = 'Purges a given amount of messages from the current channel.'
 purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server ' \
               'permission.\n' \
               '!purge <user mention> <number> - purges <number> of messages by <user mention> within the last ' \
-              '500 messages. Requires manage_server permission.\n'
+              '500 messages. Requires manage_server permission.'
 purge_example = 'Purge last 5 messages: !purge 5\n' \
                 'Purge Clyde\'s last 10 messages: !purge @Clyde#1234 10'
 
 del_desc = 'Deletes your previous message. Searches up to the previous 500 messages in the channel.'
-del_usage = '!del - Deletes your previous message.\n' \
+del_usage = '!del - Deletes your previous message.' \
 
 help_desc = 'Displays this message.'
 help_usage = '!help'

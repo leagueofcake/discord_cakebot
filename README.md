@@ -2,13 +2,13 @@
 General-purpose bot for discord.
 
 ## Command List
-### `!del`  
+## !del  
 Deletes your previous message. Searches up to the previous 500 messages in the channel.    
   
 ### Usage  
 `!del` - Deletes your previous message.  
   
-### `!find`  
+## !find  
 Searches the last 500 messages in current channel for a message containing a keyword.    
   
 ### Usage  
@@ -16,33 +16,36 @@ Searches the last 500 messages in current channel for a message containing a key
 `!find <keyword> <user mention>` - find a message with specified keyword by specified user  
 Returns a message with the author of found message and timestamp.  
   
-  
-  
 ### Examples  
 User specified: `!find fruit @leagueofcake#1234`  
 User not specified: `!find fruit`  
-### `!google`  
+  
+## !google  
 Generates a Google search link for a keyword. For lazy people like me.    
   
 ### Usage  
 `!google <keyword>`  
-### `!hello`  
+  
+## !hello  
 cakebot says hello!    
   
 ### Usage  
 `!hello`  
-### `!invite`  
+  
+## !invite  
 Generates a link to invite cakebot to your server.    
   
 ### Usage  
 `!invite`  
-### `!logchannel`  
+  
+## !logchannel  
 Sets the channel for logging output.    
   
 ### Usage  
 `!logchannel` - displays the current channel for logging output  
 `!logchannel set` - sets the current channel as the logging channel. Requires manage\_server or logchannel permission.  
-### `!musicprefix`  
+  
+## !musicprefix  
 Sets the prefix for queueing music for your server's music bot.    
   
 ### Usage  
@@ -54,7 +57,8 @@ The prefix can be multiple words.
 ### Examples  
 Set music prefix to ~play: `!musicprefix ~play`  
 Set music prefix to ! lm play: `!musicprefix ! lm play`  
-### `!permissions`  
+  
+## !permissions  
 Gets or sets the cakebot permissions for a given user.    
   
 ### Usage  
@@ -71,7 +75,8 @@ Permissions are required for:
 ### Examples  
 Give Clyde musicprefix permissions: `!permissions @Clyde#1234 musicprefix`  
 Give Clyde musicprefix and logchannel permissions: `!permissions @Clyde#1234 musicprefix logchannel`  
-### `!play`  
+  
+## !play  
 Queues music using the musicprefix for the channel (check with !musicprefix)    
   
 ### Usage  
@@ -87,7 +92,8 @@ Variants (for more info do !help <variant>)
 Will have multiple matches: `!play snow`  
 Exact match, play song: `!play sound of silence`  
 Exact match for alias: `!play haifuriop`  
-### `!playalbum`  
+  
+## !playalbum  
 Queues an entire album - variant of !play    
   
 ### Usage  
@@ -96,7 +102,8 @@ Name/keyword is not case sensitive.
   
 ### Examples  
 Play album named snow halation: `!play snow halation`  
-### `!playid`  
+  
+## !playid  
 Queues music by id - variant of !play    
   
 ### Usage  
@@ -105,18 +112,19 @@ A song's id can be found with !search <keyword>
   
 ### Examples  
 Play song with id 316: `!playid 316`  
-### `!purge`  
+  
+## !purge  
 Purges a given amount of messages from the current channel.    
   
 ### Usage  
 `!purge <number>` - purges <number> of messages in the current channel. Requires manage\_server permission.  
 `!purge <user mention> <number>` - purges <number> of messages by <user mention> within the last 500 messages. Requires manage\_server permission.  
   
-  
 ### Examples  
 Purge last 5 messages: `!purge 5`  
 Purge Clyde's last 10 messages: `!purge @Clyde#1234 10`  
-### `!redirect`  
+  
+## !redirect  
 Redirects a message to another channel.    
   
 ### Usage  
@@ -124,12 +132,14 @@ Redirects a message to another channel.
   
 ### Examples  
 Redirects message to #alt with message: `!redirect #alt Hi guys, from the main channel!`  
-### `!reqsong`  
+  
+## !reqsong  
 Shows links to forms for requesting songs to be added to the database.    
   
 ### Usage  
 `!reqsong`  
-### `!search`  
+  
+## !search  
 Searches the song database for an alias/song/artist/album name.    
   
 ### Usage  
@@ -139,7 +149,8 @@ Returns up to 15 results. Not case sensitive.
   
 ### Examples  
 Search for songs with the keyword snow: `!search snow`  
-### `!timedcats`  
+  
+## !timedcats  
 Sends random cat images in timed intervals :3    
   
 ### Usage  
@@ -150,8 +161,10 @@ Default number and interval is 5 m.
   
 ### Examples  
 Send cat images for 3 minutes: `!timedcats 3 m`  
-### `!trollurl`  
+  
+## !trollurl  
 Replaces characters in a URL to make a similar looking one.    
   
 ### Usage  
 `!trollurl <url>`  
+  
