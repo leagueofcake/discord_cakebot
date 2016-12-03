@@ -1,6 +1,7 @@
 import asyncio
 import sqlite3
 import sys
+import logging
 
 import discord
 import requests
@@ -14,6 +15,8 @@ from modules.permissions import get_permissions, set_permissions, update_permiss
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel, gen_edit_message_log, \
     gen_delete_message_log
+
+logging.basicConfig(level=logging.INFO)
 
 client = discord.Client()
 conn = sqlite3.connect(cakebot_config.DB_PATH)
