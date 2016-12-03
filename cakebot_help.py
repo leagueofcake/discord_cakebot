@@ -131,7 +131,7 @@ purge_example = 'Purge last 5 messages: !purge 5\n' \
                 'Purge Clyde\'s last 10 messages: !purge @Clyde#1234 10'
 
 del_desc = 'Deletes your previous message. Searches up to the previous 500 messages in the channel.'
-del_usage = '!del - Deletes your previous message.' \
+del_usage = '!del' \
 
 help_desc = 'Displays this message.'
 help_usage = '!help'

@@ -6,7 +6,7 @@ General-purpose bot for discord.
 Deletes your previous message. Searches up to the previous 500 messages in the channel.    
   
 ### Usage  
-`!del` - Deletes your previous message.  
+`!del`  
   
 ## !find  
 Searches the last 500 messages in current channel for a message containing a keyword.    
