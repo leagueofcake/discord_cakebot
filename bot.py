@@ -301,22 +301,15 @@ async def on_message(message):
                         if count == num:  # Deleted num amount of messages
                             break
 
-                    await client.send_message(message.channel, "Purged {} messages from {}.".format(count, message.mentions[0]))
+                    await temp_message(client, message.channel, "Purged {} messages from {}.".format(count, message.mentions[0]))
+
                 else:
                     num = int(args[1])
                     deleted = await client.purge_from(message.channel, limit=num)
-                    await client.send_message(message.channel, "Purged {} messages.".format(len(deleted)))
+                    await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
 
         else:
             await client.send_message(message.channel, "You don't have the permissions to do that!")
-    elif content.strip() == ('!cleanpurge'):
-        await client.delete_message(message)
-        can_manage_server = message.channel.permissions_for(message.author).manage_server
-
-        if can_manage_server:
-            def is_cakebot_purge_message(m):
-                return m.author.id == client.user.id and (m.content.startswith('Purged') or m.content == 'Please specify the number of messages to purge.')
-            await client.purge_from(message.channel, check=is_cakebot_purge_message)
     elif content.strip() == '!del':
         await client.delete_message(message)
         async for log in client.logs_from(message.channel, limit=500):
