@@ -13,7 +13,7 @@ from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
-from modules.modtools import add_log_channel, update_log_channel, get_log_channel, gen_edit_message_log, \
+from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log
 
 logging.basicConfig(level=logging.INFO)
@@ -264,11 +264,11 @@ async def on_message(message):
         can_manage_server = message.channel.permissions_for(message.author).manage_server
         has_logchannel_perm = find_permissions(perms, 'logchannel')
 
-        logchannel = get_log_channel(c, message.server)
+        log_channel = client.get_channel(get_log_channel_id(c, message.server.id))
         if len(args) == 1:
-            if logchannel:
+            if log_channel:
                 await temp_message(client, message.channel,
-                                   'Log channel is: {}'.format(logchannel.mention))
+                                   'Log channel is: {}'.format(log_channel.mention))
             else:
                 await temp_message(client, message.channel,
                                    'No log channel configured! Add one with `!logchannel set`')
@@ -276,7 +276,7 @@ async def on_message(message):
             if len(args) == 2:
                 if args[1] == 'set':
                     if can_manage_server or has_logchannel_perm:
-                        if logchannel:
+                        if log_channel:
                             update_log_channel(c, message.server.id, message.channel.id)
                         else:
                             add_log_channel(c, message.server.id, message.channel.id)
@@ -328,15 +328,15 @@ async def on_message(message):
 # Logging functionality
 @client.event
 async def on_message_edit(before, after):
-    log_channel = get_log_channel(c, before.server)
-
+    print(get_log_channel_id(c, before.server.id))
+    log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
     if log_channel and before.content != after.content:
         await client.send_message(log_channel, gen_edit_message_log(before, after))
 
 
 @client.event
 async def on_message_delete(message):
-    log_channel = get_log_channel(c, message.server)
+    log_channel = client.get_channel(get_log_channel_id(c, message.server.id))
 
     if log_channel:
         await client.send_message(log_channel, gen_delete_message_log(message))
