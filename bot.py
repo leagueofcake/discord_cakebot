@@ -12,7 +12,7 @@ from modules.helpers import temp_message
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
-from modules.music import Song, get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
+from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
     find_album, find_song_by_id, search_songs, make_song_results, queue_songs
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log
@@ -51,8 +51,6 @@ async def on_message(message):
         user = message.author
         if message.mentions:
             user = message.mentions[0]  # Find id of first mentioned user
-
-        # await client.send_message(message.channel, 'Detected: {} with id {}'.format(user, user.id))
 
         can_manage_server = message.channel.permissions_for(user).manage_server
         perms = get_permissions(c, user.id, message.server.id)
