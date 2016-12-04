@@ -36,29 +36,30 @@ class HelpEntry():
             formatted += '**Examples**\n```' + self.example + '```'
         return formatted
 
-hello_desc = 'cakebot says hello!'
+hello_desc = 'cakebot says hello! Use to check if cakebot is online. '
 hello_usage = '!hello'
 
 timedcats_desc = 'Sends random cat images in timed intervals :3'
 timedcats_usage = '!timedcats <number> <interval>\n' \
-                  'The interval can be m (minute) or h (hour).\n\n' \
+                  'The interval can be m (minutes) or h (hours).\n\n' \
                   'Default number and interval is 5 m.'
-timedcats_example = 'Send cat images for 3 minutes: !timedcats 3 m'
+timedcats_example = 'Send cat images every minute for 3 minutes: !timedcats 3 m\n' \
+                    'Send cat images every hour for 10 hours: !timedcats 10 h'
 
 find_desc = 'Searches the last 500 messages in current channel for a message containing a keyword.'
 find_usage = '!find <keyword> - find a message with the specified keyword\n' \
              '!find <keyword> <user mention> - find a message with specified keyword by specified user\n' \
-             'Returns a message with the author of found message and timestamp.'
-find_example = 'User specified: !find fruit @leagueofcake#1234\n' \
-               'User not specified: !find fruit'
+             'Returns a message with the author of the most rececnt matching message and its timestamp if found.'
+find_example = 'User specified: !find cake @leagueofcake#1234\n' \
+               'User not specified: !find cake'
 
 redirect_desc = 'Redirects a message to another channel.'
 redirect_usage = '!redirect <channel mention> <message>'
-redirect_example = 'Redirects message to #alt with message: !redirect #alt Hi guys, from the main channel!'
+redirect_example = 'Redirects message to #alt: !redirect #alt Hi guys, from the main channel!'
 
 play_desc = 'Queues music using the musicprefix for the channel (check with !musicprefix)'
 play_usage = '!play <keyword/title/alias>\n' \
-             'Not case sensitive. If multiple matches are found, cakebot will display 15 possible matches ' \
+             'Not case sensitive. If multiple matches are found, cakebot will display 13 possible matches ' \
              'and prompt the user to !playid <id>\n\n' \
              'Variants (for more info do !help <variant>)\n' \
              '!play      - Queues a song by name or alias\n' \
@@ -68,7 +69,7 @@ play_example = 'Will have multiple matches: !play snow\n' \
                'Exact match, play song: !play sound of silence\n' \
                'Exact match for alias: !play haifuriop'
 
-playid_desc = 'Queues music by id - variant of !play'
+playid_desc = 'Queues a song by id - variant of !play'
 playid_usage = '!playid <id number>\n' \
                'A song\'s id can be found with !search <keyword>'
 playid_example = 'Play song with id 316: !playid 316'
@@ -81,9 +82,9 @@ playalbum_example = 'Play album named snow halation: !play snow halation'
 reqsong_desc = 'Shows links to forms for requesting songs to be added to the database.'
 reqsong_usage = '!reqsong'
 
-search_desc = 'Searches the song database for an alias/song/artist/album name.'
+search_desc = 'Searches the song database for a song with a matching alias/song/artist/album name.'
 search_usage = '!search <keyword>\n\n' \
-               'Returns up to 15 results. Not case sensitive.'
+               'Returns up to 13 results. Not case sensitive.'
 search_example = 'Search for songs with the keyword snow: !search snow'
 
 google_desc = 'Generates a Google search link for a keyword. For lazy people like me.'
@@ -91,21 +92,22 @@ google_usage = '!google <keyword>'
 
 trollurl_desc = 'Replaces characters in a URL to make a similar looking one.'
 trollurl_usage = '!trollurl <url>'
+trollurl_example = 'Troll a Google link: !trollurl https://www.google.com'
 
 
 invite_desc = 'Generates a link to invite cakebot to your server.'
 invite_usage = '!invite'
 
 musicpre_desc = 'Sets the prefix for queueing music for your server\'s music bot.'
-musicpre_usage = '!musicprefix - displays the current prefix set for the server\n' \
-                 '!musicprefix <prefix> - Sets the music prefix to <prefix>. ' \
+musicpre_usage = '!musicprefix - displays the current music prefix set for the server\n' \
+                 '!musicprefix <prefix> - sets the music prefix for the server to <prefix>. ' \
                  'Requires manage_server or musicprefix permission.\n\n' \
-                 'The prefix can be multiple words.'
+                 'The prefix can consist of multiple words.'
 musicpre_example = 'Set music prefix to ~play: !musicprefix ~play\n' \
                    'Set music prefix to ! lm play: !musicprefix ! lm play'
 
-logchannel_desc = 'Sets the channel for logging output.'
-logchannel_usage = '!logchannel - displays the current channel for logging output\n' \
+logchannel_desc = 'Gets or sets the channel for logging messages.'
+logchannel_usage = '!logchannel - displays the current channel for logging messages\n' \
                    '!logchannel set - sets the current channel as the logging channel. Requires manage_server ' \
                    'or logchannel permission.'
 
@@ -115,7 +117,7 @@ perms_usage = 'NOTE: This does NOT set server permissions but only permissions f
               '!musicprefix (set)\n' \
               '!permissions (set)\n' \
               '!logchannel (set)\n\n' \
-              '!permissions - displays your current cakebot permissions.\n' \
+              '!permissions - displays your current cakebot permissions\n' \
               '!permissions <user mention> - displays current cakebot permissions for the mentioned user.\n' \
               '!permissions <user mention> <command|commands> - add permissions to the given user. Requires ' \
               'manage_server permission.'
