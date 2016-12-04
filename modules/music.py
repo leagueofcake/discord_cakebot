@@ -42,3 +42,19 @@ def find_album(c, album):
 def find_song_by_id(c, song_id):
     c.execute("SELECT * FROM songs WHERE id LIKE ?", (song_id,))
     return c.fetchmany(size=13)
+
+
+def search_songs(c, keyword):
+    c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ? OR LOWER(alias) LIKE ?", (keyword, keyword, keyword, keyword))
+    return c.fetchmany(size=13)
+
+
+def get_song_results(c, found):
+    results = "\nFound multiple matches: (limited to 13). Use ``!playid <id>``\n```"
+    results += '{:4} {:45} {:25} {:35} {:20}'.format('ID', 'Name', 'Artist', 'Album', 'Alias')
+    if found:
+        for res in found:
+            song = Song(*res)
+            results += '\n' + song.get_result_repr()
+    results += '```'
+    return results

@@ -13,7 +13,7 @@ from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
 from modules.music import Song, get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, find_album, \
-    find_song_by_id
+    find_song_by_id, search_songs, get_song_results
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log
 
@@ -81,7 +81,6 @@ async def on_message(message):
                 await client.send_message(message.channel, 'No permissions were added to {}!'.format(user))
     elif command == '!musicprefix':
         perms = get_permissions(c, message.author.id, message.server.id)
-
         can_manage_server = message.channel.permissions_for(message.author).manage_server
         has_musicprefix_perm = find_permissions(perms, 'musicprefix')
 
@@ -108,7 +107,6 @@ async def on_message(message):
     elif command == '!timedcats':
         if str(message.author.id) == cakebot_config.OWNER_ID:
             times, duration_str = parse_duration_str(args)
-
             unit_time = cakebot_config.time_map[duration_str][0]
 
             unit_duration_str = cakebot_config.time_map[duration_str][1]
@@ -153,12 +151,10 @@ async def on_message(message):
         else:
             await client.send_message(message.channel, 'Not enough arguments! Expecting 1')
     elif command == '!trollurl':
-        url = args[1]
-        await client.send_message(message.channel, return_troll(url))
+        await client.send_message(message.channel, return_troll(args[1]))
         await client.delete_message(message)
     elif command == '!google':
-        words = args[1:]
-        url = 'https://www.google.com/#q=' + '+'.join(words)
+        url = 'https://www.google.com/#q=' + '+'.join(args[1:])
         await client.send_message(message.channel, url)
     elif command == '!redirect':
         room = message.channel_mentions[0]
@@ -167,9 +163,8 @@ async def on_message(message):
         await client.delete_message(message)
     elif command.startswith('!play'):  # Play song by title/alias
         if args[0] == '!play':
-            song_name = ' '.join(args[1:])
-            search = '%{}%'.format(song_name.lower())
-            found = find_song_by_name(c, search)
+            search = '%{}%'.format(' '.join(args[1:]).lower())
+            found = search_songs(c, search)
 
             if len(found) == 1:
                 prefix = get_music_prefix(c, message.server.id)
@@ -179,13 +174,7 @@ async def on_message(message):
                 else:
                     await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
             elif len(found) > 1:
-                results = "\nFound multiple matches: (limited to 13). Use ``!playid <id>``\n```"
-                results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(45, ' '), 'Artist'.ljust(25, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
-                if found:
-                    for res in found:
-                        song = Song(*res)
-                        results += '\n' + song.get_result_repr()
-                    await temp_message(client, message.channel, results + '```', time=8)
+                await temp_message(client, message.channel, get_song_results(c, found), time=8)
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
         else:
@@ -209,24 +198,11 @@ async def on_message(message):
     elif command == '!reqsong':
         await client.send_message(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
     elif command == '!search':
-        search_str = ' '.join(args[1:])
-        s = '%{}%'.format(search_str.lower())
-        c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ? OR LOWER(alias) LIKE ?", (s, s, s, s))
-        found = c.fetchmany(size=13)
-        results = '\nSongs found (limited to 13):\n```'
-        results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(45, ' '), 'Artist'.ljust(25, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
-        if found:
-            for song in found:
-                id, name, artist, album, alias = song[0], song[1], song[2], song[3], song[5]
-                id = str(id).ljust(4, ' ')
-                name = name[:45].ljust(45, ' ')
-                artist = str(artist)[:25].ljust(25, ' ')
-                album = str(album)[:35].ljust(35, ' ')
-                alias = str(alias)[:20].ljust(20, ' ')
+        search = '%{}%'.format(' '.join(args[1:]).lower())
+        found = search_songs(c, search)
 
-                formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
-                results += '\n' + formatted
-            await temp_message(client, message.channel, results + '```', time=8)
+        if found:
+            await temp_message(client, message.channel, get_song_results(c, found), time=8)
         else:
             await client.send_message(message.channel, "Couldn't find any songs!")
     elif command == '!help':
