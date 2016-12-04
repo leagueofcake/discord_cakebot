@@ -12,8 +12,8 @@ from modules.helpers import temp_message
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
-from modules.music import Song, get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, find_album, \
-    find_song_by_id, search_songs, get_song_results
+from modules.music import Song, get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
+    find_album, find_song_by_id, search_songs, make_song_results, queue_songs
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log
 
@@ -162,39 +162,25 @@ async def on_message(message):
         await client.send_message(room, ' '.join(args[2:]))
         await client.delete_message(message)
     elif command.startswith('!play'):  # Play song by title/alias
-        if args[0] == '!play':
+        prefix = get_music_prefix(c, message.server.id)
+        if command == '!play':
             search = '%{}%'.format(' '.join(args[1:]).lower())
-            found = search_songs(c, search)
+            found = find_song_by_name(c, search)
 
             if len(found) == 1:
-                prefix = get_music_prefix(c, message.server.id)
-                if prefix:
-                    await temp_message(client, message.channel, '{} {}'.format(prefix, found[0][4]))
-                    await client.send_message(message.channel, '{} queued: {}'.format(message.author, found[0][1]))
-                else:
-                    await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
+                await queue_songs(client, message, prefix, found)
             elif len(found) > 1:
-                await temp_message(client, message.channel, get_song_results(c, found), time=8)
-            else:
-                await client.send_message(message.channel, "Couldn't find that song!")
+                await temp_message(client, message.channel, make_song_results(found), time=8)
         else:
             found = None
             if command == '!playalbum':
                 found = find_album(c, ' '.join(args[1:]))
             elif command == '!playid':
                 found = find_song_by_id(c, args[1])
+            await queue_songs(client, message, prefix, found)
 
-            if found:
-                for song in found:
-                    # Find music_prefix in db
-                    prefix = get_music_prefix(c, message.server.id)
-                    if prefix:
-                        await temp_message(client, message.channel, '{} {}'.format(prefix, song[4]), time=3)
-                        await client.send_message(message.channel, '{} queued: {}'.format(message.author, song[1]))
-                    else:
-                        await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
-            else:
-                await client.send_message(message.channel, "Couldn't find that song!")
+        if not found:
+            await client.send_message(message.channel, "Couldn't find that song/album!")
     elif command == '!reqsong':
         await client.send_message(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
     elif command == '!search':
@@ -202,7 +188,7 @@ async def on_message(message):
         found = search_songs(c, search)
 
         if found:
-            await temp_message(client, message.channel, get_song_results(c, found), time=8)
+            await temp_message(client, message.channel, make_song_results(found), time=8)
         else:
             await client.send_message(message.channel, "Couldn't find any songs!")
     elif command == '!help':
