@@ -12,6 +12,8 @@ Usage
 """""
 ``!del``
 
+------------------------------------------------------------------------------------------------------------------------
+
 !find
 -----
 Searches the last 500 messages in the current channel for a message containing a specified keyword.
@@ -28,6 +30,8 @@ Examples
 * User specified: ``!find cake @leagueofcake#1234``
 * User not specified: ``!find cake``
 
+------------------------------------------------------------------------------------------------------------------------
+
 !google
 -------
 Generates a Google search link for a keyword. For lazy people like me.
@@ -35,6 +39,8 @@ Generates a Google search link for a keyword. For lazy people like me.
 Usage
 """""
 * ``!google <keyword>``
+
+------------------------------------------------------------------------------------------------------------------------
 
 !hello
 ------
@@ -44,6 +50,8 @@ Usage
 """""
 * ``!hello``
 
+------------------------------------------------------------------------------------------------------------------------
+
 !invite
 -------
 Generates a link to invite cakebot to your server
@@ -52,6 +60,7 @@ Usage
 """""
 * ``!invite``
 
+------------------------------------------------------------------------------------------------------------------------
 
 !redirect
 ---------
@@ -63,8 +72,9 @@ Usage
 
 Examples
 """"""""
-* Redirects messag4e to #alt: ``!redirect #alt Hi guys, from the main channel!``
+* Redirects message to #alt: ``!redirect #alt Hi guys, from the main channel!``
 
+------------------------------------------------------------------------------------------------------------------------
 
 Music
 ^^^^^
@@ -86,6 +96,7 @@ Examples
 * Set music prefix to ``~play``: ``!musicprefix ~play``
 * Set music prefix to ``! lm play``: ``!musicprefix ! lm play``
 
+------------------------------------------------------------------------------------------------------------------------
 
 !play
 -----
@@ -109,6 +120,8 @@ Examples
 * Exact match, play song: ``!play sound of silence``
 * Exact match for alias: ``!play haifuriop``
 
+------------------------------------------------------------------------------------------------------------------------
+
 !playalbum
 ----------
 Queues an entire album - variant of ``!play``
@@ -122,6 +135,8 @@ Name/keyword is not case sensitive.
 Examples
 """"""""
 * Play album named *snow halation*: ``!play snow halation``
+
+------------------------------------------------------------------------------------------------------------------------
 
 !playid
 -------
@@ -137,6 +152,8 @@ Examples
 """"""""
 * Play song with id 316: ``!playid 316``
 
+------------------------------------------------------------------------------------------------------------------------
+
 !search
 -------
 Searches the song database for a song with a matching alias/song/artist/album name.
@@ -151,6 +168,8 @@ Examples
 """"""""
 * Search for songs with the kekyword snow: ``!search snow``
 
+------------------------------------------------------------------------------------------------------------------------
+
 !reqsong
 --------
 Shows links to forms for requesting songs to be added to the database.
@@ -159,6 +178,7 @@ Usage
 """""
 * ``!reqsong``
 
+------------------------------------------------------------------------------------------------------------------------
 
 Modtools
 ^^^^^^^^
@@ -171,6 +191,8 @@ Usage
 """""
 * ``!logchannel`` - displays the current channel for logging messages
 * ``!logchannel set`` - sets the current channel as the logging channel. Requires *manage_server* or *logchannel* permission.
+
+------------------------------------------------------------------------------------------------------------------------
 
 !purge
 ------
@@ -186,6 +208,7 @@ Examples
 * Purge last 5 messages: ``!purge 5``
 * Purge Clyde's last 10 messages: ``!purge @Clyde#1234 10``
 
+------------------------------------------------------------------------------------------------------------------------
 
 Permissions
 ^^^^^^^^^^^
@@ -211,6 +234,8 @@ Examples
 * Give Clyde musicprefix permissions: ``!permissions @Clyde#1234 musicprefix``
 * Give Clyde musicprefix and logchannel permissions; ``!permissions @Clyde#1234 musicprefix logchannel``
 
+------------------------------------------------------------------------------------------------------------------------
+
 Miscellaneous
 ^^^^^^^^^^^^^
 
@@ -228,6 +253,8 @@ Examples
 """"""""
 * Send cat images every minute for 3 minutes: ``!timedcats 3 m``
 * Send cat images every hour for 10 hours: ``!timedcats 10 h``
+
+------------------------------------------------------------------------------------------------------------------------
 
 !trollurl
 ---------
