@@ -4,16 +4,16 @@ Command List
 General
 ^^^^^^^
 
-``!del``
---------
+!del
+----
 Deletes your previous message. Searches up to the previous 500 messages in the channel.
 
 Usage
 """""
 ``!del``
 
-``!find``
----------
+!find
+-----
 Searches the last 500 messages in the current channel for a message containing a specified keyword.
 
 Usage
@@ -28,24 +28,24 @@ Examples
 * User specified: ``!find cake @leagueofcake#1234``
 * User not specified: ``!find cake``
 
-``!google``
------------
+!google
+-------
 Generates a Google search link for a keyword. For lazy people like me.
 
 Usage
 """""
 * ``!google <keyword>``
 
-``!hello``
-----------
+!hello
+------
 cakebot says hello! Use to check if cakebot is online.
 
 Usage
 """""
 * ``!hello``
 
-``!invite``
------------
+!invite
+-------
 Generates a link to invite cakebot to your server
 
 Usage
@@ -53,8 +53,8 @@ Usage
 * ``!invite``
 
 
-``!redirect``
--------------
+!redirect
+---------
 Redirects a message to another channel.
 
 Usage
@@ -69,8 +69,8 @@ Examples
 Music
 ^^^^^
 
-``!musicprefix``
-----------------
+!musicprefix
+------------
 
 Sets the prefix for queueing music for your server's music bot.
 
@@ -87,8 +87,8 @@ Examples
 * Set music prefix to ``! lm play``: ``!musicprefix ! lm play``
 
 
-``!play``
----------
+!play
+-----
 Queues music using the musicprefix for the channel (check with ``!musicprefix``)
 
 Usage
@@ -109,8 +109,8 @@ Examples
 * Exact match, play song: ``!play sound of silence``
 * Exact match for alias: ``!play haifuriop``
 
-``!playalbum``
---------------
+!playalbum
+----------
 Queues an entire album - variant of ``!play``
 
 Usage
@@ -123,13 +123,13 @@ Examples
 """"""""
 * Play album named *snow halation*: ``!play snow halation``
 
-``!playid``
------------
+!playid
+-------
 Queues a song by id - variant of ``!play``
 
 Usage
 """""
-* ``!playid <id number>
+* ``!playid <id number>``
 
 A song's id can be found with ``!search``
 
@@ -137,8 +137,8 @@ Examples
 """"""""
 * Play song with id 316: ``!playid 316``
 
-``!search``
------------
+!search
+-------
 Searches the song database for a song with a matching alias/song/artist/album name.
 
 Usage
@@ -151,8 +151,8 @@ Examples
 """"""""
 * Search for songs with the kekyword snow: ``!search snow``
 
-``!reqsong``
-------------
+!reqsong
+--------
 Shows links to forms for requesting songs to be added to the database.
 
 Usage
@@ -163,8 +163,8 @@ Usage
 Modtools
 ^^^^^^^^
 
-``!logchannel``
----------------
+!logchannel
+-----------
 Gets or sets the channel for logging messages.
 
 Usage
@@ -172,8 +172,8 @@ Usage
 * ``!logchannel`` - displays the current channel for logging messages
 * ``!logchannel set`` - sets the current channel as the logging channel. Requires *manage_server* or *logchannel* permission.
 
-``!purge``
-----------
+!purge
+------
 Purges a given amount of messages from the current channel. Can specify a user to purge only their messages.
 
 Usage
@@ -190,8 +190,8 @@ Examples
 Permissions
 ^^^^^^^^^^^
 
-``!permissions``
-----------------
+!permissions
+------------
 Gets or sets the cakebot permissions for a given user.
 This does **NOT** set server permissions, but rather permissions for cakebot commands.
 
@@ -214,8 +214,8 @@ Examples
 Miscellaneous
 ^^^^^^^^^^^^^
 
-``!timedcats``
---------------
+!timedcats
+----------
 Sends random cat images in timed intervals :3
 
 Usage
@@ -229,8 +229,8 @@ Examples
 * Send cat images every minute for 3 minutes: ``!timedcats 3 m``
 * Send cat images every hour for 10 hours: ``!timedcats 10 h``
 
-``!trollurl``
--------------
+!trollurl
+---------
 Replaces characters in a URL to make a similar looking one.
 
 Usage
