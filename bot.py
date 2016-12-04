@@ -12,7 +12,8 @@ from modules.helpers import temp_message
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
-from modules.music import get_music_prefix, add_music_prefix, update_music_prefix
+from modules.music import Song, get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, find_album, \
+    find_song_by_id
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log
 
@@ -87,7 +88,7 @@ async def on_message(message):
         music_prefix = get_music_prefix(c, message.server.id)
         if len(args) == 1:
             if music_prefix:
-                await temp_message(client, message.channel, 'Current music prefix for this server is: `{}`'.format(music_prefix[0]))
+                await temp_message(client, message.channel, 'Current music prefix for this server is: `{}`'.format(music_prefix))
             else:
                 await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
         else:
@@ -167,66 +168,44 @@ async def on_message(message):
     elif command.startswith('!play'):  # Play song by title/alias
         if args[0] == '!play':
             song_name = ' '.join(args[1:])
-            s = '%{}%'.format(song_name.lower())
-            c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (s, s))
-            found = c.fetchmany(size=13)
+            search = '%{}%'.format(song_name.lower())
+            found = find_song_by_name(c, search)
 
             if len(found) == 1:
-                server_id = message.server.id
-                c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
-                prefix = c.fetchone()
+                prefix = get_music_prefix(c, message.server.id)
                 if prefix:
-                    prefix = prefix[0]
                     await temp_message(client, message.channel, '{} {}'.format(prefix, found[0][4]))
                     await client.send_message(message.channel, '{} queued: {}'.format(message.author, found[0][1]))
                 else:
                     await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
             elif len(found) > 1:
                 results = "\nFound multiple matches: (limited to 13). Use ``!playid <id>``\n```"
-                s = '%{}%'.format(song_name.lower())
-                c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (s, s))
-                found = c.fetchmany(size=13)
                 results += '{} {} {} {} {}'.format('ID'.ljust(4, ' '), 'Name'.ljust(45, ' '), 'Artist'.ljust(25, ' '), 'Album'.ljust(35, ' '), 'Alias'.ljust(20, ' '))
                 if found:
-                    for song in found:
-                        id, name, artist, album, alias = song[0], song[1], song[2], song[3], song[5]
-                        id = str(id).ljust(4, ' ')
-                        name = name[:45].ljust(45, ' ')
-                        artist = str(artist)[:25].ljust(25, ' ')
-                        album = str(album)[:35].ljust(35, ' ')
-                        alias = str(alias)[:20].ljust(20, ' ')
-
-                        formatted = "{} {} {} {} {}".format(id, name, artist, album, alias)
-                        results += '\n' + formatted
+                    for res in found:
+                        song = Song(*res)
+                        results += '\n' + song.get_result_repr()
                     await temp_message(client, message.channel, results + '```', time=8)
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
         else:
+            found = None
             if command == '!playalbum':
-                album_name = ' '.join(args[1:])
-                c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", ('%{}%'.format(album_name.lower()),))
+                found = find_album(c, ' '.join(args[1:]))
             elif command == '!playid':
-                id = args[1]
-                c.execute("SELECT * FROM songs WHERE id LIKE ?", (id,))
-
-            found = c.fetchmany(size=15)
-            server_id = message.server.id
+                found = find_song_by_id(c, args[1])
 
             if found:
                 for song in found:
-                    # await client.send_message(message.channel, found)
                     # Find music_prefix in db
-                    c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
-                    prefix = c.fetchone()
+                    prefix = get_music_prefix(c, message.server.id)
                     if prefix:
-                        prefix = prefix[0]
                         await temp_message(client, message.channel, '{} {}'.format(prefix, song[4]), time=3)
                         await client.send_message(message.channel, '{} queued: {}'.format(message.author, song[1]))
                     else:
                         await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
-
     elif command == '!reqsong':
         await client.send_message(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
     elif command == '!search':
