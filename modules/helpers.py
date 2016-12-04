@@ -9,6 +9,11 @@ def is_integer(text):
         return False
 
 
+# Returns a string in the form username#descriptor e.g. Clyde#1234
+def get_full_username(user):
+    return '{}#{}'.format(user.display_name, user.discriminator)
+
+
 async def temp_message(client, channel, message, time=5):
     tmp = await client.send_message(channel, message)
     await asyncio.sleep(time)

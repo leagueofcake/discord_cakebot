@@ -328,7 +328,6 @@ async def on_message(message):
 # Logging functionality
 @client.event
 async def on_message_edit(before, after):
-    print(get_log_channel_id(c, before.server.id))
     log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
     if log_channel and before.content != after.content:
         await client.send_message(log_channel, gen_edit_message_log(before, after))
