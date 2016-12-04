@@ -35,16 +35,17 @@ async def on_ready():
 async def on_message(message):
     content = message.content
     args = content.split(' ')
+    command = args[0]
 
-    if content.startswith('!hello'):
+    if command == '!hello':
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
-    if content.startswith('!bye'):
+    if command == '!bye':
         if str(message.author.id) == cakebot_config.OWNER_ID:
             await client.send_message(message.channel, 'Logging out, bye!')
             sys.exit()
         else:
             await client.send_message(message.channel, 'I\'m not going anywhere!')
-    elif content.startswith('!permissions'):
+    elif command == '!permissions':
         # Gets permissions for mentioned user if given, otherwise defaults to calling user
         user = message.author
         if message.mentions:
@@ -77,7 +78,7 @@ async def on_message(message):
                 await client.send_message(message.channel, add_message)
             else:
                 await client.send_message(message.channel, 'No permissions were added to {}!'.format(user))
-    elif content.startswith('!musicprefix'):
+    elif command == '!musicprefix':
         perms = get_permissions(c, message.author.id, message.server.id)
 
         can_manage_server = message.channel.permissions_for(message.author).manage_server
@@ -101,9 +102,9 @@ async def on_message(message):
                 conn.commit()
             else:
                 await temp_message(client, message.channel, 'You don\'t have the permissions to do that! Message a moderator to change it.')
-    elif content.startswith('!invite'):
+    elif command == '!invite':
         await client.send_message(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
-    elif content.startswith('!timedcats'):
+    elif command == '!timedcats':
         if str(message.author.id) == cakebot_config.OWNER_ID:
             times, duration_str = parse_duration_str(args)
 
@@ -127,7 +128,7 @@ async def on_message(message):
                 await asyncio.sleep(unit_time)
         else:
             await client.send_message(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
-    elif content.startswith('!find'):
+    elif command == '!find':
         found = False
 
         if len(args) > 1:
@@ -150,20 +151,20 @@ async def on_message(message):
                 await temp_message(client, message.channel, 'Couldn\'t find message!')
         else:
             await client.send_message(message.channel, 'Not enough arguments! Expecting 1')
-    elif content.startswith('!trollurl'):
+    elif command == '!trollurl':
         url = args[1]
         await client.send_message(message.channel, return_troll(url))
         await client.delete_message(message)
-    elif content.startswith('!google'):
+    elif command == '!google':
         words = args[1:]
         url = 'https://www.google.com/#q=' + '+'.join(words)
         await client.send_message(message.channel, url)
-    elif content.startswith('!redirect'):
+    elif command == '!redirect':
         room = message.channel_mentions[0]
         await client.send_message(room, '`{}` redirected:'.format(message.author))
         await client.send_message(room, ' '.join(args[2:]))
         await client.delete_message(message)
-    elif content.startswith('!play'):  # Play song by title
+    elif command == '!play':  # Play song by title
         if args[0] == '!play':
             song_name = ' '.join(args[1:])
             s = '%{}%'.format(song_name.lower())
@@ -201,10 +202,10 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
         else:
-            if content.startswith('!playalbum'):
+            if command == '!playalbum':
                 album_name = ' '.join(args[1:])
                 c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", ('%{}%'.format(album_name.lower()),))
-            elif content.startswith('!playid'):
+            elif command == '!playid':
                 id = args[1]
                 c.execute("SELECT * FROM songs WHERE id LIKE ?", (id,))
 
@@ -226,9 +227,9 @@ async def on_message(message):
             else:
                 await client.send_message(message.channel, "Couldn't find that song!")
 
-    elif content.startswith('!reqsong'):
-        await client.send_message(message.channel, '\nFill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
-    elif content.startswith('!search'):
+    elif command == '!reqsong':
+        await client.send_message(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
+    elif command == '!search':
         search_str = ' '.join(args[1:])
         s = '%{}%'.format(search_str.lower())
         c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(album) LIKE ? OR LOWER(artist) LIKE ? OR LOWER(alias) LIKE ?", (s, s, s, s))
@@ -249,7 +250,7 @@ async def on_message(message):
             await temp_message(client, message.channel, results + '```', time=8)
         else:
             await client.send_message(message.channel, "Couldn't find any songs!")
-    elif content.startswith('!help'):
+    elif command == '!help':
         if len(args) > 1:  # specific command
             command = args[1]
             try:
@@ -258,7 +259,7 @@ async def on_message(message):
                 await temp_message(client, message.channel, 'Command not found! Do ``!help`` for the command list.', time=10)
         else:  # command list summary
             await temp_message(client, message.channel, cakebot_help.generate_summary(), time=10)
-    elif content.startswith('!logchannel'):
+    elif command == '!logchannel':
         perms = get_permissions(c, message.author.id, message.server.id)
         can_manage_server = message.channel.permissions_for(message.author).manage_server
         has_logchannel_perm = find_permissions(perms, 'logchannel')
@@ -284,7 +285,7 @@ async def on_message(message):
                     else:
                         await temp_message(client, message.channel,
                                            'You don\'t have the permissions to do that! Message a moderator to change it.')
-    elif content.startswith('!purge'):
+    elif command == '!purge':
         can_manage_server = message.channel.permissions_for(message.author).manage_server
 
         if can_manage_server:
@@ -320,7 +321,7 @@ async def on_message(message):
                 await client.delete_message(log)
                 break
 
-    # elif content.startswith('!'):
+    # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
 
