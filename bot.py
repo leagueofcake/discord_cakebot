@@ -164,7 +164,7 @@ async def on_message(message):
         await client.send_message(room, '`{}` redirected:'.format(message.author))
         await client.send_message(room, ' '.join(args[2:]))
         await client.delete_message(message)
-    elif command == '!play':  # Play song by title
+    elif command.startswith('!play'):  # Play song by title/alias
         if args[0] == '!play':
             song_name = ' '.join(args[1:])
             s = '%{}%'.format(song_name.lower())
