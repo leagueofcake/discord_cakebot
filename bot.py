@@ -296,16 +296,16 @@ async def on_message(message):
                 if message.mentions and len(args) >= 3:
                     purge_user_id = message.mentions[0].id  # Find id of first mentioned user
                     num = int(args[2])
-                    count = 0  # Count of deleted messages
 
+                    to_delete = []
                     async for log in client.logs_from(message.channel, limit=500):
                         if log.author.id == purge_user_id:
-                            await client.delete_message(log)
-                            count += 1
-                        if count == num:  # Deleted num amount of messages
+                            to_delete.append(log)
+                        if len(to_delete) == num:  # Deleted num amount of messages
                             break
 
-                    await temp_message(client, message.channel, "Purged {} messages from {}.".format(count, message.mentions[0]))
+                    await client.delete_messages(to_delete)
+                    await temp_message(client, message.channel, "Purged {} messages from {}.".format(len(to_delete), message.mentions[0]))
 
                 else:
                     num = int(args[1])

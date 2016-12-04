@@ -15,6 +15,7 @@ def update_log_channel(c, server_id, channel_id):
 
 
 def get_log_channel(c, server):
+    # TODO: use Client.get_channel
     for channel in server.channels:
         log_channel_id = get_log_channel_id(c, server.id)
         if log_channel_id:
