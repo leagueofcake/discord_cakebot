@@ -128,7 +128,7 @@ purge_desc = 'Purges a given amount of messages from the current channel.'
 purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server ' \
               'permission.\n' \
               '!purge <user mention> <number> - purges <number> of messages by <user mention> within the last ' \
-              '500 messages. Requires manage_server permission.'
+              '500 messages. Max <number> is 100. Requires manage_server permission.'
 purge_example = 'Purge last 5 messages: !purge 5\n' \
                 'Purge Clyde\'s last 10 messages: !purge @Clyde#1234 10'
 
