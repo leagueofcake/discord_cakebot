@@ -35,7 +35,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
     content = message.content
-    args = content.split(' ')
+    args = content.split()
     command = args[0]
 
     is_cakebot = message.author.id == client.user.id
@@ -243,10 +243,13 @@ async def on_message(message):
                     async for log in client.logs_from(message.channel, limit=500):
                         if log.author.id == purge_user_id:
                             to_delete.append(log)
-                        if len(to_delete) == num:  # Deleted num amount of messages
+                        if len(to_delete) == num:  # Found num amount of messages
                             break
 
-                    await client.delete_messages(to_delete)
+                    if len(to_delete) == 1:
+                        await client.delete_message(to_delete[0])
+                    else:
+                        await client.delete_messages(to_delete)
                     await temp_message(client, message.channel, "Purged {} messages from {}.".format(len(to_delete), message.mentions[0]))
 
                 else:
