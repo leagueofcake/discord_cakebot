@@ -8,7 +8,7 @@ import requests
 
 import cakebot_config
 import cakebot_help
-from modules.helpers import temp_message
+from modules.helpers import temp_message, is_integer
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
@@ -237,25 +237,32 @@ async def on_message(message):
             else:
                 if message.mentions and len(args) >= 3:
                     purge_user_id = message.mentions[0].id  # Find id of first mentioned user
-                    num = int(args[2])
-
-                    to_delete = []
-                    async for log in client.logs_from(message.channel, limit=500):
-                        if log.author.id == purge_user_id:
-                            to_delete.append(log)
-                        if len(to_delete) == num:  # Found num amount of messages
-                            break
-
-                    if len(to_delete) == 1:
-                        await client.delete_message(to_delete[0])
+                    if not is_integer(args[2]):
+                        await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
                     else:
-                        await client.delete_messages(to_delete)
-                    await temp_message(client, message.channel, "Purged {} messages from {}.".format(len(to_delete), message.mentions[0]))
+                        num = int(args[2])
+                        if 1 <= num <= 100:
+                            to_delete = []
+                            async for log in client.logs_from(message.channel, limit=500):
+                                if log.author.id == purge_user_id:
+                                    to_delete.append(log)
+                                if len(to_delete) == num:  # Found num amount of messages
+                                    break
 
+                            if len(to_delete) == 1:
+                                await client.delete_message(to_delete[0])
+                            else:
+                                await client.delete_messages(to_delete)
+                            await temp_message(client, message.channel, "Purged {} messages from {}.".format(len(to_delete), message.mentions[0]))
+                        else:
+                            await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
                 else:
-                    num = int(args[1])
-                    deleted = await client.purge_from(message.channel, limit=num)
-                    await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
+                    if not is_integer(args[1]):
+                        await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                    else:
+                        num = int(args[1])
+                        deleted = await client.purge_from(message.channel, limit=num)
+                        await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
 
         else:
             await client.send_message(message.channel, "You don't have the permissions to do that!")
