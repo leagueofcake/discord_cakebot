@@ -173,7 +173,7 @@ async def on_message(message):
 
             if len(found) == 1 and command == '!play':
                 await queue_songs(client, message, prefix, found)
-            elif len(found) > 1:
+            elif len(found) > 1 or command == '!search':
                 tmp = await client.send_message(message.channel, make_song_results(found))
 
                 def check(msg):
