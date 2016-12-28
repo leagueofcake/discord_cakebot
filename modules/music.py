@@ -66,7 +66,7 @@ def make_song_results(found, offset=0):
     page_num = (offset // 13) + 1 # Integer division
     max_page_num = (found_size // 13) + 1
 
-    results = "\nFound {} - displaying page {} of {}. Use ``!playid <id>``\n```".format(count_str, page_num, max_page_num)
+    results = "\nFound {} - displaying page {} of {}. Use !page <number> to access that page. Use ``!playid <id>``\n```".format(count_str, page_num, max_page_num)
     results += '{:4} {:45} {:25} {:35} {:20}'.format('ID', 'Name', 'Artist', 'Album', 'Alias')  # header row
 
     if found:
