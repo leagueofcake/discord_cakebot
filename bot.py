@@ -8,7 +8,7 @@ import requests
 
 import cakebot_config
 import cakebot_help
-from modules.helpers import temp_message
+from modules.helpers import temp_message, is_integer
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
@@ -159,16 +159,36 @@ async def on_message(message):
         await client.send_message(room, '`{}` redirected:'.format(message.author))
         await client.send_message(room, ' '.join(args[2:]))
         await client.delete_message(message)
-    elif command.startswith('!play'):  # Play song by title/alias
+    elif command.startswith('!play') or command == '!search':  # Play song by title/alias
         prefix = get_music_prefix(c, message.server.id)
-        if command == '!play':
+        if command == '!play' or command == '!search':
             search = '%{}%'.format(' '.join(args[1:]).lower())
-            found = find_song_by_name(c, search)
+            if command == '!play':
+                found = find_song_by_name(c, search)
+            elif command == '!search':
+                found = search_songs(c, search)
 
-            if len(found) == 1:
+            if len(found) == 1 and command == '!play':
                 await queue_songs(client, message, prefix, found)
             elif len(found) > 1:
-                await temp_message(client, message.channel, make_song_results(found), time=8)
+                tmp = await client.send_message(message.channel, make_song_results(found))
+
+                def check(msg):
+                    splitted = msg.content.split()
+                    return len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1])
+
+                msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+
+                while msg is not None:
+                    await client.delete_message(msg)
+                    await client.delete_message(tmp)
+
+                    page_num = msg.content.split()[1]
+                    tmp = await client.send_message(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
+                    msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+
+                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                await client.delete_message(tmp)
         else:
             found = None
             if command == '!playalbum':
@@ -178,17 +198,9 @@ async def on_message(message):
             await queue_songs(client, message, prefix, found)
 
         if not found:
-            await client.send_message(message.channel, "Couldn't find that song/album!")
+            await client.send_message(message.channel, "Couldn't find any matching songs!")
     elif command == '!reqsong':
         await client.send_message(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
-    elif command == '!search':
-        search = '%{}%'.format(' '.join(args[1:]).lower())
-        found = search_songs(c, search)
-
-        if found:
-            await temp_message(client, message.channel, make_song_results(found), time=8)
-        else:
-            await client.send_message(message.channel, "Couldn't find any songs!")
     elif command == '!help':
         if len(args) > 1:  # specific command
             command = args[1]
@@ -259,6 +271,17 @@ async def on_message(message):
             if log.author.id == message.author.id:
                 await client.delete_message(log)
                 break
+    elif command == '!test':
+        await client.send_message(message.channel, "TESTING TESTING 123")
+
+        def check(msg):
+            splitted = msg.content.split()
+            return len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1])
+
+        msg = await client.wait_for_message(author=message.author, check=check, timeout=5)
+
+        if msg:
+            await client.send_message(message.channel, "YOU GOT THE SECRET PASSWORD")
 
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')

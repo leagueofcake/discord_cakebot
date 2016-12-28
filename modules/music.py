@@ -34,12 +34,12 @@ def update_music_prefix(c, server_id, new_prefix):
 
 def find_song_by_name(c, name):
     c.execute("SELECT * FROM songs WHERE LOWER(name) LIKE ? OR LOWER(alias) LIKE ?", (name, name))
-    return c.fetchmany(size=13)
+    return c.fetchmany(size=100)
 
 
 def find_album(c, album):
     c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", ('%{}%'.format(album.lower()),))
-    return c.fetchmany(size=13)
+    return c.fetchmany(size=100)
 
 
 def find_song_by_id(c, song_id):
@@ -53,21 +53,30 @@ def search_songs(c, keyword):
               "OR LOWER(album) LIKE ? "
               "OR LOWER(artist) LIKE ? "
               "OR LOWER(alias) LIKE ?", (keyword, keyword, keyword, keyword))
-    return c.fetchmany(size=13)
+    return c.fetchmany(size=100)
 
 
-def make_song_results(found):
-    if len(found) == 1:
+def make_song_results(found, offset=0):
+    found_size = len(found)
+    if found_size == 1:
         count_str = "1 match"
     else:
-        count_str = "{} matches".format(len(found))
+        count_str = "{} matches".format(found_size)
 
-    results = "\nFound {}: (limited to 13). Use ``!playid <id>``\n```".format(count_str)
+    page_num = (offset // 13) + 1 # Integer division
+    max_page_num = (found_size // 13) + 1
+
+    results = "\nFound {} - displaying page {} of {}. Use ``!playid <id>``\n```".format(count_str, page_num, max_page_num)
     results += '{:4} {:45} {:25} {:35} {:20}'.format('ID', 'Name', 'Artist', 'Album', 'Alias')  # header row
 
     if found:
+        found = found[offset:]
+        added = 0
         for res in found:
+            if added == 13:
+                break
             results += '\n' + Song(*res).get_result_repr()
+            added += 1
     results += '```'
     return results
 
