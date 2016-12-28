@@ -60,7 +60,8 @@ redirect_example = 'Redirects message to #alt: !redirect #alt Hi guys, from the 
 play_desc = 'Queues music using the musicprefix for the channel (check with !musicprefix)'
 play_usage = '!play <keyword/title/alias>\n' \
              'Not case sensitive. If multiple matches are found, cakebot will display 13 possible matches ' \
-             'and prompt the user to !playid <id>\n\n' \
+             'and prompt the user to !playid <id>.\n\n' \
+             'If there are more than 13 results, use !page <number> to access the required page.\n\n' \
              'Variants (for more info do !help <variant>)\n' \
              '!play      - Queues a song by name or alias\n' \
              '!playid    - Queues a song by id\n' \
@@ -76,15 +77,18 @@ playid_example = 'Play song with id 316: !playid 316'
 
 playalbum_desc = 'Queues an entire album - variant of !play'
 playalbum_usage = '!playalbum <name/keyword>\n' \
-                  'Name/keyword is not case sensitive.'
-playalbum_example = 'Play album named snow halation: !play snow halation'
+                  'Name/keyword is not case sensitive. The songs to be queued are displayed (similar to !search - can ' \
+                  'use !page <number> to examine). \n\nIf the songs to be queued are correct, use !yes to confirm ' \
+                  'and queue.'
+playalbum_example = 'Play album named snow halation: !playalbum snow halation, then !yes'
 
 reqsong_desc = 'Shows links to forms for requesting songs to be added to the database.'
 reqsong_usage = '!reqsong'
 
 search_desc = 'Searches the song database for a song with a matching alias/song/artist/album name.'
 search_usage = '!search <keyword>\n\n' \
-               'Returns up to 13 results. Not case sensitive.'
+               'Displays up to 13 results at a time. Not case sensitive. If there are more than 13 results, ' \
+               'use !page <number> to access the required page.'
 search_example = 'Search for songs with the keyword snow: !search snow'
 
 google_desc = 'Generates a Google search link for a keyword. For lazy people like me.'

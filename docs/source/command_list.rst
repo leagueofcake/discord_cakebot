@@ -106,7 +106,9 @@ Usage
 """""
 * ``!play <keyword/title/alias>``
 
-Not case sensitive. If multiple matches are found, cakebot will display 13 possible matcches and prompt the user to ``!playid``.
+Not case sensitive. If multiple matches are found, cakebot will display 13 possible matches and prompt the user to ``!playid``.
+
+
 
 Variants
 """"""""
@@ -124,7 +126,8 @@ Examples
 
 !playalbum
 ----------
-Queues an entire album - variant of ``!play``
+Queues an entire album - variant of ``!play``. The songs to be queued are displayed in the same format as !search - use !page <number> to examine.
+If the songs to be queued are correct, use ``!yes`` to confirm and queue.
 
 Usage
 """""
@@ -134,7 +137,7 @@ Name/keyword is not case sensitive.
 
 Examples
 """"""""
-* Play album named *snow halation*: ``!play snow halation``
+* Play album named *snow halation*: ``!playalbum snow halation``
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -162,7 +165,7 @@ Usage
 """""
 * ``!search <keyword>``
 
-Returns up to 1343 results. Not case sensitive.
+Displays up to 13 results at a time. Not case sensitive. If there are more than 13 results, use !page <number> to access the required page.
 
 Examples
 """"""""
