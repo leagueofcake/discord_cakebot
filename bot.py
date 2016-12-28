@@ -196,9 +196,32 @@ async def on_message(message):
             found = None
             if command == '!playalbum':
                 found = find_album(c, ' '.join(args[1:]))
+                await client.send_message(message.channel, "Queueing the following songs. Confirm with !yes or refine your search terms.")
+
+                def check(msg):
+                    splitted = msg.content.split()
+                    return msg.content == '!yes' or (len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
+
+                tmp = await client.send_message(message.channel, make_song_results(found))
+                msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+
+                while msg is not None:
+                    await client.delete_message(msg)
+                    await client.delete_message(tmp)
+
+                    page_num = msg.content.split()[1]
+                    tmp = await client.send_message(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
+                    msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+
+                    if msg.content == '!yes':
+                        await queue_songs(client, message, prefix, found)
+                        break
+
+                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                await client.delete_message(tmp)
             elif command == '!playid':
                 found = find_song_by_id(c, args[1])
-            await queue_songs(client, message, prefix, found)
+                await queue_songs(client, message, prefix, found)
 
         if not found:
             await client.send_message(message.channel, "Couldn't find any matching songs!")
