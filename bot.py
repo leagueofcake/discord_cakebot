@@ -209,13 +209,14 @@ async def on_message(message):
                     await client.delete_message(msg)
                     await client.delete_message(tmp)
 
+                    if msg.content == '!yes':
+                        await queue_songs(client, message, prefix, found)
+                        break
+
                     page_num = msg.content.split()[1]
                     tmp = await client.send_message(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
                     msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
-                    if msg.content == '!yes':
-                        await queue_songs(client, message, prefix, found)
-                        break
 
                 await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
                 await client.delete_message(tmp)
