@@ -31,9 +31,13 @@ class HelpEntry():
                     '**Command:** ``' + self.command + '``\n\n' \
                     '**Category:** ' + self.category + '\n' \
                     '**Description:** ' + self.description + '\n\n' \
-                    '**Usage**\n```' + self.usage + '```\n\n'
+                    '**Usage**\n```' + self.usage + '```\n'
         if self.example:
-            formatted += '**Examples**\n```' + self.example + '```'
+            formatted += '\n**Examples**\n```' + self.example + '```'
+
+        formatted += '\nDetailed command information can be found at https://discord-cakebot.readthedocs.io/en/latest/command_list.html'
+        if self.category in ['general', 'music', 'modtools', 'permissions', 'miscellaneous']:
+            formatted += '#{}'.format(self.category)
         return formatted
 
 hello_desc = 'cakebot says hello! Use to check if cakebot is online. '
@@ -144,8 +148,8 @@ help_usage = '!help'
 help_help = HelpEntry('!help', help_desc, help_usage, 'general')
 
 help_dict = {
-                'hello':        HelpEntry('!hello', hello_desc, hello_usage, 'misc'),
-                'timedcats':    HelpEntry('!timedcats', timedcats_desc, timedcats_usage, 'misc', timedcats_example),
+                'hello':        HelpEntry('!hello', hello_desc, hello_usage, 'miscellaneous'),
+                'timedcats':    HelpEntry('!timedcats', timedcats_desc, timedcats_usage, 'miscellaneous', timedcats_example),
                 'find':         HelpEntry('!find', find_desc, find_usage, 'general', find_example),
                 'redirect':     HelpEntry('!redirect', redirect_desc, redirect_usage, 'general', redirect_example),
                 'play':         HelpEntry('!play', play_desc, play_usage, 'music', play_example),
@@ -153,12 +157,12 @@ help_dict = {
                 'playalbum':    HelpEntry('!playalbum', playalbum_desc, playalbum_usage, 'music', playalbum_example),
                 'reqsong':      HelpEntry('!reqsong', reqsong_desc, reqsong_usage, 'music'),
                 'search':       HelpEntry('!search', search_desc, search_usage, 'general', search_example),
-                'google':       HelpEntry('!google', google_desc, google_usage, 'misc'),
-                'trollurl':     HelpEntry('!trollurl', trollurl_desc, trollurl_usage, 'misc'),
+                'google':       HelpEntry('!google', google_desc, google_usage, 'miscellaneous'),
+                'trollurl':     HelpEntry('!trollurl', trollurl_desc, trollurl_usage, 'miscellaneous'),
                 'invite':       HelpEntry('!invite', invite_desc, invite_usage, 'general'),
                 'musicprefix':  HelpEntry('!musicprefix', musicpre_desc, musicpre_usage, 'music', musicpre_example),
                 'logchannel':   HelpEntry('!logchannel', logchannel_desc, logchannel_usage, 'modtools'),
-                'permissions':  HelpEntry('!permissions', perms_desc, perms_usage, 'modtools', perms_example),
+                'permissions':  HelpEntry('!permissions', perms_desc, perms_usage, 'permissions', perms_example),
                 'purge':        HelpEntry('!purge', purge_desc, purge_usage, 'modtools', purge_example),
                 'del':          HelpEntry('!del', del_desc, del_usage, 'general')
             }
@@ -178,4 +182,6 @@ def generate_summary():
         summary += help_dict[command].command.ljust(14, ' ')
         summary += help_dict[command].short_description + '\n'
     summary += '```'
+
+    summary += '\nFull command list can be found at https://discord-cakebot.readthedocs.io/en/latest/command_list.html'
     return summary
