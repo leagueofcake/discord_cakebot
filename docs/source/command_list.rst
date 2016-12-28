@@ -201,7 +201,7 @@ Purges a given amount of messages from the current channel. Can specify a user t
 Usage
 """""
 * ``!purge <number>`` - purges <number> of messages in the current channel. Requires *manage_server* permission.
-* ``!purge <user mention> <number>`` - purges <number> of messages by <user mention> within the last 500 messages. Requires *manage_server* permission.
+* ``!purge <user mention> <number>`` - purges <number> of messages by <user mention> within the last 500 messages. Max <number> is 100. Requires *manage_server* permission.
 
 Examples
 """"""""

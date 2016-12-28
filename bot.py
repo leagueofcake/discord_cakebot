@@ -35,8 +35,10 @@ async def on_ready():
 @client.event
 async def on_message(message):
     content = message.content
-    args = content.split(' ')
+    args = content.split()
     command = args[0]
+
+    is_cakebot = message.author.id == client.user.id
 
     if command == '!hello':
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
@@ -53,6 +55,7 @@ async def on_message(message):
             user = message.mentions[0]  # Find id of first mentioned user
 
         can_manage_server = message.channel.permissions_for(user).manage_server
+        is_owner = str(message.author.id) == cakebot_config.OWNER_ID
         perms = get_permissions(c, user.id, message.server.id)
         if len(args) == 1 or len(args) == 2:
             if perms:
@@ -62,7 +65,7 @@ async def on_message(message):
             if can_manage_server:
                 perm_message += '\nThis user has manage_server permissions.'
             await client.send_message(message.channel, perm_message)
-        elif (can_manage_server or str(message.author.id) == cakebot_config.OWNER_ID) and len(args) > 2:
+        elif (can_manage_server or is_owner) and len(args) > 2 and not is_cakebot:
             add_perms = [comm for comm in args[2:] if comm in allowed_perm_commands]  # Filter allowed permission commands
 
             if add_perms:
@@ -89,7 +92,7 @@ async def on_message(message):
             else:
                 await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
         else:
-            if can_manage_server or has_musicprefix_perm:
+            if (can_manage_server or has_musicprefix_perm) and not is_cakebot:
                 new_prefix = ' '.join(args[1:])
                 if music_prefix:
                     update_music_prefix(c, message.server.id, new_prefix)
@@ -226,7 +229,7 @@ async def on_message(message):
         else:
             if len(args) == 2:
                 if args[1] == 'set':
-                    if can_manage_server or has_logchannel_perm:
+                    if (can_manage_server or has_logchannel_perm) and not is_cakebot:
                         if log_channel:
                             update_log_channel(c, message.server.id, message.channel.id)
                         else:
@@ -239,49 +242,49 @@ async def on_message(message):
     elif command == '!purge':
         can_manage_server = message.channel.permissions_for(message.author).manage_server
 
-        if can_manage_server:
+        if can_manage_server and not is_cakebot:
             await client.delete_message(message)
             if len(args) < 2:
                 await client.send_message(message.channel, "Please specify the number of messages to purge.")
             else:
                 if message.mentions and len(args) >= 3:
                     purge_user_id = message.mentions[0].id  # Find id of first mentioned user
-                    num = int(args[2])
+                    if not is_integer(args[2]):
+                        await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                    else:
+                        num = int(args[2])
+                        if 1 <= num <= 100:
+                            to_delete = []
+                            async for log in client.logs_from(message.channel, limit=500):
+                                if log.author.id == purge_user_id:
+                                    to_delete.append(log)
+                                if len(to_delete) == num:  # Found num amount of messages
+                                    break
 
-                    to_delete = []
-                    async for log in client.logs_from(message.channel, limit=500):
-                        if log.author.id == purge_user_id:
-                            to_delete.append(log)
-                        if len(to_delete) == num:  # Deleted num amount of messages
-                            break
-
-                    await client.delete_messages(to_delete)
-                    await temp_message(client, message.channel, "Purged {} messages from {}.".format(len(to_delete), message.mentions[0]))
-
+                            if len(to_delete) == 1:
+                                await client.delete_message(to_delete[0])
+                            else:
+                                await client.delete_messages(to_delete)
+                            await temp_message(client, message.channel, "Purged {} messages from {}.".format(len(to_delete), message.mentions[0]))
+                        else:
+                            await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
                 else:
-                    num = int(args[1])
-                    deleted = await client.purge_from(message.channel, limit=num)
-                    await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
+                    if not is_integer(args[1]):
+                        await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                    else:
+                        num = int(args[1])
+                        deleted = await client.purge_from(message.channel, limit=num)
+                        await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
 
         else:
             await client.send_message(message.channel, "You don't have the permissions to do that!")
     elif content.strip() == '!del':
-        await client.delete_message(message)
-        async for log in client.logs_from(message.channel, limit=500):
-            if log.author.id == message.author.id:
-                await client.delete_message(log)
-                break
-    elif command == '!test':
-        await client.send_message(message.channel, "TESTING TESTING 123")
-
-        def check(msg):
-            splitted = msg.content.split()
-            return len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1])
-
-        msg = await client.wait_for_message(author=message.author, check=check, timeout=5)
-
-        if msg:
-            await client.send_message(message.channel, "YOU GOT THE SECRET PASSWORD")
+        if not is_cakebot:
+            await client.delete_message(message)
+            async for log in client.logs_from(message.channel, limit=500):
+                if log.author.id == message.author.id:
+                    await client.delete_message(log)
+                    break
 
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
