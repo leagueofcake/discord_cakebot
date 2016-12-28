@@ -196,7 +196,7 @@ async def on_message(message):
             found = None
             if command == '!playalbum':
                 found = find_album(c, ' '.join(args[1:]))
-                await client.send_message(message.channel, "Queueing the following songs. Confirm with !yes or refine your search terms.")
+                await client.send_message(message.channel, "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
 
                 def check(msg):
                     splitted = msg.content.split()
