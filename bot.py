@@ -297,6 +297,7 @@ async def on_message(message):
                         await client.delete_message(log)
                         break
             elif len(args) == 2:
+                await client.delete_message(message)
                 purge_user_id = message.author.id
                 if not is_integer(args[1]):
                     await client.send_message(message.channel, "Please specify a valid number of messages to delete.")
