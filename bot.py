@@ -272,15 +272,15 @@ async def on_message(message):
                 await client.send_message(message.channel, "Please specify the number of messages to purge.")
             else:
                 if message.mentions and len(args) >= 3:
-                    purge_user_id = message.mentions[0].id  # Find id of first mentioned user
+                    purge_user = message.mentions[0]  # Find id of first mentioned user
                     if not is_integer(args[2]):
-                        await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                        await client.send_message(message.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[2])
-                        await purge_messages(message=message, client=client, user_id=purge_user_id, num=num)
+                        await purge_messages(message=message, client=client, purge_user=purge_user, num=num)
                 else:
                     if not is_integer(args[1]):
-                        await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                        await client.send_message(message.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[1])
                         deleted = await client.purge_from(message.channel, limit=num)
@@ -298,12 +298,12 @@ async def on_message(message):
                         break
             elif len(args) == 2:
                 await client.delete_message(message)
-                purge_user_id = message.author.id
+                purge_user_id = message.author
                 if not is_integer(args[1]):
-                    await client.send_message(message.channel, "Please specify a valid number of messages to delete.")
+                    await client.send_message(message.channel, "Please specify a valid number of messages to delete. (1-100)")
                 else:
                     num = int(args[1])
-                    await purge_messages(message=message, client=client, user_id=purge_user_id, num=num)
+                    await purge_messages(message=message, client=client, purge_user=purge_user_id, num=num)
 
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')

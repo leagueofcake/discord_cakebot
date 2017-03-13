@@ -132,7 +132,8 @@ perms_usage = 'NOTE: This does NOT set server permissions but only permissions f
 perms_example = 'Give Clyde musicprefix permissions: !permissions @Clyde#1234 musicprefix\n' \
                 'Give Clyde musicprefix and logchannel permissions: !permissions @Clyde#1234 musicprefix logchannel' \
 
-purge_desc = 'Purges a given amount of messages from the current channel.'
+purge_desc = 'Purges a given amount of messages from the current channel. Can purge up to 100 ' \
+             'messages.'
 purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server ' \
               'permission.\n' \
               '!purge <user mention> <number> - purges <number> of messages by <user mention> within the last ' \
@@ -140,7 +141,8 @@ purge_usage = '!purge <number> - purges <number> of messages in the current chan
 purge_example = 'Purge last 5 messages: !purge 5\n' \
                 'Purge Clyde\'s last 10 messages: !purge @Clyde#1234 10'
 
-del_desc = 'Deletes your previous message(s). Searches up to the previous 500 messages in the channel.'
+del_desc = 'Deletes your previous message(s). Searches up to the previous 500 messages in the ' \
+           'channel. Can delete up to 100 messages.'
 del_usage = '!del - delete your last message\n' \
             '!del <number> - deletes your last <number> messages'
 

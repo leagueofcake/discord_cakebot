@@ -46,11 +46,11 @@ def gen_delete_message_log(message):
     return '[{}] {} *deleted their message in* {}\n' \
            '{}'.format(local_message_time, username, message.channel.mention, clean_content)
 
-async def purge_messages(message, client, user_id, num):
+async def purge_messages(message, client, purge_user, num):
     if 1 <= num <= 100:
         to_delete = []
         async for log in client.logs_from(message.channel, limit=500):
-            if log.author.id == user_id:
+            if log.author.id == purge_user.id:
                 to_delete.append(log)
             if len(to_delete) == num:  # Found num amount of messages
                 break
@@ -61,7 +61,6 @@ async def purge_messages(message, client, user_id, num):
             await client.delete_messages(to_delete)
         await temp_message(client, message.channel,
                            "Purged {} messages from {}.".format(len(to_delete),
-                                                                message.author))
+                                                                purge_user))
     else:
-        await client.send_message(message.channel,
-                                  "Please specify a valid number of messages to purge.")
+        await temp_message(client, message.channel, "Please specify a valid number of messages to purge. (1-100)")
