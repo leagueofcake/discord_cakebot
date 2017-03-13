@@ -290,7 +290,7 @@ async def on_message(message):
             await client.send_message(message.channel, "You don't have the permissions to do that!")
     elif command == '!del':
         if not is_cakebot:
-            if len(args) == 1:
+            if len(args) == 1 or (len(args) == 2 and is_integer(args[1]) and args[1] == '1'):
                 await client.delete_message(message)
                 async for log in client.logs_from(message.channel, limit=500):
                     if log.author.id == message.author.id:
