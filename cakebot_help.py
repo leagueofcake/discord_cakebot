@@ -140,8 +140,9 @@ purge_usage = '!purge <number> - purges <number> of messages in the current chan
 purge_example = 'Purge last 5 messages: !purge 5\n' \
                 'Purge Clyde\'s last 10 messages: !purge @Clyde#1234 10'
 
-del_desc = 'Deletes your previous message. Searches up to the previous 500 messages in the channel.'
-del_usage = '!del' \
+del_desc = 'Deletes your previous message(s). Searches up to the previous 500 messages in the channel.'
+del_usage = '!del - delete your last message\n' \
+            '!del <number> - deletes your last <number> messages'
 
 help_desc = 'Displays this message.'
 help_usage = '!help'

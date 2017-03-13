@@ -15,7 +15,7 @@ from modules.permissions import get_permissions, set_permissions, update_permiss
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
     find_album, find_song_by_id, search_songs, make_song_results, queue_songs
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
-    gen_delete_message_log
+    gen_delete_message_log, purge_messages
 
 logging.basicConfig(level=logging.INFO)
 
@@ -277,21 +277,7 @@ async def on_message(message):
                         await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
                     else:
                         num = int(args[2])
-                        if 1 <= num <= 100:
-                            to_delete = []
-                            async for log in client.logs_from(message.channel, limit=500):
-                                if log.author.id == purge_user_id:
-                                    to_delete.append(log)
-                                if len(to_delete) == num:  # Found num amount of messages
-                                    break
-
-                            if len(to_delete) == 1:
-                                await client.delete_message(to_delete[0])
-                            else:
-                                await client.delete_messages(to_delete)
-                            await temp_message(client, message.channel, "Purged {} messages from {}.".format(len(to_delete), message.mentions[0]))
-                        else:
-                            await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                        await purge_messages(message=message, client=client, user_id=purge_user_id, num=num)
                 else:
                     if not is_integer(args[1]):
                         await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
@@ -302,13 +288,21 @@ async def on_message(message):
 
         else:
             await client.send_message(message.channel, "You don't have the permissions to do that!")
-    elif content.strip() == '!del':
+    elif command == '!del':
         if not is_cakebot:
-            await client.delete_message(message)
-            async for log in client.logs_from(message.channel, limit=500):
-                if log.author.id == message.author.id:
-                    await client.delete_message(log)
-                    break
+            if len(args) == 1:
+                await client.delete_message(message)
+                async for log in client.logs_from(message.channel, limit=500):
+                    if log.author.id == message.author.id:
+                        await client.delete_message(log)
+                        break
+            elif len(args) == 2:
+                purge_user_id = message.author.id
+                if not is_integer(args[1]):
+                    await client.send_message(message.channel, "Please specify a valid number of messages to delete.")
+                else:
+                    num = int(args[1])
+                    await purge_messages(message=message, client=client, user_id=purge_user_id, num=num)
 
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
