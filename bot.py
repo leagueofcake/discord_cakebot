@@ -351,6 +351,8 @@ async def on_member_update(before, after):
 
     if log_channel:
         local_message_time = datetime.now().strftime("%H:%M:%S")
+        before_roles = ", ".join([role.name for role in before.roles if role.name != "@everyone"])
+        after_roles = ", ".join([role.name for role in after.roles if role.name != "@everyone"])
 
         if before.nick != after.nick:
             message = '[{}] {} *changed nickname*\n' \
@@ -358,6 +360,14 @@ async def on_member_update(before, after):
                       'After+: {}'.format(local_message_time, get_full_username(before),
                                           before.display_name,
                                           after.display_name)
+            await client.send_message(log_channel, message)
+
+        elif before_roles != after_roles:
+            message = '[{}] {} *changed roles*\n' \
+                      'Before: {}\n' \
+                      'After+: {}'.format(local_message_time, get_full_username(before),
+                                          before_roles,
+                                          after_roles)
             await client.send_message(log_channel, message)
 
 client.run(cakebot_config.TOKEN)
