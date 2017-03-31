@@ -8,6 +8,7 @@ import requests
 
 import cakebot_config
 import cakebot_help
+from datetime import datetime
 from modules.helpers import temp_message, is_integer
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
@@ -324,5 +325,24 @@ async def on_message_delete(message):
     if log_channel:
         await client.send_message(log_channel, gen_delete_message_log(message))
 
+
+@client.event
+async def on_channel_update(before, after):
+    log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
+
+    if log_channel:
+        local_message_time = datetime.now().strftime("%H:%M:%S")
+
+        channel_mention = before.mention
+        if before.name != after.name:
+            message = '[{}] {} *changed channel name*\n' \
+                          'Before: {}\n' \
+                          'After+: {}'.format(local_message_time, channel_mention, before.name, after.name)
+            await client.send_message(log_channel, message)
+        if before.topic != after.topic:
+            message = '[{}] {} *changed topic contents*\n' \
+                      'Before: {}\n' \
+                      'After+: {}'.format(local_message_time, channel_mention, before.topic, after.topic)
+            await client.send_message(log_channel, message)
 
 client.run(cakebot_config.TOKEN)
