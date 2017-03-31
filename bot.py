@@ -9,7 +9,7 @@ import requests
 import cakebot_config
 import cakebot_help
 from datetime import datetime
-from modules.helpers import temp_message, is_integer
+from modules.helpers import temp_message, is_integer, get_full_username
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
@@ -343,6 +343,21 @@ async def on_channel_update(before, after):
             message = '[{}] {} *changed topic contents*\n' \
                       'Before: {}\n' \
                       'After+: {}'.format(local_message_time, channel_mention, before.topic, after.topic)
+            await client.send_message(log_channel, message)
+
+@client.event
+async def on_member_update(before, after):
+    log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
+
+    if log_channel:
+        local_message_time = datetime.now().strftime("%H:%M:%S")
+
+        if before.nick != after.nick:
+            message = '[{}] {} *changed nickname*\n' \
+                      'Before: {}\n' \
+                      'After+: {}'.format(local_message_time, get_full_username(before),
+                                          before.display_name,
+                                          after.display_name)
             await client.send_message(log_channel, message)
 
 client.run(cakebot_config.TOKEN)
