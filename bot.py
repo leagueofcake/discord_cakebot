@@ -330,4 +330,33 @@ async def on_message_delete(message):
         await client.send_message(log_channel, gen_delete_message_log(message))
 
 
+@client.event
+async def on_voice_state_update(before, after):
+    if before.server.id in ("139345703800406016", "178312027041824768"):  # Only use on main/dev server
+        default_list = ["Gaming Channel 1", "Gaming Channel 2", "Gaming Channel 3", "Music Channel"]
+        after_voice_channel = after.voice_channel
+
+        if after_voice_channel:
+            game_count = {}
+            voice_members = after_voice_channel.voice_members
+
+            for member in voice_members:
+                if member.game:
+                    if member.game not in game_count:
+                        game_count[member.game.name] = 1
+                    else:
+                        game_count[member.game.name] += 1
+            if game_count:
+                new_channel_name = max(game_count, key=game_count.get)
+                await client.edit_channel(after_voice_channel, name=new_channel_name)
+            
+            if len(before.voice_channel.voice_members) == 0:  # No more members, reset to default name
+                default_name = default_list[before.voice_channel.position]
+                await client.edit_channel(before.voice_channel, name=default_name)
+
+        # If voice channel being left has no more members, reset to default name
+        if len(before.voice_channel.voice_members) == 0:
+            default_name = default_list[before.voice_channel.position]
+            await client.edit_channel(before.voice_channel, name=default_name)
+
 client.run(cakebot_config.TOKEN)
