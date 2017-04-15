@@ -75,7 +75,7 @@ async def auto_rename_voice_channel(client, before, after):
 
             for member in voice_members:
                 if member.game:
-                    if member.game not in game_count:
+                    if member.game.name not in game_count:
                         game_count[member.game.name] = 1
                     else:
                         game_count[member.game.name] += 1
