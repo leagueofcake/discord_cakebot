@@ -8,14 +8,15 @@ import requests
 
 import cakebot_config
 import cakebot_help
-from modules.helpers import temp_message, is_integer
+from datetime import datetime
+from modules.helpers import temp_message, is_integer, get_full_username
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
     allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
     find_album, find_song_by_id, search_songs, make_song_results, queue_songs
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
-    gen_delete_message_log
+    gen_delete_message_log, purge_messages
 
 logging.basicConfig(level=logging.INFO)
 
@@ -272,29 +273,15 @@ async def on_message(message):
                 await client.send_message(message.channel, "Please specify the number of messages to purge.")
             else:
                 if message.mentions and len(args) >= 3:
-                    purge_user_id = message.mentions[0].id  # Find id of first mentioned user
+                    purge_user = message.mentions[0]  # Find id of first mentioned user
                     if not is_integer(args[2]):
-                        await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                        await client.send_message(message.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[2])
-                        if 1 <= num <= 100:
-                            to_delete = []
-                            async for log in client.logs_from(message.channel, limit=500):
-                                if log.author.id == purge_user_id:
-                                    to_delete.append(log)
-                                if len(to_delete) == num:  # Found num amount of messages
-                                    break
-
-                            if len(to_delete) == 1:
-                                await client.delete_message(to_delete[0])
-                            else:
-                                await client.delete_messages(to_delete)
-                            await temp_message(client, message.channel, "Purged {} messages from {}.".format(len(to_delete), message.mentions[0]))
-                        else:
-                            await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                        await purge_messages(message=message, client=client, purge_user=purge_user, num=num)
                 else:
                     if not is_integer(args[1]):
-                        await client.send_message(message.channel, "Please specify a valid number of messages to purge.")
+                        await client.send_message(message.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[1])
                         deleted = await client.purge_from(message.channel, limit=num)
@@ -302,13 +289,22 @@ async def on_message(message):
 
         else:
             await client.send_message(message.channel, "You don't have the permissions to do that!")
-    elif content.strip() == '!del':
+    elif command == '!del':
         if not is_cakebot:
-            await client.delete_message(message)
-            async for log in client.logs_from(message.channel, limit=500):
-                if log.author.id == message.author.id:
-                    await client.delete_message(log)
-                    break
+            if len(args) == 1 or (len(args) == 2 and is_integer(args[1]) and args[1] == '1'):
+                await client.delete_message(message)
+                async for log in client.logs_from(message.channel, limit=500):
+                    if log.author.id == message.author.id:
+                        await client.delete_message(log)
+                        break
+            elif len(args) == 2:
+                await client.delete_message(message)
+                purge_user_id = message.author
+                if not is_integer(args[1]):
+                    await client.send_message(message.channel, "Please specify a valid number of messages to delete. (1-100)")
+                else:
+                    num = int(args[1])
+                    await purge_messages(message=message, client=client, purge_user=purge_user_id, num=num)
 
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
@@ -331,14 +327,58 @@ async def on_message_delete(message):
 
 
 @client.event
+async def on_channel_update(before, after):
+    log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
+
+    if log_channel:
+        local_message_time = datetime.now().strftime("%H:%M:%S")
+
+        channel_mention = before.mention
+        if before.name != after.name:
+            message = '[{}] {} *changed channel name*\n' \
+                          'Before: {}\n' \
+                          'After+: {}'.format(local_message_time, channel_mention, before.name, after.name)
+            await client.send_message(log_channel, message)
+        if before.topic != after.topic:
+            message = '[{}] {} *changed topic contents*\n' \
+                      'Before: {}\n' \
+                      'After+: {}'.format(local_message_time, channel_mention, before.topic, after.topic)
+            await client.send_message(log_channel, message)
+
+@client.event
+async def on_member_update(before, after):
+    log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
+
+    if log_channel:
+        local_message_time = datetime.now().strftime("%H:%M:%S")
+        before_roles = ", ".join([role.name for role in before.roles if role.name != "@everyone"])
+        after_roles = ", ".join([role.name for role in after.roles if role.name != "@everyone"])
+
+        if before.nick != after.nick:
+            message = '[{}] {} *changed nickname*\n' \
+                      'Before: {}\n' \
+                      'After+: {}'.format(local_message_time, get_full_username(before),
+                                          before.display_name,
+                                          after.display_name)
+            await client.send_message(log_channel, message)
+
+        elif before_roles != after_roles:
+            message = '[{}] {} *changed roles*\n' \
+                      'Before: {}\n' \
+                      'After+: {}'.format(local_message_time, get_full_username(before),
+                                          before_roles,
+                                          after_roles)
+            await client.send_message(log_channel, message)
+
+
+@client.event
 async def on_voice_state_update(before, after):
     if before.server.id in ("139345703800406016", "178312027041824768"):  # Only use on main/dev server
         default_list = ["Gaming Channel 1", "Gaming Channel 2", "Gaming Channel 3", "Music Channel"]
-        after_voice_channel = after.voice_channel
 
-        if after_voice_channel:
+        if after.voice_channel:
             game_count = {}
-            voice_members = after_voice_channel.voice_members
+            voice_members = after.voice_channel.voice_members
 
             for member in voice_members:
                 if member.game:
@@ -348,15 +388,17 @@ async def on_voice_state_update(before, after):
                         game_count[member.game.name] += 1
             if game_count:
                 new_channel_name = max(game_count, key=game_count.get)
-                await client.edit_channel(after_voice_channel, name=new_channel_name)
-            
-            if len(before.voice_channel.voice_members) == 0:  # No more members, reset to default name
-                default_name = default_list[before.voice_channel.position]
-                await client.edit_channel(before.voice_channel, name=default_name)
+                await client.edit_channel(after.voice_channel, name=new_channel_name)
+
+            if before.voice_channel:
+                if len(before.voice_channel.voice_members) == 0:  # No more members, reset to default name
+                    default_name = default_list[before.voice_channel.position]
+                    await client.edit_channel(before.voice_channel, name=default_name)
 
         # If voice channel being left has no more members, reset to default name
-        if len(before.voice_channel.voice_members) == 0:
-            default_name = default_list[before.voice_channel.position]
-            await client.edit_channel(before.voice_channel, name=default_name)
+        if before.voice_channel:
+            if len(before.voice_channel.voice_members) == 0:
+                default_name = default_list[before.voice_channel.position]
+                await client.edit_channel(before.voice_channel, name=default_name)
 
 client.run(cakebot_config.TOKEN)

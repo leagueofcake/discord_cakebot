@@ -1,5 +1,5 @@
 from datetime import datetime
-from .helpers import get_full_username
+from .helpers import get_full_username, temp_message
 
 
 def get_log_channel_id(c, server_id):
@@ -45,3 +45,22 @@ def gen_delete_message_log(message):
 
     return '[{}] {} *deleted their message in* {}\n' \
            '{}'.format(local_message_time, username, message.channel.mention, clean_content)
+
+async def purge_messages(message, client, purge_user, num):
+    if 1 <= num <= 100:
+        to_delete = []
+        async for log in client.logs_from(message.channel, limit=500):
+            if log.author.id == purge_user.id:
+                to_delete.append(log)
+            if len(to_delete) == num:  # Found num amount of messages
+                break
+
+        if len(to_delete) == 1:
+            await client.delete_message(to_delete[0])
+        else:
+            await client.delete_messages(to_delete)
+        await temp_message(client, message.channel,
+                           "Purged {} messages from {}.".format(len(to_delete),
+                                                                purge_user))
+    else:
+        await temp_message(client, message.channel, "Please specify a valid number of messages to purge. (1-100)")
