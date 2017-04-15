@@ -387,8 +387,10 @@ async def on_voice_state_update(before, after):
                     else:
                         game_count[member.game.name] += 1
             if game_count:
-                new_channel_name = max(game_count, key=game_count.get)
-                await client.edit_channel(after.voice_channel, name=new_channel_name)
+                new_channel_names = [key for m in [max(game_count.values())] for key,val in game_count.items() if val == m]
+                for new_channel_name in new_channel_names:
+                    if new_channel_name:  # Non-blank new channel name
+                        await client.edit_channel(after.voice_channel, name=new_channel_name)
 
             if before.voice_channel:
                 if len(before.voice_channel.voice_members) == 0:  # No more members, reset to default name
