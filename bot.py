@@ -16,7 +16,7 @@ from modules.permissions import get_permissions, set_permissions, update_permiss
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
     find_album, find_song_by_id, search_songs, make_song_results, queue_songs
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
-    gen_delete_message_log, purge_messages
+    gen_delete_message_log, purge_messages, auto_rename_voice_channel
 
 logging.basicConfig(level=logging.INFO)
 
@@ -345,6 +345,7 @@ async def on_channel_update(before, after):
                       'After+: {}'.format(local_message_time, channel_mention, before.topic, after.topic)
             await client.send_message(log_channel, message)
 
+
 @client.event
 async def on_member_update(before, after):
     log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
@@ -370,37 +371,12 @@ async def on_member_update(before, after):
                                           after_roles)
             await client.send_message(log_channel, message)
 
+    if before.game != after.game:
+        await auto_rename_voice_channel(client, before, after)
+
 
 @client.event
 async def on_voice_state_update(before, after):
-    if before.server.id in ("139345703800406016", "178312027041824768"):  # Only use on main/dev server
-        default_list = ["Gaming Channel 1", "Gaming Channel 2", "Gaming Channel 3", "Music Channel"]
-
-        if after.voice_channel:
-            game_count = {}
-            voice_members = after.voice_channel.voice_members
-
-            for member in voice_members:
-                if member.game:
-                    if member.game not in game_count:
-                        game_count[member.game.name] = 1
-                    else:
-                        game_count[member.game.name] += 1
-            if game_count:
-                new_channel_names = [key for m in [max(game_count.values())] for key,val in game_count.items() if val == m]
-                for new_channel_name in new_channel_names:
-                    if new_channel_name:  # Non-blank new channel name
-                        await client.edit_channel(after.voice_channel, name=new_channel_name)
-
-            if before.voice_channel:
-                if len(before.voice_channel.voice_members) == 0:  # No more members, reset to default name
-                    default_name = default_list[before.voice_channel.position]
-                    await client.edit_channel(before.voice_channel, name=default_name)
-
-        # If voice channel being left has no more members, reset to default name
-        if before.voice_channel:
-            if len(before.voice_channel.voice_members) == 0:
-                default_name = default_list[before.voice_channel.position]
-                await client.edit_channel(before.voice_channel, name=default_name)
+    await auto_rename_voice_channel(client, before, after)
 
 client.run(cakebot_config.TOKEN)
