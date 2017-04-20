@@ -80,10 +80,12 @@ async def auto_rename_voice_channel(client, before, after):
                     else:
                         game_count[member.game.name] += 1
             if game_count:
+                # Select game with highest current players
                 new_channel_names = [key for m in [max(game_count.values())] for key,val in game_count.items() if val == m]
                 for new_channel_name in new_channel_names:
-                    if new_channel_name:  # Non-blank new channel name
+                    if new_channel_name:  # Non-blank new channel name, set as new channel name
                         await client.edit_channel(after.voice_channel, name=new_channel_name)
+                        break
             else:
                 default_name = default_list[after.voice_channel.position]
                 await client.edit_channel(after.voice_channel, name=default_name)
