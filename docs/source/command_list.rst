@@ -4,6 +4,17 @@ Command List
 General
 ^^^^^^^
 
+!bookmark
+---------
+Pings you to create a psuedo-bookmark in your recent mentions list.
+
+Usage
+"""""
+* ``!bookmark <label>`` - Pings you and adds the specified messsage.
+* ``!bookmark`` - Pings you and adds a generic label.
+
+------------------------------------------------------------------------------------------------------------------------
+
 !del
 ----
 Deletes your previous message. Searches up to the previous 500 messages in the channel.
