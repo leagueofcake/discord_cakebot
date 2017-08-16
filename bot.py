@@ -309,7 +309,10 @@ async def on_message(message):
         if not is_cakebot:
             await client.delete_message(message)
             label = ' '.join(args[1:])
-            await client.send_message(message.channel, '{} Bookmark: {}!'.format(message.author.mention, label))
+            if label:
+                await client.send_message(message.channel, '{} Bookmark: {}'.format(message.author.mention, label))
+            else:
+                await client.send_message(message.channel, '{} Bookmark created.'.format(message.author.mention, label))
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
