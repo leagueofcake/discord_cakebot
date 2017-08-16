@@ -305,7 +305,11 @@ async def on_message(message):
                 else:
                     num = int(args[1])
                     await purge_messages(message=message, client=client, purge_user=purge_user_id, num=num)
-
+    elif command == '!bookmark':
+        if not is_cakebot:
+            await client.delete_message(message)
+            label = ' '.join(args[1:])
+            await client.send_message(message.channel, '{} Bookmark: {}!'.format(message.author.mention, label))
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
