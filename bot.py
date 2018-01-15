@@ -313,6 +313,17 @@ async def on_message(message):
                 await client.send_message(message.channel, '{} Bookmark: {}'.format(message.author.mention, label))
             else:
                 await client.send_message(message.channel, '{} Bookmark created.'.format(message.author.mention, label))
+    elif command == '!say':
+        is_owner = str(message.author.id) == cakebot_config.OWNER_ID
+        if not is_cakebot and is_owner:
+            room = message.channel_mentions[0]
+            if room:
+                await client.send_message(room, ' '.join(args[2:]))
+            else:
+                await client.send_message(room, 'No room specified!')
+            await client.delete_message(message)
+        else:
+            await client.send_message('Only the owner of the bot can use this!')
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 

@@ -150,6 +150,9 @@ del_desc = 'Deletes your previous message(s). Searches up to the previous 500 me
 del_usage = '!del - delete your last message\n' \
             '!del <number> - deletes your last <number> messages'
 
+say_desc = 'Makes cakebot talk!'
+say_usage = '!say <room> <message> - makes cakebot say a message in the specified room' \
+
 help_desc = 'Displays this message.'
 help_usage = '!help'
 help_help = HelpEntry('!help', help_desc, help_usage, 'general')
@@ -172,7 +175,8 @@ help_dict = {
                 'logchannel':   HelpEntry('!logchannel', logchannel_desc, logchannel_usage, 'modtools'),
                 'permissions':  HelpEntry('!permissions', perms_desc, perms_usage, 'permissions', perms_example),
                 'purge':        HelpEntry('!purge', purge_desc, purge_usage, 'modtools', purge_example),
-                'del':          HelpEntry('!del', del_desc, del_usage, 'general')
+                'del':          HelpEntry('!del', del_desc, del_usage, 'general'),
+                'say':          HelpEntry('!say', say_desc, say_usage, 'miscellaneous')
             }
 
 
