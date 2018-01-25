@@ -43,7 +43,7 @@ async def on_message(message):
 
     if command == '!hello':
         await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
-    if command == '!bye':
+    elif command == '!bye':
         if str(message.author.id) == cakebot_config.OWNER_ID:
             await client.send_message(message.channel, 'Logging out, bye!')
             sys.exit()
