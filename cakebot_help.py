@@ -54,13 +54,6 @@ timedcats_usage = '!timedcats <number> <interval>\n' \
 timedcats_example = 'Send cat images every minute for 3 minutes: !timedcats 3 m\n' \
                     'Send cat images every hour for 10 hours: !timedcats 10 h'
 
-find_desc = 'Searches the last 500 messages in current channel for a message containing a keyword.'
-find_usage = '!find <keyword> - find a message with the specified keyword\n' \
-             '!find <keyword> <user mention> - find a message with specified keyword by specified user\n' \
-             'Returns a message with the author of the most rececnt matching message and its timestamp if found.'
-find_example = 'User specified: !find cake @leagueofcake#1234\n' \
-               'User not specified: !find cake'
-
 redirect_desc = 'Redirects a message to another channel.'
 redirect_usage = '!redirect <channel mention> <message>'
 redirect_example = 'Redirects message to #alt: !redirect #alt Hi guys, from the main channel!'
@@ -161,7 +154,6 @@ help_dict = {
                 'hello':        HelpEntry('!hello', hello_desc, hello_usage, 'miscellaneous'),
                 'bookmark':     HelpEntry('!bookmark', bookmark_desc, bookmark_usage, 'general'),
                 'timedcats':    HelpEntry('!timedcats', timedcats_desc, timedcats_usage, 'miscellaneous', timedcats_example),
-                'find':         HelpEntry('!find', find_desc, find_usage, 'general', find_example),
                 'redirect':     HelpEntry('!redirect', redirect_desc, redirect_usage, 'general', redirect_example),
                 'play':         HelpEntry('!play', play_desc, play_usage, 'music', play_example),
                 'playid':       HelpEntry('!playid', playid_desc, playid_usage, 'music', playid_example),

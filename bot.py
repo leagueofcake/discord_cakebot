@@ -129,29 +129,6 @@ async def on_message(message):
                 await asyncio.sleep(unit_time)
         else:
             await client.send_message(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
-    elif command == '!find':
-        found = False
-
-        if len(args) > 1:
-            keyword = args[1]
-            user_id = None
-            if message.raw_mentions:
-                user_id = message.raw_mentions[0]  # Find id of first mentioned user
-
-            async for log in client.logs_from(message.channel, limit=500):
-                if keyword.lower() in log.content.lower() and log.id != message.id and log.author != client.user:
-                    if user_id is None or log.author.id == user_id:
-                        try:
-                            timestamp = log.timestamp.strftime('%H:%M, %d/%m/%Y')
-                            await client.send_message(message.channel, '{} said at {}:\n```{}```'.format(log.author, timestamp, log.clean_content))
-                            found = True
-                        except:
-                            print('Untranslatable message')
-                        break  # terminate after finding first message
-            if not found:
-                await temp_message(client, message.channel, 'Couldn\'t find message!')
-        else:
-            await client.send_message(message.channel, 'Not enough arguments! Expecting 1')
     elif command == '!trollurl':
         await client.send_message(message.channel, return_troll(args[1]))
         await client.delete_message(message)

@@ -25,24 +25,6 @@ Usage
 
 ------------------------------------------------------------------------------------------------------------------------
 
-!find
------
-Searches the last 500 messages in the current channel for a message containing a specified keyword.
-
-Usage
-"""""
-* ``!find <keyword>`` - find a message with the specified keyword
-* ``!find <keyword> <user mention>`` - find a message with the specified keyword by specified user
-
-Returns a message with the author of the most recent matching message and its timestamp if found.
-
-Examples
-""""""""
-* User specified: ``!find cake @leagueofcake#1234``
-* User not specified: ``!find cake``
-
-------------------------------------------------------------------------------------------------------------------------
-
 !google
 -------
 Generates a Google search link for a keyword. For lazy people like me.
