@@ -33,6 +33,9 @@ async def on_ready():
     print('------')
 
 
+async def say(channel, message):
+    await client.send_message(channel, message)
+
 @client.event
 async def on_message(message):
     content = message.content
@@ -42,13 +45,13 @@ async def on_message(message):
     is_cakebot = message.author.id == client.user.id
 
     if command == '!hello':
-        await client.send_message(message.channel, 'Hello {}!'.format(message.author.mention))
+        await say(message.channel, 'Hello {}!'.format(message.author.mention))
     elif command == '!bye':
         if str(message.author.id) == cakebot_config.OWNER_ID:
-            await client.send_message(message.channel, 'Logging out, bye!')
+            await say(message.channel, 'Logging out, bye!')
             sys.exit()
         else:
-            await client.send_message(message.channel, 'I\'m not going anywhere!')
+            await say(message.channel, 'I\'m not going anywhere!')
     elif command == '!permissions':
         # Gets permissions for mentioned user if given, otherwise defaults to calling user
         user = message.author
@@ -65,7 +68,7 @@ async def on_message(message):
                 perm_message = 'There are no set permissions for: {}'.format(user)
             if can_manage_server:
                 perm_message += '\nThis user has manage_server permissions.'
-            await client.send_message(message.channel, perm_message)
+            await say(message.channel, perm_message)
         elif (can_manage_server or is_owner) and len(args) > 2 and not is_cakebot:
             add_perms = [comm for comm in args[2:] if comm in allowed_perm_commands]  # Filter allowed permission commands
 
@@ -78,9 +81,9 @@ async def on_message(message):
                     set_permissions(c, user.id, message.server.id, add_perms)
                 conn.commit()
                 add_message = 'Added permissions: `{}` to {}'.format(','.join(add_perms), user)
-                await client.send_message(message.channel, add_message)
+                await say(message.channel, add_message)
             else:
-                await client.send_message(message.channel, 'No permissions were added to {}!'.format(user))
+                await say(message.channel, 'No permissions were added to {}!'.format(user))
     elif command == '!musicprefix':
         perms = get_permissions(c, message.author.id, message.server.id)
         can_manage_server = message.channel.permissions_for(message.author).manage_server
@@ -97,15 +100,15 @@ async def on_message(message):
                 new_prefix = ' '.join(args[1:])
                 if music_prefix:
                     update_music_prefix(c, message.server.id, new_prefix)
-                    await client.send_message(message.channel, 'Updated music prefix for this server to: `{}`'.format(new_prefix))
+                    say(message.channel, 'Updated music prefix for this server to: `{}'.format(new_prefix))
                 else:
                     add_music_prefix(c, message.server.id, new_prefix)
-                    await client.send_message(message.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
+                    say(message.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
                 conn.commit()
             else:
                 await temp_message(client, message.channel, 'You don\'t have the permissions to do that! Message a moderator to change it.')
     elif command == '!invite':
-        await client.send_message(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
+        say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif command == '!timedcats':
         if str(message.author.id) == cakebot_config.OWNER_ID:
             times, duration_str = parse_duration_str(args)
@@ -118,27 +121,27 @@ async def on_message(message):
                 long_duration_str = unit_duration_str
 
             sending_msg = 'Sending cats every {} for {} {}!'.format(unit_duration_str, times, long_duration_str)
-            await client.send_message(message.channel, sending_msg)
+            say(message.channel, sending_msg)
 
             for i in range(times):
                 cat_url = requests.get('http://random.cat/meow').json()['file']
-                await client.send_message(message.channel, cat_url)
+                await say(message.channel, cat_url)
                 if i == times - 1:
-                    await client.send_message(message.channel, 'Finished sending cats!')
+                    await say(message.channel, 'Finished sending cats!')
                     break
                 await asyncio.sleep(unit_time)
         else:
-            await client.send_message(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
+            await say(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
     elif command == '!trollurl':
-        await client.send_message(message.channel, return_troll(args[1]))
+        await say(message.channel, return_troll(args[1]))
         await client.delete_message(message)
     elif command == '!google':
         url = 'https://www.google.com/#q=' + '+'.join(args[1:])
-        await client.send_message(message.channel, url)
+        await say(message.channel, url)
     elif command == '!redirect':
         room = message.channel_mentions[0]
-        await client.send_message(room, '`{}` redirected:'.format(message.author))
-        await client.send_message(room, ' '.join(args[2:]))
+        await say(room, '`{}` redirected:'.format(message.author))
+        await say(room, ' '.join(args[2:]))
         await client.delete_message(message)
     elif command.startswith('!play') or command == '!search':  # Play song by title/alias
         prefix = get_music_prefix(c, message.server.id)
@@ -152,7 +155,7 @@ async def on_message(message):
             if len(found) == 1 and command == '!play':
                 await queue_songs(client, message, prefix, found)
             elif len(found) > 1 or command == '!search':
-                tmp = await client.send_message(message.channel, make_song_results(found))
+                tmp = await say(message.channel, make_song_results(found))
 
                 def check(msg):
                     splitted = msg.content.split()
@@ -165,7 +168,7 @@ async def on_message(message):
                     await client.delete_message(tmp)
 
                     page_num = msg.content.split()[1]
-                    tmp = await client.send_message(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
+                    tmp = await say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
                     msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
                 await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
@@ -174,13 +177,13 @@ async def on_message(message):
             found = None
             if command == '!playalbum':
                 found = find_album(c, ' '.join(args[1:]))
-                await client.send_message(message.channel, "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
+                await say(message.channel, "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
 
                 def check(msg):
                     splitted = msg.content.split()
                     return msg.content == '!yes' or (len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
 
-                tmp = await client.send_message(message.channel, make_song_results(found))
+                tmp = await say(message.channel, make_song_results(found))
                 msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
                 while msg is not None:
@@ -192,7 +195,7 @@ async def on_message(message):
                         break
 
                     page_num = msg.content.split()[1]
-                    tmp = await client.send_message(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
+                    tmp = await say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
                     msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
 
@@ -203,9 +206,9 @@ async def on_message(message):
                 await queue_songs(client, message, prefix, found)
 
         if not found:
-            await client.send_message(message.channel, "Couldn't find any matching songs!")
+            await say(message.channel, "Couldn't find any matching songs!")
     elif command == '!reqsong':
-        await client.send_message(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
+        await say(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
     elif command == '!help':
         if len(args) > 1:  # specific command
             command = args[1]
@@ -236,7 +239,7 @@ async def on_message(message):
                             update_log_channel(c, message.server.id, message.channel.id)
                         else:
                             add_log_channel(c, message.server.id, message.channel.id)
-                        await client.send_message(message.channel, 'Set {} as the log channel!'.format(message.channel.mention))
+                        await say(message.channel, 'Set {} as the log channel!'.format(message.channel.mention))
                         conn.commit()
                     else:
                         await temp_message(client, message.channel,
@@ -247,25 +250,25 @@ async def on_message(message):
         if can_manage_server and not is_cakebot:
             await client.delete_message(message)
             if len(args) < 2:
-                await client.send_message(message.channel, "Please specify the number of messages to purge.")
+                await say(message.channel, "Please specify the number of messages to purge.")
             else:
                 if message.mentions and len(args) >= 3:
                     purge_user = message.mentions[0]  # Find id of first mentioned user
                     if not is_integer(args[2]):
-                        await client.send_message(message.channel, "Please specify a valid number of messages to purge. (1-100)")
+                        await say(message.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[2])
                         await purge_messages(message=message, client=client, purge_user=purge_user, num=num)
                 else:
                     if not is_integer(args[1]):
-                        await client.send_message(message.channel, "Please specify a valid number of messages to purge. (1-100)")
+                        await say(message.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[1])
                         deleted = await client.purge_from(message.channel, limit=num)
                         await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
 
         else:
-            await client.send_message(message.channel, "You don't have the permissions to do that!")
+            await say(message.channel, "You don't have the permissions to do that!")
     elif command == '!del':
         if not is_cakebot:
             if len(args) == 1 or (len(args) == 2 and is_integer(args[1]) and args[1] == '1'):
@@ -278,7 +281,7 @@ async def on_message(message):
                 await client.delete_message(message)
                 purge_user_id = message.author
                 if not is_integer(args[1]):
-                    await client.send_message(message.channel, "Please specify a valid number of messages to delete. (1-100)")
+                    await say(message.channel, "Please specify a valid number of messages to delete. (1-100)")
                 else:
                     num = int(args[1])
                     await purge_messages(message=message, client=client, purge_user=purge_user_id, num=num)
@@ -287,20 +290,20 @@ async def on_message(message):
             await client.delete_message(message)
             label = ' '.join(args[1:])
             if label:
-                await client.send_message(message.channel, '{} Bookmark: {}'.format(message.author.mention, label))
+                await say(message.channel, '{} Bookmark: {}'.format(message.author.mention, label))
             else:
-                await client.send_message(message.channel, '{} Bookmark created.'.format(message.author.mention, label))
+                await say(message.channel, '{} Bookmark created.'.format(message.author.mention, label))
     elif command == '!say':
         is_owner = str(message.author.id) == cakebot_config.OWNER_ID
         if not is_cakebot and is_owner:
             room = message.channel_mentions[0]
             if room:
-                await client.send_message(room, ' '.join(args[2:]))
+                await say(room, ' '.join(args[2:]))
             else:
-                await client.send_message(room, 'No room specified!')
+                await say(room, 'No room specified!')
             await client.delete_message(message)
         else:
-            await client.send_message('Only the owner of the bot can use this!')
+            await say('Only the owner of the bot can use this!')
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
@@ -310,7 +313,7 @@ async def on_message(message):
 async def on_message_edit(before, after):
     log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
     if log_channel and before.content != after.content:
-        await client.send_message(log_channel, gen_edit_message_log(before, after))
+        await say(log_channel, gen_edit_message_log(before, after))
 
 
 @client.event
@@ -318,7 +321,7 @@ async def on_message_delete(message):
     log_channel = client.get_channel(get_log_channel_id(c, message.server.id))
 
     if log_channel:
-        await client.send_message(log_channel, gen_delete_message_log(message))
+        await say(log_channel, gen_delete_message_log(message))
 
 
 @client.event
@@ -333,12 +336,12 @@ async def on_channel_update(before, after):
             message = '[{}] {} *changed channel name*\n' \
                           'Before: {}\n' \
                           'After+: {}'.format(local_message_time, channel_mention, before.name, after.name)
-            await client.send_message(log_channel, message)
+            await say(log_channel, message)
         if before.topic != after.topic:
             message = '[{}] {} *changed topic contents*\n' \
                       'Before: {}\n' \
                       'After+: {}'.format(local_message_time, channel_mention, before.topic, after.topic)
-            await client.send_message(log_channel, message)
+            await say(log_channel, message)
 
 
 @client.event
@@ -356,7 +359,7 @@ async def on_member_update(before, after):
                       'After+: {}'.format(local_message_time, get_full_username(before),
                                           before.display_name,
                                           after.display_name)
-            await client.send_message(log_channel, message)
+            await say(log_channel, message)
 
         elif before_roles != after_roles:
             message = '[{}] {} *changed roles*\n' \
@@ -364,7 +367,7 @@ async def on_member_update(before, after):
                       'After+: {}'.format(local_message_time, get_full_username(before),
                                           before_roles,
                                           after_roles)
-            await client.send_message(log_channel, message)
+            await say(log_channel, message)
 
     if before.game != after.game:
         await auto_rename_voice_channel(client, before, after)
