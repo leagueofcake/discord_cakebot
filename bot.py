@@ -223,6 +223,17 @@ class Bot:
             if len(args) == 2 and args[1] == 'set':
                 await self._set_log_channel(message)
 
+    async def help(self, message):
+        args = message.content.split()
+        if len(args) > 1:  # specific command
+            command = args[1]
+            try:
+                await self.temp_message(message.channel, cakebot_help.get_entry(command), time=10)
+            except KeyError:
+                await self.temp_message(message.channel, 'Command not found! do ``!help`` for the command list.', time=10)
+        else:  # command list summary
+            await self.temp_message(message.channel, cakebot_help.generate_summary(), time=10)
+
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
 
@@ -364,14 +375,7 @@ async def on_message(message):
     elif command == '!reqsong':
         await bot.say(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
     elif command == '!help':
-        if len(args) > 1:  # specific command
-            command = args[1]
-            try:
-                await temp_message(client, message.channel, cakebot_help.get_entry(command), time=10)
-            except KeyError:
-                await temp_message(client, message.channel, 'Command not found! Do ``!help`` for the command list.', time=10)
-        else:  # command list summary
-            await temp_message(client, message.channel, cakebot_help.generate_summary(), time=10)
+        await bot.help(message)
     elif command == '!logchannel':
         await bot.log_channel(message)
     elif command == '!purge':
