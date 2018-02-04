@@ -43,16 +43,17 @@ class Bot:
         else:
             await self.say(message.channel, 'I\'m not going anywhere!')
 
-    async def auth_function(self, f):
+    def auth_function(self, f):
         async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False, cakebot_perm=None):
             owner_check = owner_auth and self._is_owner(message.author)
             manage_server_check = manage_server_auth and self._can_manage_server(message.author, message.channel)
             is_cakebot_check = (not require_non_cakebot) or (require_non_cakebot and not self._is_cakebot(message.author))
+            no_auth = not owner_auth and not manage_server_auth and not cakebot_perm
 
             perms = get_permissions(c, message.author.id, message.server.id)
             cakebot_perm_check = cakebot_perm and perms and cakebot_perm in perms
 
-            if is_cakebot_check and (owner_check or manage_server_check or cakebot_perm_check):
+            if is_cakebot_check and (no_auth or owner_check or manage_server_check or cakebot_perm_check):
                 await f(message)
             else:
                 await self.say(message.channel, 'You\'re not allowed to do that!')
@@ -66,8 +67,7 @@ class Bot:
                 await self.say(m.channel, 'No room specified!')
             await self.delete(m)
 
-        res = await self.auth_function(inner)
-        await res(message, owner_auth=True)
+        await self.auth_function(inner)(message, owner_auth=True)
 
     async def _print_permissions(self, message, user):
         perms = get_permissions(c, user.id, message.server.id)
@@ -97,8 +97,7 @@ class Bot:
                 await self.say(m.channel, add_message)
             else:
                 await self.say(m.channel, 'No permissions were added to {}!'.format(user))
-        res = await self.auth_function(inner)
-        await res(message, require_non_cakebot=True, manage_server_auth=True, owner_auth=True)
+        await self.auth_function(inner)(message, require_non_cakebot=True, manage_server_auth=True, owner_auth=True)
 
     async def permissions(self, message):
         args = message.content.split()
@@ -133,8 +132,7 @@ class Bot:
                     await bot.say(m.channel, 'Finished sending cats!')
                     break
                 await asyncio.sleep(unit_time)
-        res = await self.auth_function(inner)
-        await res(message, owner_auth=True)
+        await self.auth_function(inner)(message, owner_auth=True)
 
     async def troll_url(self, message):
         await self.say(message.channel, return_troll(message.content.split()[1]))
@@ -173,28 +171,26 @@ class Bot:
                             async for log in self.client.logs_from(m.channel, limit=num):
                                 await self.delete(log)
 
-        res = await self.auth_function(inner)
-        await res(message, manage_server_auth=True, require_non_cakebot=True)
+        await self.auth_function(inner)(message, manage_server_auth=True, require_non_cakebot=True)
 
     async def del_user_messages(self, message):
         async def inner(m):
-            args = message.content.split()
+            args = m.content.split()
             if len(args) == 1 or (len(args) == 2 and is_integer(args[1]) and args[1] == '1'):
-                await self.delete(message)
-                async for log in self.client.logs_from(message.channel, limit=500):
-                    if log.author.id == message.author.id:
+                await self.delete(m)
+                async for log in self.client.logs_from(m.channel, limit=500):
+                    if log.author.id == m.author.id:
                         await self.delete(log)
                         break
             elif len(args) == 2:
-                await self.delete(message)
-                purge_user_id = message.author
+                await self.delete(m)
+                purge_user_id = m.author
                 if not is_integer(args[1]):
-                    await bot.say(message.channel, "Please specify a valid number of messages to delete. (1-100)")
+                    await bot.say(m.channel, "Please specify a valid number of messages to delete. (1-100)")
                 else:
                     num = int(args[1])
-                    await purge_messages(message=message, client=self.client, purge_user=purge_user_id, num=num)
-        res = await self.auth_function(inner)
-        await res(message, require_non_cakebot=True)
+                    await purge_messages(message=m, client=self.client, purge_user=purge_user_id, num=num)
+        await self.auth_function(inner)(message, require_non_cakebot=True)
 
     async def _print_log_channel(self, message):
         log_channel = self.client.get_channel(get_log_channel_id(c, message.server.id))
@@ -212,8 +208,7 @@ class Bot:
                 add_log_channel(c, m.server.id, m.channel.id)
             await bot.say(m.channel, 'Set {} as the log channel!'.format(m.channel.mention))
             conn.commit()
-        res = await self.auth_function(inner)
-        await res(message, manage_server_auth=True, cakebot_perm='logchannel', require_non_cakebot=True)
+        await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='logchannel', require_non_cakebot=True)
 
     async def log_channel(self, message):
         args = message.content.split()
