@@ -24,7 +24,7 @@ class Bot:
         self.client = client
 
     async def delete(self, message):
-        await self.client.delete(message)
+        await self.client.delete_message(message)
 
     async def say(self, channel, message):
         await self.client.send_message(channel, message)
@@ -132,6 +132,12 @@ class Bot:
     async def troll_url(self, message):
         await self.say(message.channel, return_troll(message.content.split()[1]))
         await self.delete(message)
+
+    async def redirect(self, message):
+        room = message.channel_mentions[0]
+        await self.say(room, '`{}` redirected:'.format(message.author))
+        await self.say(room, ' '.join(message.content.split()[2:]))
+        await self.client.delete_message(message)
 
     async def purge(self, message):
         async def inner(m):
@@ -256,10 +262,7 @@ async def on_message(message):
         url = 'https://www.google.com/#q=' + '+'.join(args[1:])
         await bot.say(message.channel, url)
     elif command == '!redirect':
-        room = message.channel_mentions[0]
-        await bot.say(room, '`{}` redirected:'.format(message.author))
-        await bot.say(room, ' '.join(args[2:]))
-        await client.delete_message(message)
+        await bot.redirect(message)
     elif command.startswith('!play') or command == '!search':  # Play song by title/alias
         prefix = get_music_prefix(c, message.server.id)
         if command == '!play' or command == '!search':
