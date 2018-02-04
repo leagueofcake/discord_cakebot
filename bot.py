@@ -23,6 +23,9 @@ class Bot:
     def __init__(self, client):
         self.client = client
 
+    async def delete(self, message):
+        await self.client.delete(message)
+
     async def say(self, channel, message):
         await self.client.send_message(channel, message)
 
@@ -54,7 +57,7 @@ class Bot:
                 await self.say(m.channel_mentions[0], ' '.join(m.content.split()[2:]))
             else:
                 await self.say(m.channel, 'No room specified!')
-            await self.client.delete_message(m)
+            await self.delete(m)
 
         res = await self.auth_function(inner)
         await res(message, owner_auth=True)
@@ -128,7 +131,37 @@ class Bot:
 
     async def troll_url(self, message):
         await self.say(message.channel, return_troll(message.content.split()[1]))
-        await self.client.delete_message(message)
+        await self.delete(message)
+
+    async def purge(self, message):
+        async def inner(m):
+            args = m.content.split()
+
+            await self.delete(m)
+            if len(args) < 2:
+                await bot.say(m.channel, "Please specify the number of messages to purge.")
+            else:
+                if m.mentions and len(args) >= 3:
+                    purge_user = m.mentions[0]  # Find id of first mentioned user
+                    if not is_integer(args[2]):
+                        await bot.say(m.channel, "Please specify a valid number of messages to purge. (1-100)")
+                    else:
+                        num = int(args[2])
+                        await purge_messages(message=message, client=self.client, purge_user=purge_user, num=num)
+                else:
+                    if not is_integer(args[1]):
+                        await bot.say(m.channel, "Please specify a valid number of messages to purge. (1-100)")
+                    else:
+                        num = int(args[1])
+                        try:
+                            deleted = await self.client.purge_from(m.channel, limit=num)
+                            await temp_message(client, m.channel, "Purged {} messages.".format(len(deleted)))
+                        except discord.errors.HTTPException: # Delete individually
+                            async for log in self.client.logs_from(m.channel, limit=num):
+                                await self.delete(log)
+
+        res = await self.auth_function(inner)
+        await res(message, manage_server_auth=True, require_non_cakebot=True)
 
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
@@ -309,34 +342,7 @@ async def on_message(message):
                         await temp_message(client, message.channel,
                                            'You don\'t have the permissions to do that! Message a moderator to change it.')
     elif command == '!purge':
-        can_manage_server = message.channel.permissions_for(message.author).manage_server
-
-        if can_manage_server and not is_cakebot:
-            await client.delete_message(message)
-            if len(args) < 2:
-                await bot.say(message.channel, "Please specify the number of messages to purge.")
-            else:
-                if message.mentions and len(args) >= 3:
-                    purge_user = message.mentions[0]  # Find id of first mentioned user
-                    if not is_integer(args[2]):
-                        await bot.say(message.channel, "Please specify a valid number of messages to purge. (1-100)")
-                    else:
-                        num = int(args[2])
-                        await purge_messages(message=message, client=client, purge_user=purge_user, num=num)
-                else:
-                    if not is_integer(args[1]):
-                        await bot.say(message.channel, "Please specify a valid number of messages to purge. (1-100)")
-                    else:
-                        num = int(args[1])
-                        try:
-                            deleted = await client.purge_from(message.channel, limit=num)
-                            await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
-                        except discord.errors.HTTPException: # Delete individually
-                            async for log in client.logs_from(message.channel, limit=num):
-                                await client.delete_message(log)
-
-        else:
-            await bot.say(message.channel, "You don't have the permissions to do that!")
+        await bot.purge(message)
     elif command == '!del':
         if not is_cakebot:
             if len(args) == 1 or (len(args) == 2 and is_integer(args[1]) and args[1] == '1'):
