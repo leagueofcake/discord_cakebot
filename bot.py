@@ -275,8 +275,12 @@ async def on_message(message):
                         await bot.say(message.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[1])
-                        deleted = await client.purge_from(message.channel, limit=num)
-                        await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
+                        try:
+                            deleted = await client.purge_from(message.channel, limit=num)
+                            await temp_message(client, message.channel, "Purged {} messages.".format(len(deleted)))
+                        except discord.errors.HTTPException: # Delete individually
+                            async for log in client.logs_from(message.channel, limit=num):
+                                await client.delete_message(log)
 
         else:
             await bot.say(message.channel, "You don't have the permissions to do that!")
