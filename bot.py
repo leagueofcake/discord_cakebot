@@ -36,6 +36,61 @@ class Bot:
         else:
             await self.say(message.channel, 'I\'m not going anywhere!')
 
+    async def print_permissions(self, message, user):
+        perms = get_permissions(c, user.id, message.server.id)
+        if perms:
+            perm_message = 'Permissions for {}: {}'.format(user, perms)
+        else:
+            perm_message = 'There are no set permissions for: {}'.format(user)
+        if self._can_manage_server(message, user):
+            perm_message += '\nThis user has manage_server permissions.'
+
+        await self.say(message.channel, perm_message)
+
+    async def set_permissions(self, message, user):
+        can_manage_server = self._can_manage_server(message, user)
+        is_owner = self._is_owner(message.author)
+        is_cakebot = self._is_cakebot(message.author)
+
+        if not is_cakebot and (can_manage_server or is_owner):
+            perms = get_permissions(c, user.id, message.server.id)
+            add_perms = [comm for comm in message.content.split()[2:] if comm in allowed_perm_commands]  # Filter allowed permission commands
+
+            if add_perms:
+                if perms:
+                    current_perms = perms[0]
+                    new_perms = current_perms + ',' + ','.join(add_perms)
+                    update_permissions(c, user.id, message.server.id, new_perms)
+                else:
+                    set_permissions(c, user.id, message.server.id, add_perms)
+                conn.commit()
+                add_message = 'Added permissions: `{}` to {}'.format(','.join(add_perms), user)
+                await self.say(message.channel, add_message)
+            else:
+                await self.say(message.channel, 'No permissions were added to {}!'.format(user))
+
+    async def permissions(self, message):
+        args = message.content.split()
+
+        # Gets permissions for mentioned user if given, otherwise defaults to calling user
+        user = message.author
+        if message.mentions:
+            user = message.mentions[0]  # Find id of first mentioned user
+
+        if len(args) == 1 or len(args) == 2:
+            await self.print_permissions(message, user)
+        elif len(args) > 2:
+            await self.set_permissions(message, user)
+
+    def _can_manage_server(self, message, user):
+        return message.channel.permissions_for(user).manage_server
+
+    def _is_cakebot(self, user):
+        return user.author.id == self.client.user.id
+
+    def _is_owner(self, user):
+        return str(user.id) == cakebot_config.OWNER_ID
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -56,8 +111,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    content = message.content
-    args = content.split()
+    args = message.content.split()
     command = args[0]
 
     is_cakebot = message.author.id == client.user.id
@@ -67,37 +121,7 @@ async def on_message(message):
     elif command == '!bye':
         await bot.bye(message)
     elif command == '!permissions':
-        # Gets permissions for mentioned user if given, otherwise defaults to calling user
-        user = message.author
-        if message.mentions:
-            user = message.mentions[0]  # Find id of first mentioned user
-
-        can_manage_server = message.channel.permissions_for(user).manage_server
-        is_owner = str(message.author.id) == cakebot_config.OWNER_ID
-        perms = get_permissions(c, user.id, message.server.id)
-        if len(args) == 1 or len(args) == 2:
-            if perms:
-                perm_message = 'Permissions for {}: {}'.format(user, perms)
-            else:
-                perm_message = 'There are no set permissions for: {}'.format(user)
-            if can_manage_server:
-                perm_message += '\nThis user has manage_server permissions.'
-            await bot.say(message.channel, perm_message)
-        elif (can_manage_server or is_owner) and len(args) > 2 and not is_cakebot:
-            add_perms = [comm for comm in args[2:] if comm in allowed_perm_commands]  # Filter allowed permission commands
-
-            if add_perms:
-                if perms:
-                    current_perms = perms[0]
-                    new_perms = current_perms + ',' + ','.join(add_perms)
-                    update_permissions(c, user.id, message.server.id, new_perms)
-                else:
-                    set_permissions(c, user.id, message.server.id, add_perms)
-                conn.commit()
-                add_message = 'Added permissions: `{}` to {}'.format(','.join(add_perms), user)
-                await bot.say(message.channel, add_message)
-            else:
-                await bot.say(message.channel, 'No permissions were added to {}!'.format(user))
+        await bot.permissions(message)
     elif command == '!musicprefix':
         perms = get_permissions(c, message.author.id, message.server.id)
         can_manage_server = message.channel.permissions_for(message.author).manage_server
@@ -114,15 +138,15 @@ async def on_message(message):
                 new_prefix = ' '.join(args[1:])
                 if music_prefix:
                     update_music_prefix(c, message.server.id, new_prefix)
-                    bot.say(message.channel, 'Updated music prefix for this server to: `{}'.format(new_prefix))
+                    await bot.say(message.channel, 'Updated music prefix for this server to: `{}'.format(new_prefix))
                 else:
                     add_music_prefix(c, message.server.id, new_prefix)
-                    bot.say(message.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
+                    await bot.say(message.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
                 conn.commit()
             else:
                 await temp_message(client, message.channel, 'You don\'t have the permissions to do that! Message a moderator to change it.')
     elif command == '!invite':
-        bot.say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
+        await bot.say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif command == '!timedcats':
         if str(message.author.id) == cakebot_config.OWNER_ID:
             times, duration_str = parse_duration_str(args)
@@ -135,7 +159,7 @@ async def on_message(message):
                 long_duration_str = unit_duration_str
 
             sending_msg = 'Sending cats every {} for {} {}!'.format(unit_duration_str, times, long_duration_str)
-            bot.say(message.channel, sending_msg)
+            await bot.say(message.channel, sending_msg)
 
             for i in range(times):
                 cat_url = requests.get('http://random.cat/meow').json()['file']
@@ -311,7 +335,7 @@ async def on_message(message):
                 await bot.say(message.channel, '{} Bookmark: {}'.format(message.author.mention, label))
             else:
                 await bot.say(message.channel, '{} Bookmark created.'.format(message.author.mention, label))
-    elif command == '!bot.say':
+    elif command == '!say':
         is_owner = str(message.author.id) == cakebot_config.OWNER_ID
         if not is_cakebot and is_owner:
             room = message.channel_mentions[0]
