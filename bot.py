@@ -64,7 +64,7 @@ class Bot:
         res = await self.auth_function(inner)
         await res(message, owner_auth=True)
 
-    async def print_permissions(self, message, user):
+    async def _print_permissions(self, message, user):
         perms = get_permissions(c, user.id, message.server.id)
         if perms:
             perm_message = 'Permissions for {}: {}'.format(user, perms)
@@ -75,7 +75,7 @@ class Bot:
 
         await self.say(message.channel, perm_message)
 
-    async def set_permissions(self, message, user):
+    async def _set_permissions(self, message, user):
         async def inner(m):
             perms = get_permissions(c, user.id, m.server.id)
             add_perms = [comm for comm in m.content.split()[2:] if comm in allowed_perm_commands]  # Filter allowed permission commands
@@ -104,9 +104,9 @@ class Bot:
             user = message.mentions[0]  # Find id of first mentioned user
 
         if len(args) == 1 or len(args) == 2:
-            await self.print_permissions(message, user)
+            await self._print_permissions(message, user)
         elif len(args) > 2:
-            await self.set_permissions(message, user)
+            await self._set_permissions(message, user)
             
     async def timed_cats(self, message):
         async def inner(m):
@@ -191,7 +191,7 @@ class Bot:
         res = await self.auth_function(inner)
         await res(message, require_non_cakebot=True)
 
-    async def print_log_channel(self, message):
+    async def _print_log_channel(self, message):
         log_channel = self.client.get_channel(get_log_channel_id(c, message.server.id))
         if log_channel:
             await temp_message(self.client, message.channel,
@@ -200,7 +200,7 @@ class Bot:
             await temp_message(self.client, message.channel,
                                'No log channel configured! Add one with `!logchannel set`')
 
-    async def set_log_channel(self, message):
+    async def _set_log_channel(self, message):
         async def inner(m):
             log_channel = self.client.get_channel(get_log_channel_id(c, m.server.id))
             if log_channel:
@@ -215,10 +215,10 @@ class Bot:
     async def log_channel(self, message):
         args = message.content.split()
         if len(args) == 1:
-            await self.print_log_channel(message)
+            await self._print_log_channel(message)
         else:
             if len(args) == 2 and args[1] == 'set':
-                await self.set_log_channel(message)
+                await self._set_log_channel(message)
 
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
