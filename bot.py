@@ -368,14 +368,6 @@ async def on_message(message):
         await bot.purge(message)
     elif command == '!del':
         await bot.del_user_messages(message)
-    elif command == '!bookmark':
-        if not is_cakebot:
-            await client.delete_message(message)
-            label = ' '.join(args[1:])
-            if label:
-                await bot.say(message.channel, '{} Bookmark: {}'.format(message.author.mention, label))
-            else:
-                await bot.say(message.channel, '{} Bookmark created.'.format(message.author.mention, label))
     elif command == '!say':
         await bot.say_in_room(message)
     # elif command == '!':

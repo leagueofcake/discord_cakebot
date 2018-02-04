@@ -43,10 +43,6 @@ class HelpEntry():
 hello_desc = 'cakebot says hello! Use to check if cakebot is online. '
 hello_usage = '!hello'
 
-bookmark_desc = 'Pings you to create a psuedo-bookmark in your recent mentions list.'
-bookmark_usage = '!bookmark <label> - Pings you and adds the specified messsage.\n' \
-                 '!bookmark - Pings you and adds a generic label.'
-
 timedcats_desc = 'Sends random cat images in timed intervals :3'
 timedcats_usage = '!timedcats <number> <interval>\n' \
                   'The interval can be m (minutes) or h (hours).\n\n' \
@@ -152,7 +148,6 @@ help_help = HelpEntry('!help', help_desc, help_usage, 'general')
 
 help_dict = {
                 'hello':        HelpEntry('!hello', hello_desc, hello_usage, 'miscellaneous'),
-                'bookmark':     HelpEntry('!bookmark', bookmark_desc, bookmark_usage, 'general'),
                 'timedcats':    HelpEntry('!timedcats', timedcats_desc, timedcats_usage, 'miscellaneous', timedcats_example),
                 'redirect':     HelpEntry('!redirect', redirect_desc, redirect_usage, 'general', redirect_example),
                 'play':         HelpEntry('!play', play_desc, play_usage, 'music', play_example),
