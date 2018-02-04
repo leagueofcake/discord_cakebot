@@ -30,11 +30,21 @@ class Bot:
         await self.say(message.channel, 'Hello {}!'.format(message.author.mention))
 
     async def bye(self, message):
-        if str(message.author.id) == cakebot_config.OWNER_ID:
+        if self._is_owner(message.author):
             await self.say(message.channel, 'Logging out, bye!')
             sys.exit()
         else:
             await self.say(message.channel, 'I\'m not going anywhere!')
+
+    async def say_in_room(self, message):
+        if self._is_owner(message.author):
+            if message.channel_mentions:
+                await self.say(message.channel_mentions[0], ' '.join(message.content.split()[2:]))
+            else:
+                await self.say(message.channel, 'No room specified!')
+            await self.client.delete_message(message)
+        else:
+            await self.say(message.channel, 'Only the owner of the bot can use this!')
 
     async def print_permissions(self, message, user):
         perms = get_permissions(c, user.id, message.server.id)
@@ -336,16 +346,7 @@ async def on_message(message):
             else:
                 await bot.say(message.channel, '{} Bookmark created.'.format(message.author.mention, label))
     elif command == '!say':
-        is_owner = str(message.author.id) == cakebot_config.OWNER_ID
-        if not is_cakebot and is_owner:
-            room = message.channel_mentions[0]
-            if room:
-                await bot.say(room, ' '.join(args[2:]))
-            else:
-                await bot.say(room, 'No room specified!')
-            await client.delete_message(message)
-        else:
-            await bot.say('Only the owner of the bot can use this!')
+        await bot.say_in_room(message)
     # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
 
