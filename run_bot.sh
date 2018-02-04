@@ -9,7 +9,7 @@ if [ ${PRETTY_PYV:0:1} -eq "3" ] && [ ${PRETTY_PYV:2:1} -ge "5" ]
 then
    echo "Valid Python version! Starting bot..."
    echo "------"
-   until python bot.py
+   until python -u bot.py
    do
       echo "Bot crashed with exit code $?. Restarting..." >&2
       sleep 5
