@@ -23,11 +23,18 @@ class Bot:
     def __init__(self, client):
         self.client = client
 
-    def start(self):
-        client.start()
-
     async def say(self, channel, message):
         await self.client.send_message(channel, message)
+
+    async def hello(self, message):
+        await self.say(message.channel, 'Hello {}!'.format(message.author.mention))
+
+    async def bye(self, message):
+        if str(message.author.id) == cakebot_config.OWNER_ID:
+            await self.say(message.channel, 'Logging out, bye!')
+            sys.exit()
+        else:
+            await self.say(message.channel, 'I\'m not going anywhere!')
 
 
 logging.basicConfig(level=logging.INFO)
@@ -56,13 +63,9 @@ async def on_message(message):
     is_cakebot = message.author.id == client.user.id
 
     if command == '!hello':
-        await bot.say(message.channel, 'Hello {}!'.format(message.author.mention))
+        await bot.hello(message)
     elif command == '!bye':
-        if str(message.author.id) == cakebot_config.OWNER_ID:
-            await bot.say(message.channel, 'Logging out, bye!')
-            sys.exit()
-        else:
-            await bot.say(message.channel, 'I\'m not going anywhere!')
+        await bot.bye(message)
     elif command == '!permissions':
         # Gets permissions for mentioned user if given, otherwise defaults to calling user
         user = message.author
