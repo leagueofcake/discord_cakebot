@@ -31,6 +31,7 @@ class Bot:
 
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
 
 client = discord.Client()
 bot = Bot(client)
@@ -40,10 +41,10 @@ c = conn.cursor()
 
 @client.event
 async def on_ready():
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
-    print('------')
+    logger.info('Logged in as')
+    logger.info(client.user.name)
+    logger.info(client.user.id)
+    logger.info('------')
 
 
 @client.event
