@@ -11,8 +11,7 @@ import cakebot_help
 from datetime import datetime
 from modules.helpers import temp_message, is_integer, get_full_username
 from modules.misc import return_troll, parse_duration_str
-from modules.permissions import get_permissions, set_permissions, update_permissions, find_permissions, \
-    allowed_perm_commands
+from modules.permissions import get_permissions, set_permissions, update_permissions, allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
     find_album, find_song_by_id, search_songs, make_song_results, queue_songs
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
@@ -40,12 +39,15 @@ class Bot:
             await self.say(message.channel, 'I\'m not going anywhere!')
 
     async def auth_function(self, f):
-        async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False):
+        async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False, cakebot_perm=None):
             owner_check = owner_auth and self._is_owner(message.author)
             manage_server_check = manage_server_auth and self._can_manage_server(message.author, message.channel)
             is_cakebot_check = (not require_non_cakebot) or (require_non_cakebot and not self._is_cakebot(message.author))
 
-            if is_cakebot_check and (owner_check or manage_server_check):
+            perms = get_permissions(c, message.author.id, message.server.id)
+            cakebot_perm_check = cakebot_perm and perms and cakebot_perm in perms
+
+            if is_cakebot_check and (owner_check or manage_server_check or cakebot_perm_check):
                 await f(message)
             else:
                 await self.say(message.channel, 'You\'re not allowed to do that!')
@@ -189,6 +191,35 @@ class Bot:
         res = await self.auth_function(inner)
         await res(message, require_non_cakebot=True)
 
+    async def print_log_channel(self, message):
+        log_channel = self.client.get_channel(get_log_channel_id(c, message.server.id))
+        if log_channel:
+            await temp_message(self.client, message.channel,
+                               'Log channel is: {}'.format(log_channel.mention))
+        else:
+            await temp_message(self.client, message.channel,
+                               'No log channel configured! Add one with `!logchannel set`')
+
+    async def set_log_channel(self, message):
+        async def inner(m):
+            log_channel = self.client.get_channel(get_log_channel_id(c, m.server.id))
+            if log_channel:
+                update_log_channel(c, m.server.id, m.channel.id)
+            else:
+                add_log_channel(c, m.server.id, m.channel.id)
+            await bot.say(m.channel, 'Set {} as the log channel!'.format(m.channel.mention))
+            conn.commit()
+        res = await self.auth_function(inner)
+        await res(message, manage_server_auth=True, cakebot_perm='logchannel', require_non_cakebot=True)
+
+    async def log_channel(self, message):
+        args = message.content.split()
+        if len(args) == 1:
+            await self.print_log_channel(message)
+        else:
+            if len(args) == 2 and args[1] == 'set':
+                await self.set_log_channel(message)
+
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
 
@@ -232,7 +263,7 @@ async def on_message(message):
     elif command == '!musicprefix':
         perms = get_permissions(c, message.author.id, message.server.id)
         can_manage_server = message.channel.permissions_for(message.author).manage_server
-        has_musicprefix_perm = find_permissions(perms, 'musicprefix')
+        has_musicprefix_perm = perms and 'musicprefix' in perms
 
         music_prefix = get_music_prefix(c, message.server.id)
         if len(args) == 1:
@@ -339,31 +370,7 @@ async def on_message(message):
         else:  # command list summary
             await temp_message(client, message.channel, cakebot_help.generate_summary(), time=10)
     elif command == '!logchannel':
-        perms = get_permissions(c, message.author.id, message.server.id)
-        can_manage_server = message.channel.permissions_for(message.author).manage_server
-        has_logchannel_perm = find_permissions(perms, 'logchannel')
-
-        log_channel = client.get_channel(get_log_channel_id(c, message.server.id))
-        if len(args) == 1:
-            if log_channel:
-                await temp_message(client, message.channel,
-                                   'Log channel is: {}'.format(log_channel.mention))
-            else:
-                await temp_message(client, message.channel,
-                                   'No log channel configured! Add one with `!logchannel set`')
-        else:
-            if len(args) == 2:
-                if args[1] == 'set':
-                    if (can_manage_server or has_logchannel_perm) and not is_cakebot:
-                        if log_channel:
-                            update_log_channel(c, message.server.id, message.channel.id)
-                        else:
-                            add_log_channel(c, message.server.id, message.channel.id)
-                        await bot.say(message.channel, 'Set {} as the log channel!'.format(message.channel.mention))
-                        conn.commit()
-                    else:
-                        await temp_message(client, message.channel,
-                                           'You don\'t have the permissions to do that! Message a moderator to change it.')
+        await bot.log_channel(message)
     elif command == '!purge':
         await bot.purge(message)
     elif command == '!del':
