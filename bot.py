@@ -102,6 +102,29 @@ class Bot:
             await self.print_permissions(message, user)
         elif len(args) > 2:
             await self.set_permissions(message, user)
+            
+    async def timed_cats(self, message):
+        async def inner(m):
+            times, duration_str = parse_duration_str(m.content.split())
+            unit_time = cakebot_config.time_map[duration_str][0]
+
+            unit = cakebot_config.time_map[duration_str][1]
+            unit_plural = cakebot_config.time_map[duration_str][2]
+
+            if times == 1:
+                unit_plural = unit
+
+            await bot.say(m.channel, 'Sending cats every {} for {} {}!'.format(unit, times, unit_plural))
+
+            for i in range(times):
+                cat_url = requests.get('http://random.cat/meow').json()['file']
+                await bot.say(m.channel, cat_url)
+                if i == times - 1:
+                    await bot.say(m.channel, 'Finished sending cats!')
+                    break
+                await asyncio.sleep(unit_time)
+        res = await self.auth_function(inner)
+        await res(message, owner_auth=True)
 
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
@@ -169,28 +192,7 @@ async def on_message(message):
     elif command == '!invite':
         await bot.say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif command == '!timedcats':
-        if str(message.author.id) == cakebot_config.OWNER_ID:
-            times, duration_str = parse_duration_str(args)
-            unit_time = cakebot_config.time_map[duration_str][0]
-
-            unit_duration_str = cakebot_config.time_map[duration_str][1]
-            long_duration_str = cakebot_config.time_map[duration_str][2]
-
-            if times == 1:
-                long_duration_str = unit_duration_str
-
-            sending_msg = 'Sending cats every {} for {} {}!'.format(unit_duration_str, times, long_duration_str)
-            await bot.say(message.channel, sending_msg)
-
-            for i in range(times):
-                cat_url = requests.get('http://random.cat/meow').json()['file']
-                await bot.say(message.channel, cat_url)
-                if i == times - 1:
-                    await bot.say(message.channel, 'Finished sending cats!')
-                    break
-                await asyncio.sleep(unit_time)
-        else:
-            await bot.say(message.channel, 'Only leagueofcake can send cats right now, sorry :(')
+        await bot.timed_cats(message)
     elif command == '!trollurl':
         await bot.say(message.channel, return_troll(args[1]))
         await client.delete_message(message)
