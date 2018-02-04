@@ -126,6 +126,10 @@ class Bot:
         res = await self.auth_function(inner)
         await res(message, owner_auth=True)
 
+    async def troll_url(self, message):
+        await self.say(message.channel, return_troll(message.content.split()[1]))
+        await self.client.delete_message(message)
+
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
 
@@ -194,8 +198,7 @@ async def on_message(message):
     elif command == '!timedcats':
         await bot.timed_cats(message)
     elif command == '!trollurl':
-        await bot.say(message.channel, return_troll(args[1]))
-        await client.delete_message(message)
+        await bot.troll_url(message)
     elif command == '!google':
         url = 'https://www.google.com/#q=' + '+'.join(args[1:])
         await bot.say(message.channel, url)
