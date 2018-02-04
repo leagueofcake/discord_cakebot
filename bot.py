@@ -163,6 +163,26 @@ class Bot:
         res = await self.auth_function(inner)
         await res(message, manage_server_auth=True, require_non_cakebot=True)
 
+    async def del_user_messages(self, message):
+        async def inner(m):
+            args = message.content.split()
+            if len(args) == 1 or (len(args) == 2 and is_integer(args[1]) and args[1] == '1'):
+                await self.delete(message)
+                async for log in self.client.logs_from(message.channel, limit=500):
+                    if log.author.id == message.author.id:
+                        await self.delete(log)
+                        break
+            elif len(args) == 2:
+                await self.delete(message)
+                purge_user_id = message.author
+                if not is_integer(args[1]):
+                    await bot.say(message.channel, "Please specify a valid number of messages to delete. (1-100)")
+                else:
+                    num = int(args[1])
+                    await purge_messages(message=message, client=self.client, purge_user=purge_user_id, num=num)
+        res = await self.auth_function(inner)
+        await res(message, require_non_cakebot=True)
+
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
 
@@ -344,21 +364,7 @@ async def on_message(message):
     elif command == '!purge':
         await bot.purge(message)
     elif command == '!del':
-        if not is_cakebot:
-            if len(args) == 1 or (len(args) == 2 and is_integer(args[1]) and args[1] == '1'):
-                await client.delete_message(message)
-                async for log in client.logs_from(message.channel, limit=500):
-                    if log.author.id == message.author.id:
-                        await client.delete_message(log)
-                        break
-            elif len(args) == 2:
-                await client.delete_message(message)
-                purge_user_id = message.author
-                if not is_integer(args[1]):
-                    await bot.say(message.channel, "Please specify a valid number of messages to delete. (1-100)")
-                else:
-                    num = int(args[1])
-                    await purge_messages(message=message, client=client, purge_user=purge_user_id, num=num)
+        await bot.del_user_messages(message)
     elif command == '!bookmark':
         if not is_cakebot:
             await client.delete_message(message)
