@@ -2,3 +2,4 @@ discord.py
 PyNaCl
 aiohttp
 requests
+pytest
