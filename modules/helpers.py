@@ -13,7 +13,7 @@ def is_integer(text):
 def get_full_username(user):
     return '{}#{}'.format(user.name, user.discriminator)
 
-
+# @TODO delete (superceded by Bot.temp_message)
 async def temp_message(client, channel, message, time=5):
     tmp = await client.send_message(channel, message)
     await asyncio.sleep(time)

@@ -22,11 +22,16 @@ class Bot:
     def __init__(self, client):
         self.client = client
 
+    async def temp_message(self, channel, message, time=5):
+        tmp = await self.say(channel, message)
+        await asyncio.sleep(time)
+        await self.delete(tmp)
+
     async def delete(self, message):
         await self.client.delete_message(message)
 
     async def say(self, channel, message):
-        await self.client.send_message(channel, message)
+        return await self.client.send_message(channel, message)
 
     async def hello(self, message):
         await self.say(message.channel, 'Hello {}!'.format(message.author.mention))
@@ -163,8 +168,8 @@ class Bot:
                         num = int(args[1])
                         try:
                             deleted = await self.client.purge_from(m.channel, limit=num)
-                            await temp_message(client, m.channel, "Purged {} messages.".format(len(deleted)))
-                        except discord.errors.HTTPException: # Delete individually
+                            await self.temp_message(m.channel, "Purged {} messages.".format(len(deleted)))
+                        except discord.errors.HTTPException:  # Delete individually
                             async for log in self.client.logs_from(m.channel, limit=num):
                                 await self.delete(log)
 
@@ -194,11 +199,9 @@ class Bot:
     async def _print_log_channel(self, message):
         log_channel = self.client.get_channel(get_log_channel_id(c, message.server.id))
         if log_channel:
-            await temp_message(self.client, message.channel,
-                               'Log channel is: {}'.format(log_channel.mention))
+            await self.temp_message(message.channel, 'Log channel is: {}'.format(log_channel.mention))
         else:
-            await temp_message(self.client, message.channel,
-                               'No log channel configured! Add one with `!logchannel set`')
+            await self.temp_message(message.channel, 'No log channel configured! Add one with `!logchannel set`')
 
     async def _set_log_channel(self, message):
         async def inner(m):
