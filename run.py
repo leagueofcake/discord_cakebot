@@ -323,7 +323,7 @@ class Bot:
 
                     page_num = msg.content.split()[1]
                     tmp = await self.say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
-                    msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                    msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
                 await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
                 await self.delete(tmp)

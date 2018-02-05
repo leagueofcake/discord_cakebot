@@ -9,7 +9,7 @@ if [ ${PRETTY_PYV:0:1} -eq "3" ] && [ ${PRETTY_PYV:2:1} -ge "5" ]
 then
    echo "Valid Python version! Starting bot..."
    echo "------"
-   python -u bot.py
+   python -u run.py
 else
    echo "Unsupported version of Python. Please upgrade to at least 3.5."
 fi
