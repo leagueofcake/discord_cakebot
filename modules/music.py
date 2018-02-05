@@ -1,7 +1,7 @@
 from .helpers import temp_message
 
 
-class Song():
+class Song:
     def __init__(self, song_id, name, artist, album, link, alias):
         self.song_id = song_id
         self.name = name
@@ -81,14 +81,3 @@ def make_song_results(found, offset=0):
     return results
 
 
-async def queue_songs(client, message, music_prefix, songs):
-    if music_prefix:
-        for song in songs:
-            song = Song(*song)
-
-            if music_prefix:
-                await temp_message(client, message.channel, '{} {}'.format(music_prefix, song.link), time=3)
-                await client.send_message(message.channel, '{} queued: {}'.format(message.author, song.name))
-    else:
-        await temp_message(client, message.channel,
-                           'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')

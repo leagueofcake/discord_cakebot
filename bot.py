@@ -13,7 +13,7 @@ from modules.helpers import temp_message, is_integer, get_full_username
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
-    find_album, find_song_by_id, search_songs, make_song_results, queue_songs
+    find_album, find_song_by_id, search_songs, make_song_results, Song
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log, purge_messages, auto_rename_voice_channel
 
@@ -129,7 +129,7 @@ class Bot:
                 cat_url = requests.get('http://random.cat/meow').json()['file']
                 await bot.say(m.channel, cat_url)
                 if i == times - 1:
-                    await bot.say(m.channel, 'Finished sending cats!')
+                    await self.say(m.channel, 'Finished sending cats!')
                     break
                 await asyncio.sleep(unit_time)
         await self.auth_function(inner)(message, owner_auth=True)
@@ -142,7 +142,7 @@ class Bot:
         room = message.channel_mentions[0]
         await self.say(room, '`{}` redirected:'.format(message.author))
         await self.say(room, ' '.join(message.content.split()[2:]))
-        await self.client.delete_message(message)
+        await self.delete(message)
 
     async def purge(self, message):
         async def inner(m):
@@ -150,18 +150,18 @@ class Bot:
 
             await self.delete(m)
             if len(args) < 2:
-                await bot.say(m.channel, "Please specify the number of messages to purge.")
+                await self.say(m.channel, "Please specify the number of messages to purge.")
             else:
                 if m.mentions and len(args) >= 3:
                     purge_user = m.mentions[0]  # Find id of first mentioned user
                     if not is_integer(args[2]):
-                        await bot.say(m.channel, "Please specify a valid number of messages to purge. (1-100)")
+                        await self.say(m.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[2])
                         await purge_messages(message=message, client=self.client, purge_user=purge_user, num=num)
                 else:
                     if not is_integer(args[1]):
-                        await bot.say(m.channel, "Please specify a valid number of messages to purge. (1-100)")
+                        await self.say(m.channel, "Please specify a valid number of messages to purge. (1-100)")
                     else:
                         num = int(args[1])
                         try:
@@ -186,7 +186,7 @@ class Bot:
                 await self.delete(m)
                 purge_user_id = m.author
                 if not is_integer(args[1]):
-                    await bot.say(m.channel, "Please specify a valid number of messages to delete. (1-100)")
+                    await self.say(m.channel, "Please specify a valid number of messages to delete. (1-100)")
                 else:
                     num = int(args[1])
                     await purge_messages(message=m, client=self.client, purge_user=purge_user_id, num=num)
@@ -206,7 +206,7 @@ class Bot:
                 update_log_channel(c, m.server.id, m.channel.id)
             else:
                 add_log_channel(c, m.server.id, m.channel.id)
-            await bot.say(m.channel, 'Set {} as the log channel!'.format(m.channel.mention))
+            await self.say(m.channel, 'Set {} as the log channel!'.format(m.channel.mention))
             conn.commit()
         await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='logchannel', require_non_cakebot=True)
 
@@ -255,6 +255,84 @@ class Bot:
             await self._print_music_prefix(message)
         else:
             await self._set_music_prefix(message)
+
+    async def queue_songs(self, message, music_prefix, songs):
+        if music_prefix:
+            for song in songs:
+                song = Song(*song)
+
+                if music_prefix:
+                    await self.temp_message(message.channel, '{} {}'.format(music_prefix, song.link), time=3)
+                    await self.say(message.channel, '{} queued: {}'.format(message.author, song.name))
+        else:
+            await temp_message(client, message.channel,
+                               'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
+
+    async def search_and_play(self, message):
+        args = message.content.split()
+        command = args[0]
+        prefix = get_music_prefix(c, message.server.id)
+        if command == '!play' or command == '!search':
+            search = '%{}%'.format(' '.join(args[1:]).lower())
+            if command == '!play':
+                found = find_song_by_name(c, search)
+            elif command == '!search':
+                found = search_songs(c, search)
+
+            if len(found) == 1 and command == '!play':
+                await self.queue_songs(message, prefix, found)
+            elif len(found) > 1 or command == '!search':
+                tmp = await self.say(message.channel, make_song_results(found))
+
+                def check(msg):
+                    splitted = msg.content.split()
+                    return len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1])
+
+                msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+
+                while msg is not None:
+                    await self.delete(msg)
+                    await self.delete(tmp)
+
+                    page_num = msg.content.split()[1]
+                    tmp = await self.say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
+                    msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+
+                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                await self.delete(tmp)
+        else:
+            found = None
+            if command == '!playalbum':
+                found = find_album(c, ' '.join(args[1:]))
+                await self.say(message.channel, "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
+
+                def check(msg):
+                    splitted = msg.content.split()
+                    return msg.content == '!yes' or (len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
+
+                tmp = await self.say(message.channel, make_song_results(found))
+                msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+
+                while msg is not None:
+                    await self.delete(msg)
+                    await self.delete(tmp)
+
+                    if msg.content == '!yes':
+                        await self.queue_songs(message, prefix, found)
+                        break
+
+                    page_num = msg.content.split()[1]
+                    tmp = await self.say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
+                    msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+
+                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                await self.delete(tmp)
+            elif command == '!playid':
+                found = find_song_by_id(c, args[1])
+                await self.queue_songs(message, prefix, found)
+
+        if not found:
+            await self.say(message.channel, "Couldn't find any matching songs!")
 
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
@@ -310,69 +388,7 @@ async def on_message(message):
     elif command == '!redirect':
         await bot.redirect(message)
     elif command.startswith('!play') or command == '!search':  # Play song by title/alias
-        prefix = get_music_prefix(c, message.server.id)
-        if command == '!play' or command == '!search':
-            search = '%{}%'.format(' '.join(args[1:]).lower())
-            if command == '!play':
-                found = find_song_by_name(c, search)
-            elif command == '!search':
-                found = search_songs(c, search)
-
-            if len(found) == 1 and command == '!play':
-                await queue_songs(client, message, prefix, found)
-            elif len(found) > 1 or command == '!search':
-                tmp = await bot.say(message.channel, make_song_results(found))
-
-                def check(msg):
-                    splitted = msg.content.split()
-                    return len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1])
-
-                msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-
-                while msg is not None:
-                    await client.delete_message(msg)
-                    await client.delete_message(tmp)
-
-                    page_num = msg.content.split()[1]
-                    tmp = await bot.say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
-                    msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-
-                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-                await client.delete_message(tmp)
-        else:
-            found = None
-            if command == '!playalbum':
-                found = find_album(c, ' '.join(args[1:]))
-                await bot.say(message.channel, "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
-
-                def check(msg):
-                    splitted = msg.content.split()
-                    return msg.content == '!yes' or (len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
-
-                tmp = await bot.say(message.channel, make_song_results(found))
-                msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-
-                while msg is not None:
-                    await client.delete_message(msg)
-                    await client.delete_message(tmp)
-
-                    if msg.content == '!yes':
-                        await queue_songs(client, message, prefix, found)
-                        break
-
-                    page_num = msg.content.split()[1]
-                    tmp = await bot.say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
-                    msg = await client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-
-
-                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-                await client.delete_message(tmp)
-            elif command == '!playid':
-                found = find_song_by_id(c, args[1])
-                await queue_songs(client, message, prefix, found)
-
-        if not found:
-            await bot.say(message.channel, "Couldn't find any matching songs!")
+        await bot.search_and_play(message)
     elif command == '!reqsong':
         await bot.say(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
     elif command == '!help':
