@@ -8,7 +8,7 @@ from discord import errors as discord_errors
 import cakebot_help
 from datetime import datetime
 import cakebot_config
-from modules.helpers import temp_message, is_integer, get_full_username
+from modules.helpers import is_integer, get_full_username
 from modules.misc import return_troll, parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
