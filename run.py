@@ -15,10 +15,12 @@ bot.plug_in_module('misc')
 
 @client.event
 async def on_ready():
+    dashes = '-' * max(len('Logged in as'), len(client.user.name), len(client.user.id))
+    logger.info(dashes)
     logger.info('Logged in as')
     logger.info(client.user.name)
     logger.info(client.user.id)
-    logger.info('------')
+    logger.info(dashes)
 
 
 @client.event
