@@ -229,6 +229,33 @@ class Bot:
         else:  # command list summary
             await self.temp_message(message.channel, cakebot_help.generate_summary(), time=10)
 
+    async def _print_music_prefix(self, message):
+        music_prefix = get_music_prefix(c, message.server.id)
+        if music_prefix:
+            await self.temp_message(message.channel, 'Current music prefix for this server is: `{}`'.format(music_prefix))
+        else:
+            await self.temp_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
+
+    async def _set_music_prefix(self, message):
+        async def inner(m):
+            music_prefix = get_music_prefix(c, m.server.id)
+            new_prefix = ' '.join(m.content.split()[1:])
+            if music_prefix:
+                update_music_prefix(c, m.server.id, new_prefix)
+                await self.say(m.channel, 'Updated music prefix for this server to: `{}`'.format(new_prefix))
+            else:
+                add_music_prefix(c, m.server.id, new_prefix)
+                await self.say(m.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
+            conn.commit()
+        await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='musicprefix', require_non_cakebot=True)
+
+    async def music_prefix(self, message):
+        args = message.content.split()
+        if len(args) == 1:
+            await self._print_music_prefix(message)
+        else:
+            await self._set_music_prefix(message)
+
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
 
@@ -270,28 +297,7 @@ async def on_message(message):
     elif command == '!permissions':
         await bot.permissions(message)
     elif command == '!musicprefix':
-        perms = get_permissions(c, message.author.id, message.server.id)
-        can_manage_server = message.channel.permissions_for(message.author).manage_server
-        has_musicprefix_perm = perms and 'musicprefix' in perms
-
-        music_prefix = get_music_prefix(c, message.server.id)
-        if len(args) == 1:
-            if music_prefix:
-                await temp_message(client, message.channel, 'Current music prefix for this server is: `{}`'.format(music_prefix))
-            else:
-                await temp_message(client, message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
-        else:
-            if (can_manage_server or has_musicprefix_perm) and not is_cakebot:
-                new_prefix = ' '.join(args[1:])
-                if music_prefix:
-                    update_music_prefix(c, message.server.id, new_prefix)
-                    await bot.say(message.channel, 'Updated music prefix for this server to: `{}'.format(new_prefix))
-                else:
-                    add_music_prefix(c, message.server.id, new_prefix)
-                    await bot.say(message.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
-                conn.commit()
-            else:
-                await temp_message(client, message.channel, 'You don\'t have the permissions to do that! Message a moderator to change it.')
+        await bot.music_prefix(message)
     elif command == '!invite':
         await bot.say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
     elif command == '!timedcats':
