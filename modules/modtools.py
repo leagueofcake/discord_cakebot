@@ -1,6 +1,5 @@
 from datetime import datetime
-from .helpers import get_full_username, temp_message
-
+from .helpers import get_full_username
 
 def get_log_channel_id(c, server_id):
     c.execute("SELECT channel_id FROM log_channel WHERE server_id = ?", (server_id, ))

@@ -9,40 +9,38 @@ import cakebot_help
 from datetime import datetime
 import cakebot_config
 from modules.helpers import is_integer, get_full_username
-from modules.misc import return_troll, parse_duration_str
+from modules.misc_old import parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
     find_album, find_song_by_id, search_songs, make_song_results, Song
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log, purge_messages
 
+from modules.MiscModule import MiscModule
+
 
 class Bot:
-    def __init__(self, client):
+    def __init__(self, client, logger):
         self.client = client
         self.conn = sqlite3.connect(cakebot_config.DB_PATH)
         self.c = self.conn.cursor()
 
-    async def temp_message(self, channel, message, time=5):
-        tmp = await self.say(channel, message)
-        await asyncio.sleep(time)
-        await self.delete(tmp)
+        self.logger = logger
+        self.modules = {}
 
-    async def delete(self, message):
-        await self.client.delete_message(message)
+    def _extend_instance(self, cls):
+        # Apply mixin to self
+        base_cls = self.__class__
+        base_cls_name = self.__class__.__name__
+        self.__class__ = type(base_cls_name, (base_cls, cls), {})
 
-    async def say(self, channel, message):
-        return await self.client.send_message(channel, message)
+    def plug_in_module(self, module_name):
+        if module_name == 'misc':
+            self._extend_instance(MiscModule)
+        self.logger.info('[cakebot]: module {} plugged in'.format(module_name))
 
-    async def hello(self, message):
-        await self.say(message.channel, 'Hello {}!'.format(message.author.mention))
-
-    async def bye(self, message):
-        if self._is_owner(message.author):
-            await self.say(message.channel, 'Logging out, bye!')
-            sys.exit()
-        else:
-            await self.say(message.channel, 'I\'m not going anywhere!')
+    def __getattr__(self, item):
+        return getattr(self.modules['misc'], item)
 
     def auth_function(self, f):
         async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False, cakebot_perm=None):
@@ -60,6 +58,20 @@ class Bot:
                 await self.say(message.channel, 'You\'re not allowed to do that!')
         return ret_fun
 
+    async def say(self, channel, message):
+        return await self.client.send_message(channel, message)
+
+    async def temp_message(self, channel, message, time=5):
+        tmp = await self.say(channel, message)
+        await asyncio.sleep(time)
+        await self.delete(tmp)
+
+    async def delete(self, message):
+        await self.client.delete_message(message)
+
+    async def hello(self, message):
+        await self.say(message.channel, 'Hello {}!'.format(message.author.mention))
+
     async def say_in_room(self, message):
         async def inner(m):
             if m.channel_mentions:
@@ -69,6 +81,13 @@ class Bot:
             await self.delete(m)
 
         await self.auth_function(inner)(message, owner_auth=True)
+
+    async def bye(self, message):
+        if self._is_owner(message.author):
+            await self.say(message.channel, 'Logging out, bye!')
+            sys.exit()
+        else:
+            await self.say(message.channel, 'I\'m not going anywhere!')
 
     async def _print_permissions(self, message, user):
         perms = get_permissions(self.c, user.id, message.server.id)
@@ -134,10 +153,6 @@ class Bot:
                     break
                 await asyncio.sleep(unit_time)
         await self.auth_function(inner)(message, owner_auth=True)
-
-    async def troll_url(self, message):
-        await self.say(message.channel, return_troll(message.content.split()[1]))
-        await self.delete(message)
 
     async def redirect(self, message):
         room = message.channel_mentions[0]

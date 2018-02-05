@@ -9,7 +9,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
 client = discord.Client()
-bot = Bot(client)
+bot = Bot(client, logger)
+bot.plug_in_module('misc')
 
 
 @client.event
