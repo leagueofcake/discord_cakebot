@@ -334,6 +334,62 @@ class Bot:
         if not found:
             await self.say(message.channel, "Couldn't find any matching songs!")
 
+    async def handle_channel_update(self, before, after):
+        log_channel = self.client.get_channel(get_log_channel_id(c, before.server.id))
+
+        if log_channel:
+            local_message_time = datetime.now().strftime("%H:%M:%S")
+
+            channel_mention = before.mention
+            if before.name != after.name:
+                message = '[{}] {} *changed channel name*\n' \
+                          'Before: {}\n' \
+                          'After+: {}'.format(local_message_time, channel_mention, before.name, after.name)
+                await self.say(log_channel, message)
+            if before.topic != after.topic:
+                message = '[{}] {} *changed topic contents*\n' \
+                          'Before: {}\n' \
+                          'After+: {}'.format(local_message_time, channel_mention, before.topic, after.topic)
+                await self.say(log_channel, message)
+
+    async def handle_edited_message(self, before, after):
+        log_channel = self.client.get_channel(get_log_channel_id(c, before.server.id))
+        if log_channel and before.content != after.content:
+            await self.say(log_channel, gen_edit_message_log(before, after))
+
+    async def handle_deleted_message(self, message):
+        log_channel = self.client.get_channel(get_log_channel_id(c, message.server.id))
+
+        if log_channel:
+            await self.say(log_channel, gen_delete_message_log(message))
+
+    async def handle_member_update(self, before, after):
+        log_channel = self.client.get_channel(get_log_channel_id(c, before.server.id))
+
+        if log_channel:
+            local_message_time = datetime.now().strftime("%H:%M:%S")
+            before_roles = ", ".join([role.name for role in before.roles if role.name != "@everyone"])
+            after_roles = ", ".join([role.name for role in after.roles if role.name != "@everyone"])
+
+            if before.nick != after.nick:
+                message = '[{}] {} *changed nickname*\n' \
+                          'Before: {}\n' \
+                          'After+: {}'.format(local_message_time, get_full_username(before),
+                                              before.display_name,
+                                              after.display_name)
+                await self.say(log_channel, message)
+
+            elif before_roles != after_roles:
+                message = '[{}] {} *changed roles*\n' \
+                          'Before: {}\n' \
+                          'After+: {}'.format(local_message_time, get_full_username(before),
+                                              before_roles,
+                                              after_roles)
+                await self.say(log_channel, message)
+
+        if before.game != after.game:
+            await auto_rename_voice_channel(client, before, after)
+
     def _can_manage_server(self, user, channel):
         return channel.permissions_for(user).manage_server
 
@@ -408,67 +464,20 @@ async def on_message(message):
 # Logging functionality
 @client.event
 async def on_message_edit(before, after):
-    log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
-    if log_channel and before.content != after.content:
-        await bot.say(log_channel, gen_edit_message_log(before, after))
-
+    await bot.handle_edited_message(before, after)
 
 @client.event
 async def on_message_delete(message):
-    log_channel = client.get_channel(get_log_channel_id(c, message.server.id))
-
-    if log_channel:
-        await bot.say(log_channel, gen_delete_message_log(message))
-
+    await bot.handle_deleted_message(message)
 
 @client.event
 async def on_channel_update(before, after):
-    log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
-
-    if log_channel:
-        local_message_time = datetime.now().strftime("%H:%M:%S")
-
-        channel_mention = before.mention
-        if before.name != after.name:
-            message = '[{}] {} *changed channel name*\n' \
-                          'Before: {}\n' \
-                          'After+: {}'.format(local_message_time, channel_mention, before.name, after.name)
-            await bot.say(log_channel, message)
-        if before.topic != after.topic:
-            message = '[{}] {} *changed topic contents*\n' \
-                      'Before: {}\n' \
-                      'After+: {}'.format(local_message_time, channel_mention, before.topic, after.topic)
-            await bot.say(log_channel, message)
+    await bot.handle_channel_update(before, after)
 
 
 @client.event
 async def on_member_update(before, after):
-    log_channel = client.get_channel(get_log_channel_id(c, before.server.id))
-
-    if log_channel:
-        local_message_time = datetime.now().strftime("%H:%M:%S")
-        before_roles = ", ".join([role.name for role in before.roles if role.name != "@everyone"])
-        after_roles = ", ".join([role.name for role in after.roles if role.name != "@everyone"])
-
-        if before.nick != after.nick:
-            message = '[{}] {} *changed nickname*\n' \
-                      'Before: {}\n' \
-                      'After+: {}'.format(local_message_time, get_full_username(before),
-                                          before.display_name,
-                                          after.display_name)
-            await bot.say(log_channel, message)
-
-        elif before_roles != after_roles:
-            message = '[{}] {} *changed roles*\n' \
-                      'Before: {}\n' \
-                      'After+: {}'.format(local_message_time, get_full_username(before),
-                                          before_roles,
-                                          after_roles)
-            await bot.say(log_channel, message)
-
-    if before.game != after.game:
-        await auto_rename_voice_channel(client, before, after)
-
+    await bot.handle_member_update(before, after)
 
 @client.event
 async def on_voice_state_update(before, after):
