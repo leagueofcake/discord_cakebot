@@ -37,9 +37,6 @@ class Bot:
             self._extend_instance(MiscModule)
         self.logger.info('[cakebot]: module {} plugged in'.format(module_name))
 
-    def __getattr__(self, item):
-        return getattr(self.modules['misc'], item)
-
     def auth_function(self, f):
         async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False, cakebot_perm=None):
             owner_check = owner_auth and self._is_owner(message.author)
