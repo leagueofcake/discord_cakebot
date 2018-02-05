@@ -1,6 +1,5 @@
 import asyncio
 import sys
-import requests
 import sqlite3
 
 from discord import errors as discord_errors
@@ -9,7 +8,6 @@ import cakebot_help
 from datetime import datetime
 import cakebot_config
 from modules.helpers import is_integer, get_full_username
-from modules.misc_old import parse_duration_str
 from modules.permissions import get_permissions, set_permissions, update_permissions, allowed_perm_commands
 from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
     find_album, find_song_by_id, search_songs, make_song_results, Song
@@ -131,28 +129,6 @@ class Bot:
             await self._print_permissions(message, user)
         elif len(args) > 2:
             await self._set_permissions(message, user)
-
-    async def timed_cats(self, message):
-        async def inner(m):
-            times, duration_str = parse_duration_str(m.content.split())
-            unit_time = cakebot_config.time_map[duration_str][0]
-
-            unit = cakebot_config.time_map[duration_str][1]
-            unit_plural = cakebot_config.time_map[duration_str][2]
-
-            if times == 1:
-                unit_plural = unit
-
-            await self.say(m.channel, 'Sending cats every {} for {} {}!'.format(unit, times, unit_plural))
-
-            for i in range(times):
-                cat_url = requests.get('http://random.cat/meow').json()['file']
-                await self.say(m.channel, cat_url)
-                if i == times - 1:
-                    await self.say(m.channel, 'Finished sending cats!')
-                    break
-                await asyncio.sleep(unit_time)
-        await self.auth_function(inner)(message, owner_auth=True)
 
     async def redirect(self, message):
         room = message.channel_mentions[0]

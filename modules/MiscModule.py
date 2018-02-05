@@ -1,7 +1,11 @@
 import random
+import requests
+import asyncio
+from .helpers import is_integer
+import cakebot_config
 
 
-class MiscModule():
+class MiscModule:
     repl_dict = {'!': ('!', 'ǃ', '！'),
                  '"': ('"', '״', '″', '＂'),
                  '$': ('$', '＄'),
@@ -92,4 +96,45 @@ class MiscModule():
     async def troll_url(self, message):
         await self.say(message.channel, self._return_troll(message.content.split()[1]))
         await self.delete(message)
+
+    # Used for !timedcats. May be extended for use with other commands in the future.
+    # Returns a tuple (times, duration_str)
+    def _parse_duration_str(self, args):
+        # Defaults to 5 m if no duration string is given
+        times = 5
+        duration_str = 'm'
+
+        if len(args) > 1:
+            arg_times = args[1]
+            if is_integer(arg_times):
+                if int(arg_times) <= 60:
+                    times = int(arg_times)
+
+            if len(args) > 2:
+                arg_duration = args[2]
+                if arg_duration in cakebot_config.time_map:
+                    duration_str = arg_duration
+        return times, duration_str
+
+    async def timed_cats(self, message):
+        async def inner(m):
+            times, duration_str = self._parse_duration_str(m.content.split())
+            unit_time = cakebot_config.time_map[duration_str][0]
+
+            unit = cakebot_config.time_map[duration_str][1]
+            unit_plural = cakebot_config.time_map[duration_str][2]
+
+            if times == 1:
+                unit_plural = unit
+
+            await self.say(m.channel, 'Sending cats every {} for {} {}!'.format(unit, times, unit_plural))
+
+            for i in range(times):
+                cat_url = requests.get('http://random.cat/meow').json()['file']
+                await self.say(m.channel, cat_url)
+                if i == times - 1:
+                    await self.say(m.channel, 'Finished sending cats!')
+                    break
+                await asyncio.sleep(unit_time)
+        await self.auth_function(inner)(message, owner_auth=True)
 
