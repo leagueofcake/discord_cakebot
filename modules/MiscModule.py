@@ -3,9 +3,10 @@ import requests
 import asyncio
 from .helpers import is_integer
 import cakebot_config
+from modules.ModuleInterface import ModuleInterface
 
 
-class MiscModule:
+class MiscModule(ModuleInterface):
     repl_dict = {'!': ('!', 'ǃ', '！'),
                  '"': ('"', '״', '″', '＂'),
                  '$': ('$', '＄'),
@@ -137,4 +138,3 @@ class MiscModule:
                     break
                 await asyncio.sleep(unit_time)
         await self.auth_function(inner)(message, owner_auth=True)
-
