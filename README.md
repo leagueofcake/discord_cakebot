@@ -3,6 +3,35 @@
 
 General-purpose bot for discord.
 
+## Requirements
+Packages below are also listed in `requirements.txt`.
+* Python >= 3.5
+* [discordpy](https://github.com/Rapptz/discord.py)
+* [PyNaCl](https://github.com/pyca/pynacl)
+* [aiohttp](https://github.com/aio-libs/aiohttp)
+* [requests](https://github.com/requests/requests)
+* [pytest](https://github.com/pytest-dev/pytest)
+
+
+## Setup
+Clone the repo and `cd` into it:
+
+	git clone https://github.com/leagueofcake/discord_cakebot.git && cd discord_cakebot
+
+Install requirements via `pip`: 
+
+	pip install -r requirements.txt
+
+Rename `sample_config.py` to `cakebot_config.py` and update the values (mainly `TOKEN` (Discord API token) and `OWNER_ID`):
+
+	mv sample_config.py cakebot_config.py
+
+Run `run_bot.sh` or run the bot directly with `python`:
+
+	sh run_bot.sh
+    # OR
+    python run.py
+    
 ## Functionality
 * **Music queuing (for music bots)**
     * Queueing songs from a song database
