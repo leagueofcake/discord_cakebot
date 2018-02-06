@@ -10,6 +10,7 @@ logger = logging.getLogger()
 
 client = discord.Client()
 bot = Bot(client, logger)
+bot.plug_in_module('core')
 bot.plug_in_module('permissions')
 bot.plug_in_module('modtools')
 bot.plug_in_module('messages')
