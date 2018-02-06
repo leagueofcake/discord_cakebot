@@ -1,8 +1,8 @@
 import random
 import requests
 import asyncio
-
 import cakebot_config
+
 from modules.ModuleInterface import ModuleInterface
 from modules.helpers import is_integer
 from modules.misc import misc_help, misc_consts

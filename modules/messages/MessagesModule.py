@@ -1,4 +1,5 @@
 import sys
+
 from modules.ModuleInterface import ModuleInterface
 from modules.messages import messages_help
 

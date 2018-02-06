@@ -1,4 +1,5 @@
 import cakebot_config
+
 from modules.ModuleInterface import ModuleInterface
 from modules.permissions import permissions_help
 

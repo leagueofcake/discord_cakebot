@@ -1,5 +1,6 @@
-import asyncio
 import cakebot_config
+from asyncio import sleep as asyncio_sleep
+
 from modules.ModuleInterface import ModuleInterface
 from modules.helpers import is_integer
 from modules.music import music_help
@@ -140,7 +141,7 @@ class MusicModule(ModuleInterface):
                     msg = await self.client.wait_for_message(author=message.author, check=check,
                                                              timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
-                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                await asyncio_sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
                 await self.delete(tmp)
         else:
             found = None
@@ -171,7 +172,7 @@ class MusicModule(ModuleInterface):
                     msg = await self.client.wait_for_message(author=message.author, check=check,
                                                              timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
-                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                await asyncio_sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
                 await self.delete(tmp)
             elif command == '!playid':
                 found = self._find_song_by_id(args[1])

@@ -1,9 +1,10 @@
-import asyncio
-import sqlite3
-
 import cakebot_config
 
+from sqlite3 import connect as sqlite3_connect
+from asyncio import sleep as asyncio_sleep
+
 from modules.HelpEntry import HelpEntry
+
 from modules.misc.MiscModule import MiscModule
 from modules.music.MusicModule import MusicModule
 from modules.permissions.PermissionsModule import PermissionsModule
@@ -14,7 +15,7 @@ from modules.modtools.ModToolsModule import ModToolsModule
 class Bot:
     def __init__(self, client, logger):
         self.client = client
-        self.conn = sqlite3.connect(cakebot_config.DB_PATH)
+        self.conn = sqlite3_connect(cakebot_config.DB_PATH)
         self.c = self.conn.cursor()
 
         self.logger = logger
@@ -58,7 +59,7 @@ class Bot:
 
     async def temp_message(self, channel, message, time=5):
         tmp = await self.say(channel, message)
-        await asyncio.sleep(time)
+        await asyncio_sleep(time)
         await self.delete(tmp)
 
     async def delete(self, message):
