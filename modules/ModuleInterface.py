@@ -5,6 +5,7 @@ class ModuleInterface:
         self.c = None
 
         self.logger = None
+        self.command_handlers = {}
 
     def auth_function(self, f):
         pass

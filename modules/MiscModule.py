@@ -138,3 +138,8 @@ class MiscModule(ModuleInterface):
                     break
                 await asyncio.sleep(unit_time)
         await self.auth_function(inner)(message, owner_auth=True)
+
+    command_handlers = {
+        '!timedcats': timed_cats,
+        '!trollurl': troll_url
+    }

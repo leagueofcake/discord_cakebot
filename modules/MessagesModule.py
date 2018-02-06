@@ -20,11 +20,18 @@ class MessagesModule(ModuleInterface):
         async def inner(m):
             await self.say(m.channel, 'Logging out, bye!')
             sys.exit()
-        await self.auth_function(inner)(message, ownner_auth=True)
+        await self.auth_function(inner)(message, owner_auth=True)
 
     async def redirect(self, message):
         room = message.channel_mentions[0]
         await self.say(room, '`{}` redirected:'.format(message.author))
         await self.say(room, ' '.join(message.content.split()[2:]))
         await self.delete(message)
+
+    command_handlers = {
+        '!hello': hello,
+        '!bye': bye,
+        '!redirect': redirect,
+        '!say': say_in_room,
+    }
 

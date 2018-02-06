@@ -19,12 +19,16 @@ class Bot:
 
         self.logger = logger
         self.modules = set()
+        self.command_handlers = {}
 
     def _extend_instance(self, cls):
         # Apply mixin to self
         base_cls = self.__class__
         base_cls_name = self.__class__.__name__
         self.__class__ = type(base_cls_name, (base_cls, cls), {})
+
+        # Add command handlers from module
+        self.command_handlers = {**self.command_handlers, **cls.command_handlers}
 
     def plug_in_module(self, module_name):
         modules = {
@@ -34,6 +38,7 @@ class Bot:
             'messages': MessagesModule,
             'modtools': ModToolsModule
         }
+
         if module_name in modules:
             self._extend_instance(modules[module_name])
             self.modules.add(module_name)
@@ -60,3 +65,22 @@ class Bot:
                 await self.temp_message(message.channel, 'Command not found! do ``!help`` for the command list.', time=10)
         else:  # command list summary
             await self.temp_message(message.channel, cakebot_help.generate_summary(), time=10)
+
+    async def handle_incoming_message(self, message):
+        args = message.content.split()
+        command = args[0]
+
+        if command in self.command_handlers:
+            await self.command_handlers[command](self, message)
+        elif command == '!invite':
+            await self.say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
+        elif command == '!google':
+            url = 'https://www.google.com/#q=' + '+'.join(args[1:])
+            await self.say(message.channel, url)
+        elif command == '!reqsong':
+            await self.say(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
+        elif command == '!help':
+            await self.help(message)
+        # elif command == '!':
+        # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
+

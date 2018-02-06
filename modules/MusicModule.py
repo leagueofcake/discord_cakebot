@@ -104,7 +104,7 @@ class MusicModule(ModuleInterface):
         else:
             await self._set_music_prefix(message)
 
-    async def queue_songs(self, message, music_prefix, songs):
+    async def _queue_songs(self, message, music_prefix, songs):
         if music_prefix:
             for song in songs:
                 song = _Song(*song)
@@ -127,7 +127,7 @@ class MusicModule(ModuleInterface):
                 found = self._search_songs(search)
 
             if len(found) == 1 and command == '!play':
-                await self.queue_songs(message, prefix, found)
+                await self._queue_songs(message, prefix, found)
             elif len(found) > 1 or command == '!search':
                 tmp = await self.say(message.channel, self._make_song_results(found))
 
@@ -165,7 +165,7 @@ class MusicModule(ModuleInterface):
                     await self.delete(tmp)
 
                     if msg.content == '!yes':
-                        await self.queue_songs(message, prefix, found)
+                        await self._queue_songs(message, prefix, found)
                         break
 
                     page_num = msg.content.split()[1]
@@ -176,7 +176,15 @@ class MusicModule(ModuleInterface):
                 await self.delete(tmp)
             elif command == '!playid':
                 found = self._find_song_by_id(args[1])
-                await self.queue_songs(message, prefix, found)
+                await self._queue_songs(message, prefix, found)
 
         if not found:
             await self.say(message.channel, "Couldn't find any matching songs!")
+
+    command_handlers = {
+        '!musicprefix': music_prefix,
+        '!play': search_and_play,
+        '!playid': search_and_play,
+        '!playalbum': search_and_play
+    }
+

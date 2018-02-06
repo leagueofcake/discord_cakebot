@@ -234,3 +234,8 @@ class ModToolsModule(ModuleInterface):
         else:
             await self.temp_message(message.channel, "Please specify a valid number of messages to purge. (1-100)")
 
+    command_handlers = {
+        '!logchannel': log_channel,
+        '!purge': purge,
+        '!del': del_user_messages
+    }

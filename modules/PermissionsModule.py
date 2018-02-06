@@ -84,3 +84,6 @@ class PermissionsModule(ModuleInterface):
     def _is_owner(self, user):
         return str(user.id) == cakebot_config.OWNER_ID
 
+    command_handlers = {
+        '!permissions': permissions,
+    }
