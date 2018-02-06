@@ -42,7 +42,9 @@ class Bot:
         if module_name in modules:
             self._extend_instance(modules[module_name])
             self.modules.add(module_name)
-            self.logger.info('[cakebot]: module {} plugged in'.format(module_name))
+            self.logger.info('[cakebot][modules]: {} plugged in'.format(module_name))
+        else:
+            self.logger.info('[cakebot][modules]: unknown module {}'.format(module_name))
 
     async def say(self, channel, message):
         return await self.client.send_message(channel, message)
