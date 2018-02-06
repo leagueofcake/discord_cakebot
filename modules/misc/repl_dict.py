@@ -1,6 +1,3 @@
-import random, cakebot_config
-from .helpers import is_integer
-
 repl_dict = {'!': ('!', 'ǃ', '！'),
              '"': ('"', '״', '″', '＂'),
              '$': ('$', '＄'),
@@ -13,7 +10,7 @@ repl_dict = {'!': ('!', 'ǃ', '！'),
              '+': ('+', '＋'),
              ',': (',', '‚', '，'),
              '-': ('-', '‐', '－'),
-             #'.': ('.', '٠', '۔', '܁', '܂', '․', '‧', '。', '．', '｡'),
+             # '.': ('.', '٠', '۔', '܁', '܂', '․', '‧', '。', '．', '｡'),
              '/': ('/', '̸', '⁄', '∕', '╱', '⫻', '⫽', '／', 'ﾉ'),
              '0': ('0', 'O', 'o', 'Ο', 'ο', 'О', 'о', 'Օ', 'Ｏ', 'ｏ'),
              '1': ('1', 'I', 'ا', '１'),
@@ -39,11 +36,15 @@ repl_dict = {'!': ('!', 'ǃ', '！'),
              '^': ('^', '＾'),
              '_': ('_', '＿'),
              '`': ('`', '｀'),
-             'a': ('a', 'A', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'à', 'á', 'â', 'ã', 'ä', 'å', 'ɑ', 'Α', 'α', 'а', 'Ꭺ', 'Ａ', 'ａ'),
+             'a': (
+             'a', 'A', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'à', 'á', 'â', 'ã', 'ä', 'å', 'ɑ', 'Α', 'α', 'а', 'Ꭺ', 'Ａ',
+             'ａ'),
              'b': ('b', 'B', 'ß', 'ʙ', 'Β', 'β', 'В', 'Ь', 'Ᏼ', 'ᛒ', 'Ｂ', 'ｂ'),
              'c': ('c', 'C', 'ϲ', 'Ϲ', 'С', 'с', 'Ꮯ', 'Ⅽ', 'ⅽ', 'Ｃ', 'ｃ'),
              'd': ('d', 'D', 'Ď', 'ď', 'Đ', 'đ', 'ԁ', 'ժ', 'Ꭰ', 'Ⅾ', 'ⅾ', 'Ｄ', 'ｄ'),
-             'e': ('e', 'E', 'È', 'É', 'Ê', 'Ë', 'é', 'ê', 'ë', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė', 'Ę', 'Ě', 'ě', 'Ε', 'Е', 'е', 'Ꭼ', 'Ｅ', 'ｅ'),
+             'e': (
+             'e', 'E', 'È', 'É', 'Ê', 'Ë', 'é', 'ê', 'ë', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė', 'Ę', 'Ě', 'ě', 'Ε', 'Е',
+             'е', 'Ꭼ', 'Ｅ', 'ｅ'),
              'f': ('f', 'F', 'Ϝ', 'Ｆ', 'ｆ'),
              'g': ('g', 'G', 'ɡ', 'ɢ', 'Ԍ', 'ն', 'Ꮐ', 'Ｇ', 'ｇ'),
              'h': ('h', 'H', 'ʜ', 'Η', 'Н', 'һ', 'Ꮋ', 'Ｈ', 'ｈ'),
@@ -69,43 +70,4 @@ repl_dict = {'!': ('!', 'ǃ', '！'),
              '|': ('|', 'ǀ', 'ا', '｜'),
              '}': ('}', '｝'),
              '~': ('~', '⁓', '～'),
-              }
-
-
-def select_repl(char):
-    try:
-        weight = 8
-        key = int(random.random() * (len(repl_dict[char]) + weight))
-        if key < weight + 1:
-            return repl_dict[char][0]  # Below weight, key equals 0 (key for first/default character)
-        else:
-            return repl_dict[char][key - weight]
-    except KeyError:  # Return original char if char not found in dict
-        return char
-
-
-def return_troll(url):
-    prefix = ''
-    if 'https://' in url: prefix = 'https://'
-    elif 'http://' in url: prefix = 'http://'
-    return prefix + ''.join([select_repl(x) for x in url[len(prefix):]])
-
-
-# Used for !timedcats. May be extended for use with other commands in the future.
-# Returns a tuple (times, duration_str)
-def parse_duration_str(args):
-    # Defaults to 5 m if no duration string is given
-    times = 5
-    duration_str = 'm'
-
-    if len(args) > 1:
-        arg_times = args[1]
-        if is_integer(arg_times):
-            if int(arg_times) <= 60:
-                times = int(arg_times)
-
-        if len(args) > 2:
-            arg_duration = args[2]
-            if arg_duration in cakebot_config.time_map:
-                duration_str = arg_duration
-    return times, duration_str
+             }
