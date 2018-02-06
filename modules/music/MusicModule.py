@@ -2,21 +2,7 @@ import asyncio
 import cakebot_config
 from modules.ModuleInterface import ModuleInterface
 from modules.helpers import is_integer
-
-
-class _Song:
-    def __init__(self, song_id, name, artist, album, link, alias):
-        self.song_id = song_id
-        self.name = name
-        self.artist = artist
-        self.album = album
-        self.link = link
-        self.alias = alias
-
-    def get_result_repr(self):
-        args = [self.song_id, self.name, self.artist, self.album, self.alias]
-        args = [str(arg) for arg in args]
-        return "{:4} {:45.45} {:25.25} {:35.35} {:20.20}".format(*args)
+from modules.music.Song import Song
 
 
 class MusicModule(ModuleInterface):
@@ -97,7 +83,7 @@ class MusicModule(ModuleInterface):
             for res in found:
                 if added == 13:
                     break
-                results += '\n' + _Song(*res).get_result_repr()
+                results += '\n' + Song(*res).get_result_repr()
                 added += 1
         results += '```'
         return results
@@ -112,7 +98,7 @@ class MusicModule(ModuleInterface):
     async def _queue_songs(self, message, music_prefix, songs):
         if music_prefix:
             for song in songs:
-                song = _Song(*song)
+                song = Song(*song)
 
                 if music_prefix:
                     await self.temp_message(message.channel, '{} {}'.format(music_prefix, song.link), time=3)

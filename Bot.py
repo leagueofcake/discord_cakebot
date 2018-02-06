@@ -5,7 +5,7 @@ import cakebot_help
 import cakebot_config
 
 from modules.misc.MiscModule import MiscModule
-from modules.MusicModule import MusicModule
+from modules.music.MusicModule import MusicModule
 from modules.PermissionsModule import PermissionsModule
 from modules.MessagesModule import MessagesModule
 from modules.ModToolsModule import ModToolsModule
