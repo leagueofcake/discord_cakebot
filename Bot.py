@@ -4,7 +4,7 @@ import sqlite3
 import cakebot_help
 import cakebot_config
 
-from modules.MiscModule import MiscModule
+from modules.misc.MiscModule import MiscModule
 from modules.MusicModule import MusicModule
 from modules.PermissionsModule import PermissionsModule
 from modules.MessagesModule import MessagesModule
