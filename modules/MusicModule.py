@@ -181,10 +181,14 @@ class MusicModule(ModuleInterface):
         if not found:
             await self.say(message.channel, "Couldn't find any matching songs!")
 
+    async def req_song(self, message):
+        await self.say(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
+
     command_handlers = {
         '!musicprefix': music_prefix,
         '!play': search_and_play,
         '!playid': search_and_play,
-        '!playalbum': search_and_play
+        '!playalbum': search_and_play,
+        '!reqsong': req_song
     }
 

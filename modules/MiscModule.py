@@ -139,7 +139,16 @@ class MiscModule(ModuleInterface):
                 await asyncio.sleep(unit_time)
         await self.auth_function(inner)(message, owner_auth=True)
 
+    async def invite(self, message):
+        await self.say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
+
+    async def gen_google_link(self, message):
+        url = 'https://www.google.com/#q=' + '+'.join(message.content.split()[1:])
+        await self.say(message.channel, url)
+
     command_handlers = {
         '!timedcats': timed_cats,
-        '!trollurl': troll_url
+        '!trollurl': troll_url,
+        '!invite': invite,
+        '!google': gen_google_link
     }

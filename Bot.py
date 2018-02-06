@@ -72,15 +72,7 @@ class Bot:
 
         if command in self.command_handlers:
             await self.command_handlers[command](self, message)
-        elif command == '!invite':
-            await self.say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
-        elif command == '!google':
-            url = 'https://www.google.com/#q=' + '+'.join(args[1:])
-            await self.say(message.channel, url)
-        elif command == '!reqsong':
-            await self.say(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
         elif command == '!help':
             await self.help(message)
         # elif command == '!':
         # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
-
