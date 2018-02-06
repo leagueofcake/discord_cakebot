@@ -33,9 +33,11 @@ class Bot:
         self.__class__ = type(base_cls_name, (base_cls, cls), {})
 
     def plug_in_module(self, module_name):
-        if module_name == 'misc':
-            self._extend_instance(MiscModule)
-        self.logger.info('[cakebot]: module {} plugged in'.format(module_name))
+        allowed_modules = ['misc']
+        if module_name in allowed_modules:
+            if module_name == 'misc':
+                self._extend_instance(MiscModule)
+            self.logger.info('[cakebot]: module {} plugged in'.format(module_name))
 
     def auth_function(self, f):
         async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False, cakebot_perm=None):
