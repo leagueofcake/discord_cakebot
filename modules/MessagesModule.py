@@ -20,6 +20,7 @@ class MessagesModule(ModuleInterface):
         async def inner(m):
             await self.say(m.channel, 'Logging out, bye!')
             sys.exit()
+
         await self.auth_function(inner)(message, owner_auth=True)
 
     async def redirect(self, message):
@@ -34,4 +35,3 @@ class MessagesModule(ModuleInterface):
         '!redirect': redirect,
         '!say': say_in_room,
     }
-

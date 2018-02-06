@@ -19,7 +19,7 @@ class MiscModule(ModuleInterface):
                  '+': ('+', '＋'),
                  ',': (',', '‚', '，'),
                  '-': ('-', '‐', '－'),
-                 #'.': ('.', '٠', '۔', '܁', '܂', '․', '‧', '。', '．', '｡'),
+                 # '.': ('.', '٠', '۔', '܁', '܂', '․', '‧', '。', '．', '｡'),
                  '/': ('/', '̸', '⁄', '∕', '╱', '⫻', '⫽', '／', 'ﾉ'),
                  '0': ('0', 'O', 'o', 'Ο', 'ο', 'О', 'о', 'Օ', 'Ｏ', 'ｏ'),
                  '1': ('1', 'I', 'ا', '１'),
@@ -45,11 +45,15 @@ class MiscModule(ModuleInterface):
                  '^': ('^', '＾'),
                  '_': ('_', '＿'),
                  '`': ('`', '｀'),
-                 'a': ('a', 'A', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'à', 'á', 'â', 'ã', 'ä', 'å', 'ɑ', 'Α', 'α', 'а', 'Ꭺ', 'Ａ', 'ａ'),
+                 'a': (
+                 'a', 'A', 'À', 'Á', 'Â', 'Ã', 'Ä', 'Å', 'à', 'á', 'â', 'ã', 'ä', 'å', 'ɑ', 'Α', 'α', 'а', 'Ꭺ', 'Ａ',
+                 'ａ'),
                  'b': ('b', 'B', 'ß', 'ʙ', 'Β', 'β', 'В', 'Ь', 'Ᏼ', 'ᛒ', 'Ｂ', 'ｂ'),
                  'c': ('c', 'C', 'ϲ', 'Ϲ', 'С', 'с', 'Ꮯ', 'Ⅽ', 'ⅽ', 'Ｃ', 'ｃ'),
                  'd': ('d', 'D', 'Ď', 'ď', 'Đ', 'đ', 'ԁ', 'ժ', 'Ꭰ', 'Ⅾ', 'ⅾ', 'Ｄ', 'ｄ'),
-                 'e': ('e', 'E', 'È', 'É', 'Ê', 'Ë', 'é', 'ê', 'ë', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė', 'Ę', 'Ě', 'ě', 'Ε', 'Е', 'е', 'Ꭼ', 'Ｅ', 'ｅ'),
+                 'e': (
+                 'e', 'E', 'È', 'É', 'Ê', 'Ë', 'é', 'ê', 'ë', 'Ē', 'ē', 'Ĕ', 'ĕ', 'Ė', 'ė', 'Ę', 'Ě', 'ě', 'Ε', 'Е',
+                 'е', 'Ꭼ', 'Ｅ', 'ｅ'),
                  'f': ('f', 'F', 'Ϝ', 'Ｆ', 'ｆ'),
                  'g': ('g', 'G', 'ɡ', 'ɢ', 'Ԍ', 'ն', 'Ꮐ', 'Ｇ', 'ｇ'),
                  'h': ('h', 'H', 'ʜ', 'Η', 'Н', 'һ', 'Ꮋ', 'Ｈ', 'ｈ'),
@@ -90,8 +94,10 @@ class MiscModule(ModuleInterface):
 
     def _return_troll(self, url):
         prefix = ''
-        if 'https://' in url: prefix = 'https://'
-        elif 'http://' in url: prefix = 'http://'
+        if 'https://' in url:
+            prefix = 'https://'
+        elif 'http://' in url:
+            prefix = 'http://'
         return prefix + ''.join([self._select_repl(x) for x in url[len(prefix):]])
 
     async def troll_url(self, message):
@@ -137,10 +143,12 @@ class MiscModule(ModuleInterface):
                     await self.say(m.channel, 'Finished sending cats!')
                     break
                 await asyncio.sleep(unit_time)
+
         await self.auth_function(inner)(message, owner_auth=True)
 
     async def invite(self, message):
-        await self.say(message.channel, 'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
+        await self.say(message.channel,
+                       'Add me to your server! Click here: {}'.format(cakebot_config.NORMAL_INVITE_LINK))
 
     async def gen_google_link(self, message):
         url = 'https://www.google.com/#q=' + '+'.join(message.content.split()[1:])

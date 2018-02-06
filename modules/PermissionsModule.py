@@ -4,11 +4,14 @@ from modules.ModuleInterface import ModuleInterface
 
 class PermissionsModule(ModuleInterface):
     allowed_perm_commands = ['musicprefix', 'logchannel']
+
     def auth_function(self, f):
-        async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False, cakebot_perm=None):
+        async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False,
+                          cakebot_perm=None):
             owner_check = owner_auth and self._is_owner(message.author)
             manage_server_check = manage_server_auth and self._can_manage_server(message.author, message.channel)
-            is_cakebot_check = (not require_non_cakebot) or (require_non_cakebot and not self._is_cakebot(message.author))
+            is_cakebot_check = (not require_non_cakebot) or (
+                        require_non_cakebot and not self._is_cakebot(message.author))
             no_auth = not owner_auth and not manage_server_auth and not cakebot_perm
 
             perms = self._db_get_permissions(message.author.id, message.server.id)
@@ -18,6 +21,7 @@ class PermissionsModule(ModuleInterface):
                 await f(message)
             else:
                 await self.say(message.channel, 'You\'re not allowed to do that!')
+
         return ret_fun
 
     def _db_get_permissions(self, user_id, server_id):
@@ -26,11 +30,11 @@ class PermissionsModule(ModuleInterface):
 
     def _db_set_permissions(self, user_id, server_id, new_perms):
         self.c.execute("INSERT INTO permissions (user_id, server_id, permissions) VALUES (?, ?, ?)",
-                  (user_id, server_id, ','.join(new_perms)))
+                       (user_id, server_id, ','.join(new_perms)))
 
     def _db_update_permissions(self, user_id, server_id, new_perms):
         self.c.execute("UPDATE permissions SET permissions = ? WHERE user_id = ? AND server_id = ?",
-                  (new_perms, user_id, server_id))
+                       (new_perms, user_id, server_id))
 
     async def _print_permissions(self, message, user):
         perms = self._db_get_permissions(user.id, message.server.id)
@@ -46,7 +50,8 @@ class PermissionsModule(ModuleInterface):
     async def _set_permissions(self, message, user):
         async def inner(m):
             perms = self._db_get_permissions(user.id, m.server.id)
-            add_perms = [comm for comm in m.content.split()[2:] if comm in PermissionsModule.allowed_perm_commands]  # Filter allowed permission commands
+            add_perms = [comm for comm in m.content.split()[2:] if
+                         comm in PermissionsModule.allowed_perm_commands]  # Filter allowed permission commands
 
             if add_perms:
                 if perms:
@@ -60,6 +65,7 @@ class PermissionsModule(ModuleInterface):
                 await self.say(m.channel, add_message)
             else:
                 await self.say(m.channel, 'No permissions were added to {}!'.format(user))
+
         await self.auth_function(inner)(message, require_non_cakebot=True, manage_server_auth=True, owner_auth=True)
 
     async def permissions(self, message):

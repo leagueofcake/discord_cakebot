@@ -64,7 +64,8 @@ class Bot:
             try:
                 await self.temp_message(message.channel, cakebot_help.get_entry(command), time=10)
             except KeyError:
-                await self.temp_message(message.channel, 'Command not found! do ``!help`` for the command list.', time=10)
+                await self.temp_message(message.channel, 'Command not found! do ``!help`` for the command list.',
+                                        time=10)
         else:  # command list summary
             await self.temp_message(message.channel, cakebot_help.generate_summary(), time=10)
 

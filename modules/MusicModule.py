@@ -21,7 +21,7 @@ class _Song:
 
 class MusicModule(ModuleInterface):
     def _get_music_prefix(self, server_id):
-        self.c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id, ))
+        self.c.execute("SELECT prefix FROM music_prefix WHERE server_id = ?", (server_id,))
         res = self.c.fetchone()
         if res:
             return res[0]
@@ -40,9 +40,11 @@ class MusicModule(ModuleInterface):
     async def _print_music_prefix(self, message):
         music_prefix = self._get_music_prefix(message.server.id)
         if music_prefix:
-            await self.temp_message(message.channel, 'Current music prefix for this server is: `{}`'.format(music_prefix))
+            await self.temp_message(message.channel,
+                                    'Current music prefix for this server is: `{}`'.format(music_prefix))
         else:
-            await self.temp_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
+            await self.temp_message(message.channel,
+                                    'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
 
     async def _set_music_prefix(self, message):
         async def inner(m):
@@ -55,7 +57,9 @@ class MusicModule(ModuleInterface):
                 self._add_music_prefix(m.server.id, new_prefix)
                 await self.say(m.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
             self.conn.commit()
-        await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='musicprefix', require_non_cakebot=True)
+
+        await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='musicprefix',
+                                        require_non_cakebot=True)
 
     def _find_album(self, album):
         self.c.execute("SELECT * FROM songs WHERE LOWER(album) LIKE ?", ('%{}%'.format(album.lower()),))
@@ -80,10 +84,11 @@ class MusicModule(ModuleInterface):
         else:
             count_str = "{} matches".format(found_size)
 
-        page_num = (offset // 13) + 1 # Integer division
+        page_num = (offset // 13) + 1  # Integer division
         max_page_num = (found_size // 13) + 1
 
-        results = "\nFound {} - displaying page {} of {}. Use ``!page <number>`` to access that page. Use ``!playid <id>``\n```".format(count_str, page_num, max_page_num)
+        results = "\nFound {} - displaying page {} of {}. Use ``!page <number>`` to access that page. Use ``!playid <id>``\n```".format(
+            count_str, page_num, max_page_num)
         results += '{:4} {:45} {:25} {:35} {:20}'.format('ID', 'Name', 'Artist', 'Album', 'Alias')  # header row
 
         if found:
@@ -113,7 +118,8 @@ class MusicModule(ModuleInterface):
                     await self.temp_message(message.channel, '{} {}'.format(music_prefix, song.link), time=3)
                     await self.say(message.channel, '{} queued: {}'.format(message.author, song.name))
         else:
-            await self.temp_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
+            await self.temp_message(message.channel,
+                                    'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
 
     async def search_and_play(self, message):
         args = message.content.split()
@@ -135,7 +141,8 @@ class MusicModule(ModuleInterface):
                     splitted = msg.content.split()
                     return len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1])
 
-                msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                msg = await self.client.wait_for_message(author=message.author, check=check,
+                                                         timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
                 while msg is not None:
                     await self.delete(msg)
@@ -143,7 +150,8 @@ class MusicModule(ModuleInterface):
 
                     page_num = msg.content.split()[1]
                     tmp = await self.say(message.channel, self._make_song_results(found, (int(page_num) - 1) * 13))
-                    msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                    msg = await self.client.wait_for_message(author=message.author, check=check,
+                                                             timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
                 await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
                 await self.delete(tmp)
@@ -151,14 +159,17 @@ class MusicModule(ModuleInterface):
             found = None
             if command == '!playalbum':
                 found = self._find_album(' '.join(args[1:]))
-                await self.say(message.channel, "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
+                await self.say(message.channel,
+                               "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
 
                 def check(msg):
                     splitted = msg.content.split()
-                    return msg.content == '!yes' or (len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
+                    return msg.content == '!yes' or (
+                                len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
 
                 tmp = await self.say(message.channel, self._make_song_results(found))
-                msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                msg = await self.client.wait_for_message(author=message.author, check=check,
+                                                         timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
                 while msg is not None:
                     await self.delete(msg)
@@ -170,7 +181,8 @@ class MusicModule(ModuleInterface):
 
                     page_num = msg.content.split()[1]
                     tmp = await self.say(message.channel, self._make_song_results(found, (int(page_num) - 1) * 13))
-                    msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
+                    msg = await self.client.wait_for_message(author=message.author, check=check,
+                                                             timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
                 await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
                 await self.delete(tmp)
@@ -182,7 +194,8 @@ class MusicModule(ModuleInterface):
             await self.say(message.channel, "Couldn't find any matching songs!")
 
     async def req_song(self, message):
-        await self.say(message.channel, 'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
+        await self.say(message.channel,
+                       'Fill this in and PM leagueofcake: <http://goo.gl/forms/LesR4R9oXUalDRLz2>\nOr this (multiple songs): <http://puu.sh/pdITq/61897089c8.csv>')
 
     command_handlers = {
         '!musicprefix': music_prefix,
@@ -191,4 +204,3 @@ class MusicModule(ModuleInterface):
         '!playalbum': search_and_play,
         '!reqsong': req_song
     }
-

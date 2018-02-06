@@ -52,6 +52,7 @@ class ModToolsModule(ModuleInterface):
                 else:
                     num = int(args[1])
                     await self._purge_messages(message=m, purge_user=purge_user_id, num=num)
+
         await self.auth_function(inner)(message, require_non_cakebot=True)
 
     async def _print_log_channel(self, message):
@@ -70,7 +71,9 @@ class ModToolsModule(ModuleInterface):
                 self._add_log_channel(m.server.id, m.channel.id)
             await self.say(m.channel, 'Set {} as the log channel!'.format(m.channel.mention))
             self.conn.commit()
-        await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='logchannel', require_non_cakebot=True)
+
+        await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='logchannel',
+                                        require_non_cakebot=True)
 
     async def log_channel(self, message):
         args = message.content.split()
@@ -152,7 +155,8 @@ class ModToolsModule(ModuleInterface):
                             game_count[member.game.name] += 1
                 if game_count:
                     # Select game with highest current players
-                    new_channel_names = [key for m in [max(game_count.values())] for key,val in game_count.items() if val == m]
+                    new_channel_names = [key for m in [max(game_count.values())] for key, val in game_count.items() if
+                                         val == m]
                     for new_channel_name in new_channel_names:
                         if new_channel_name:  # Non-blank new channel name, set as new channel name
                             await self.client.edit_channel(after.voice_channel, name=new_channel_name)
@@ -176,7 +180,7 @@ class ModToolsModule(ModuleInterface):
         await self._auto_rename_voice_channel(before, after)
 
     def _get_log_channel_id(self, server_id):
-        self.c.execute("SELECT channel_id FROM log_channel WHERE server_id = ?", (server_id, ))
+        self.c.execute("SELECT channel_id FROM log_channel WHERE server_id = ?", (server_id,))
         res = self.c.fetchone()
         if res:
             return res[0]
