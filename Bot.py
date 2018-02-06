@@ -9,12 +9,11 @@ from datetime import datetime
 import cakebot_config
 from modules.helpers import is_integer, get_full_username
 from modules.permissions import get_permissions, set_permissions, update_permissions, allowed_perm_commands
-from modules.music import get_music_prefix, add_music_prefix, update_music_prefix, find_song_by_name, \
-    find_album, find_song_by_id, search_songs, make_song_results, Song
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log, purge_messages
 
 from modules.MiscModule import MiscModule
+from modules.MusicModule import MusicModule
 
 
 class Bot:
@@ -33,10 +32,12 @@ class Bot:
         self.__class__ = type(base_cls_name, (base_cls, cls), {})
 
     def plug_in_module(self, module_name):
-        allowed_modules = ['misc']
+        allowed_modules = ['misc', 'music']
         if module_name in allowed_modules:
             if module_name == 'misc':
                 self._extend_instance(MiscModule)
+            elif module_name == 'music':
+                self._extend_instance(MusicModule)
             self.logger.info('[cakebot]: module {} plugged in'.format(module_name))
 
     def auth_function(self, f):
@@ -219,110 +220,6 @@ class Bot:
                 await self.temp_message(message.channel, 'Command not found! do ``!help`` for the command list.', time=10)
         else:  # command list summary
             await self.temp_message(message.channel, cakebot_help.generate_summary(), time=10)
-
-    async def _print_music_prefix(self, message):
-        music_prefix = get_music_prefix(self.c, message.server.id)
-        if music_prefix:
-            await self.temp_message(message.channel, 'Current music prefix for this server is: `{}`'.format(music_prefix))
-        else:
-            await self.temp_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
-
-    async def _set_music_prefix(self, message):
-        async def inner(m):
-            music_prefix = get_music_prefix(self.c, m.server.id)
-            new_prefix = ' '.join(m.content.split()[1:])
-            if music_prefix:
-                update_music_prefix(self.c, m.server.id, new_prefix)
-                await self.say(m.channel, 'Updated music prefix for this server to: `{}`'.format(new_prefix))
-            else:
-                add_music_prefix(self.c, m.server.id, new_prefix)
-                await self.say(m.channel, 'Set music prefix for this server to: `{}`'.format(new_prefix))
-            self.conn.commit()
-        await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='musicprefix', require_non_cakebot=True)
-
-    async def music_prefix(self, message):
-        args = message.content.split()
-        if len(args) == 1:
-            await self._print_music_prefix(message)
-        else:
-            await self._set_music_prefix(message)
-
-    async def queue_songs(self, message, music_prefix, songs):
-        if music_prefix:
-            for song in songs:
-                song = Song(*song)
-
-                if music_prefix:
-                    await self.temp_message(message.channel, '{} {}'.format(music_prefix, song.link), time=3)
-                    await self.say(message.channel, '{} queued: {}'.format(message.author, song.name))
-        else:
-            await self.temp_message(message.channel, 'No prefix is configured for this server. Add one with `!musicprefix <prefix>`')
-
-    async def search_and_play(self, message):
-        args = message.content.split()
-        command = args[0]
-        prefix = get_music_prefix(self.c, message.server.id)
-        if command == '!play' or command == '!search':
-            search = '%{}%'.format(' '.join(args[1:]).lower())
-            if command == '!play':
-                found = find_song_by_name(self.c, search)
-            elif command == '!search':
-                found = search_songs(self.c, search)
-
-            if len(found) == 1 and command == '!play':
-                await self.queue_songs(message, prefix, found)
-            elif len(found) > 1 or command == '!search':
-                tmp = await self.say(message.channel, make_song_results(found))
-
-                def check(msg):
-                    splitted = msg.content.split()
-                    return len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1])
-
-                msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-
-                while msg is not None:
-                    await self.delete(msg)
-                    await self.delete(tmp)
-
-                    page_num = msg.content.split()[1]
-                    tmp = await self.say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
-                    msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-
-                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-                await self.delete(tmp)
-        else:
-            found = None
-            if command == '!playalbum':
-                found = find_album(self.c, ' '.join(args[1:]))
-                await self.say(message.channel, "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
-
-                def check(msg):
-                    splitted = msg.content.split()
-                    return msg.content == '!yes' or (len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
-
-                tmp = await self.say(message.channel, make_song_results(found))
-                msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-
-                while msg is not None:
-                    await self.delete(msg)
-                    await self.delete(tmp)
-
-                    if msg.content == '!yes':
-                        await self.queue_songs(message, prefix, found)
-                        break
-
-                    page_num = msg.content.split()[1]
-                    tmp = await self.say(message.channel, make_song_results(found, (int(page_num) - 1) * 13))
-                    msg = await self.client.wait_for_message(author=message.author, check=check, timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-
-                await asyncio.sleep(cakebot_config.MUSIC_SEARCH_RESULT_TIME)
-                await self.delete(tmp)
-            elif command == '!playid':
-                found = find_song_by_id(self.c, args[1])
-                await self.queue_songs(message, prefix, found)
-
-        if not found:
-            await self.say(message.channel, "Couldn't find any matching songs!")
 
     async def handle_channel_update(self, before, after):
         log_channel = self.client.get_channel(get_log_channel_id(self.c, before.server.id))

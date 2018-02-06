@@ -11,6 +11,7 @@ logger = logging.getLogger()
 client = discord.Client()
 bot = Bot(client, logger)
 bot.plug_in_module('misc')
+bot.plug_in_module('music')
 
 
 @client.event
