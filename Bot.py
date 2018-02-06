@@ -6,9 +6,9 @@ import cakebot_config
 
 from modules.misc.MiscModule import MiscModule
 from modules.music.MusicModule import MusicModule
-from modules.PermissionsModule import PermissionsModule
-from modules.MessagesModule import MessagesModule
-from modules.ModToolsModule import ModToolsModule
+from modules.permissions.PermissionsModule import PermissionsModule
+from modules.messages.MessagesModule import MessagesModule
+from modules.modtools.ModToolsModule import ModToolsModule
 
 
 class Bot:
