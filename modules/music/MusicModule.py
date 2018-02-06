@@ -65,7 +65,8 @@ class MusicModule(ModuleInterface):
                        "OR LOWER(alias) LIKE ?", (keyword, keyword, keyword, keyword))
         return self.c.fetchmany(size=100)
 
-    def _make_song_results(self, found, offset=0):
+    @staticmethod
+    def _make_song_results(found, offset=0):
         found_size = len(found)
         if found_size == 1:
             count_str = "1 match"
@@ -124,7 +125,7 @@ class MusicModule(ModuleInterface):
             if len(found) == 1 and command == '!play':
                 await self._queue_songs(message, prefix, found)
             elif len(found) > 1 or command == '!search':
-                tmp = await self.say(message.channel, self._make_song_results(found))
+                tmp = await self.say(message.channel, MusicModule._make_song_results(found))
 
                 def check(m):
                     splitted = m.content.split()
@@ -138,7 +139,7 @@ class MusicModule(ModuleInterface):
                     await self.delete(tmp)
 
                     page_num = msg.content.split()[1]
-                    tmp = await self.say(message.channel, self._make_song_results(found, (int(page_num) - 1) * 13))
+                    tmp = await self.say(message.channel, MusicModule._make_song_results(found, (int(page_num) - 1) * 13))
                     msg = await self.client.wait_for_message(author=message.author, check=check,
                                                              timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
@@ -156,7 +157,7 @@ class MusicModule(ModuleInterface):
                     return m.content == '!yes' or (
                                 len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
 
-                tmp = await self.say(message.channel, self._make_song_results(found))
+                tmp = await self.say(message.channel, MusicModule._make_song_results(found))
                 msg = await self.client.wait_for_message(author=message.author, check=check,
                                                          timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 
@@ -169,7 +170,7 @@ class MusicModule(ModuleInterface):
                         break
 
                     page_num = msg.content.split()[1]
-                    tmp = await self.say(message.channel, self._make_song_results(found, (int(page_num) - 1) * 13))
+                    tmp = await self.say(message.channel, MusicModule._make_song_results(found, (int(page_num) - 1) * 13))
                     msg = await self.client.wait_for_message(author=message.author, check=check,
                                                              timeout=cakebot_config.MUSIC_SEARCH_RESULT_TIME)
 

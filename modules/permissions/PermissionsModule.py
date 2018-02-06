@@ -10,8 +10,8 @@ class PermissionsModule(ModuleInterface):
     def auth_function(self, f):
         async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False,
                           cakebot_perm=None):
-            owner_check = owner_auth and self._is_owner(message.author)
-            manage_server_check = manage_server_auth and self._can_manage_server(message.author, message.channel)
+            owner_check = owner_auth and PermissionsModule._is_owner(message.author)
+            manage_server_check = manage_server_auth and PermissionsModule._can_manage_server(message.author, message.channel)
             is_cakebot_check = (not require_non_cakebot) or (
                         require_non_cakebot and not self._is_cakebot(message.author))
             no_auth = not owner_auth and not manage_server_auth and not cakebot_perm
@@ -44,7 +44,7 @@ class PermissionsModule(ModuleInterface):
             perm_message = 'Permissions for {}: {}'.format(user, perms)
         else:
             perm_message = 'There are no set permissions for: {}'.format(user)
-        if self._can_manage_server(user, message.channel):
+        if PermissionsModule._can_manage_server(user, message.channel):
             perm_message += '\nThis user has manage_server permissions.'
 
         await self.say(message.channel, perm_message)
@@ -83,13 +83,15 @@ class PermissionsModule(ModuleInterface):
         elif len(args) > 2:
             await self._set_permissions(message, user)
 
-    def _can_manage_server(self, user, channel):
+    @staticmethod
+    def _can_manage_server(user, channel):
         return channel.permissions_for(user).manage_server
 
     def _is_cakebot(self, user):
         return user.id == self.client.user.id
 
-    def _is_owner(self, user):
+    @staticmethod
+    def _is_owner(user):
         return str(user.id) == cakebot_config.OWNER_ID
 
     command_handlers = {

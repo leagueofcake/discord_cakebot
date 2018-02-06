@@ -105,13 +105,13 @@ class ModToolsModule(ModuleInterface):
     async def handle_edited_message(self, before, after):
         log_channel = self.client.get_channel(self._get_log_channel_id(before.server.id))
         if log_channel and before.content != after.content:
-            await self.say(log_channel, self._gen_edit_message_log(before, after))
+            await self.say(log_channel, ModToolsModule._gen_edit_message_log(before, after))
 
     async def handle_deleted_message(self, message):
         log_channel = self.client.get_channel(self._get_log_channel_id(message.server.id))
 
         if log_channel:
-            await self.say(log_channel, self._gen_delete_message_log(message))
+            await self.say(log_channel, ModToolsModule._gen_delete_message_log(message))
 
     async def handle_member_update(self, before, after):
         log_channel = self.client.get_channel(self._get_log_channel_id(before.server.id))
@@ -193,7 +193,8 @@ class ModToolsModule(ModuleInterface):
     def _update_log_channel(self, server_id, channel_id):
         self.c.execute("UPDATE log_channel SET channel_id = ? WHERE server_id = ?", (channel_id, server_id))
 
-    def _gen_edit_message_log(self, before, after):
+    @staticmethod
+    def _gen_edit_message_log(before, after):
         before_content = before.clean_content
         after_content = after.clean_content
         local_message_time = datetime.now().strftime("%H:%M:%S")
@@ -209,7 +210,8 @@ class ModToolsModule(ModuleInterface):
                                           before_content, after_content)
         return log_message
 
-    def _gen_delete_message_log(self, message):
+    @staticmethod
+    def _gen_delete_message_log(message):
         clean_content = message.clean_content
         local_message_time = datetime.now().strftime("%H:%M:%S")
         username = get_full_username(message.author)
