@@ -74,5 +74,3 @@ class Bot:
             await self.command_handlers[command](self, message)
         elif command == '!help':
             await self.help(message)
-        # elif command == '!':
-        # await temp_message(client, message.channel, 'Unknown command! Type !help for commands')
