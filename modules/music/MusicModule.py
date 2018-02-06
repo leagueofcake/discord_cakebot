@@ -185,6 +185,7 @@ class MusicModule(ModuleInterface):
 
     command_handlers = {
         '!musicprefix': music_prefix,
+        '!search': search_and_play,
         '!play': search_and_play,
         '!playid': search_and_play,
         '!playalbum': search_and_play,
