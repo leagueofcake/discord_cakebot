@@ -4,7 +4,7 @@ from modules.ModuleInterface import ModuleInterface
 from modules.helpers import is_integer
 
 
-class _Song():
+class _Song:
     def __init__(self, song_id, name, artist, album, link, alias):
         self.song_id = song_id
         self.name = name

@@ -1,5 +1,4 @@
 import asyncio
-import sys
 import sqlite3
 
 from discord import errors as discord_errors
@@ -8,12 +7,13 @@ import cakebot_help
 from datetime import datetime
 import cakebot_config
 from modules.helpers import is_integer, get_full_username
-from modules.permissions import get_permissions, set_permissions, update_permissions, allowed_perm_commands
 from modules.modtools import add_log_channel, update_log_channel, get_log_channel_id, gen_edit_message_log, \
     gen_delete_message_log, purge_messages
 
 from modules.MiscModule import MiscModule
 from modules.MusicModule import MusicModule
+from modules.PermissionsModule import PermissionsModule
+from modules.MessagesModule import MessagesModule
 
 
 class Bot:
@@ -32,29 +32,17 @@ class Bot:
         self.__class__ = type(base_cls_name, (base_cls, cls), {})
 
     def plug_in_module(self, module_name):
-        allowed_modules = ['misc', 'music']
+        allowed_modules = ['misc', 'music', 'permissions', 'messages']
         if module_name in allowed_modules:
             if module_name == 'misc':
                 self._extend_instance(MiscModule)
             elif module_name == 'music':
                 self._extend_instance(MusicModule)
+            elif module_name == 'permissions':
+                self._extend_instance(PermissionsModule)
+            elif module_name == 'messages':
+                self._extend_instance(MessagesModule)
             self.logger.info('[cakebot]: module {} plugged in'.format(module_name))
-
-    def auth_function(self, f):
-        async def ret_fun(message, owner_auth=False, manage_server_auth=False, require_non_cakebot=False, cakebot_perm=None):
-            owner_check = owner_auth and self._is_owner(message.author)
-            manage_server_check = manage_server_auth and self._can_manage_server(message.author, message.channel)
-            is_cakebot_check = (not require_non_cakebot) or (require_non_cakebot and not self._is_cakebot(message.author))
-            no_auth = not owner_auth and not manage_server_auth and not cakebot_perm
-
-            perms = get_permissions(self.c, message.author.id, message.server.id)
-            cakebot_perm_check = cakebot_perm and perms and cakebot_perm in perms
-
-            if is_cakebot_check and (no_auth or owner_check or manage_server_check or cakebot_perm_check):
-                await f(message)
-            else:
-                await self.say(message.channel, 'You\'re not allowed to do that!')
-        return ret_fun
 
     async def say(self, channel, message):
         return await self.client.send_message(channel, message)
@@ -66,75 +54,6 @@ class Bot:
 
     async def delete(self, message):
         await self.client.delete_message(message)
-
-    async def hello(self, message):
-        await self.say(message.channel, 'Hello {}!'.format(message.author.mention))
-
-    async def say_in_room(self, message):
-        async def inner(m):
-            if m.channel_mentions:
-                await self.say(m.channel_mentions[0], ' '.join(m.content.split()[2:]))
-            else:
-                await self.say(m.channel, 'No room specified!')
-            await self.delete(m)
-
-        await self.auth_function(inner)(message, owner_auth=True)
-
-    async def bye(self, message):
-        if self._is_owner(message.author):
-            await self.say(message.channel, 'Logging out, bye!')
-            sys.exit()
-        else:
-            await self.say(message.channel, 'I\'m not going anywhere!')
-
-    async def _print_permissions(self, message, user):
-        perms = get_permissions(self.c, user.id, message.server.id)
-        if perms:
-            perm_message = 'Permissions for {}: {}'.format(user, perms)
-        else:
-            perm_message = 'There are no set permissions for: {}'.format(user)
-        if self._can_manage_server(user, message.channel):
-            perm_message += '\nThis user has manage_server permissions.'
-
-        await self.say(message.channel, perm_message)
-
-    async def _set_permissions(self, message, user):
-        async def inner(m):
-            perms = get_permissions(self.c, user.id, m.server.id)
-            add_perms = [comm for comm in m.content.split()[2:] if comm in allowed_perm_commands]  # Filter allowed permission commands
-
-            if add_perms:
-                if perms:
-                    current_perms = perms[0]
-                    new_perms = current_perms + ',' + ','.join(add_perms)
-                    update_permissions(self.c, user.id, m.server.id, new_perms)
-                else:
-                    set_permissions(self.c, user.id, m.server.id, add_perms)
-                self.conn.commit()
-                add_message = 'Added permissions: `{}` to {}'.format(','.join(add_perms), user)
-                await self.say(m.channel, add_message)
-            else:
-                await self.say(m.channel, 'No permissions were added to {}!'.format(user))
-        await self.auth_function(inner)(message, require_non_cakebot=True, manage_server_auth=True, owner_auth=True)
-
-    async def permissions(self, message):
-        args = message.content.split()
-
-        # Gets permissions for mentioned user if given, otherwise defaults to calling user
-        user = message.author
-        if message.mentions:
-            user = message.mentions[0]  # Find id of first mentioned user
-
-        if len(args) == 1 or len(args) == 2:
-            await self._print_permissions(message, user)
-        elif len(args) > 2:
-            await self._set_permissions(message, user)
-
-    async def redirect(self, message):
-        room = message.channel_mentions[0]
-        await self.say(room, '`{}` redirected:'.format(message.author))
-        await self.say(room, ' '.join(message.content.split()[2:]))
-        await self.delete(message)
 
     async def purge(self, message):
         async def inner(m):
@@ -315,13 +234,4 @@ class Bot:
 
     async def handle_voice_channel_update(self, before, after):
         await self._auto_rename_voice_channel(before, after)
-
-    def _can_manage_server(self, user, channel):
-        return channel.permissions_for(user).manage_server
-
-    def _is_cakebot(self, user):
-        return user.id == self.client.user.id
-
-    def _is_owner(self, user):
-        return str(user.id) == cakebot_config.OWNER_ID
 
