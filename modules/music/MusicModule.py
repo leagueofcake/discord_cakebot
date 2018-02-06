@@ -115,6 +115,7 @@ class MusicModule(ModuleInterface):
         prefix = self._get_music_prefix(message.server.id)
         if command == '!play' or command == '!search':
             search = '%{}%'.format(' '.join(args[1:]).lower())
+            found = ''
             if command == '!play':
                 found = self._find_song_by_name(search)
             elif command == '!search':
@@ -125,8 +126,8 @@ class MusicModule(ModuleInterface):
             elif len(found) > 1 or command == '!search':
                 tmp = await self.say(message.channel, self._make_song_results(found))
 
-                def check(msg):
-                    splitted = msg.content.split()
+                def check(m):
+                    splitted = m.content.split()
                     return len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1])
 
                 msg = await self.client.wait_for_message(author=message.author, check=check,
@@ -150,9 +151,9 @@ class MusicModule(ModuleInterface):
                 await self.say(message.channel,
                                "Queueing the following songs. Confirm with ``!yes`` or refine your search terms.")
 
-                def check(msg):
-                    splitted = msg.content.split()
-                    return msg.content == '!yes' or (
+                def check(m):
+                    splitted = m.content.split()
+                    return m.content == '!yes' or (
                                 len(splitted) >= 2 and splitted[0] == '!page' and is_integer(splitted[1]))
 
                 tmp = await self.say(message.channel, self._make_song_results(found))

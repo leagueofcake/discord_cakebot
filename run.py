@@ -1,4 +1,5 @@
 import logging
+
 import discord
 
 import cakebot_config

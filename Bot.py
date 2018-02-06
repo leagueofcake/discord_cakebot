@@ -1,15 +1,13 @@
-import cakebot_config
-
-from sqlite3 import connect as sqlite3_connect
 from asyncio import sleep as asyncio_sleep
+from sqlite3 import connect as sqlite3_connect
 
+import cakebot_config
 from modules.HelpEntry import HelpEntry
-
+from modules.messages.MessagesModule import MessagesModule
 from modules.misc.MiscModule import MiscModule
+from modules.modtools.ModToolsModule import ModToolsModule
 from modules.music.MusicModule import MusicModule
 from modules.permissions.PermissionsModule import PermissionsModule
-from modules.messages.MessagesModule import MessagesModule
-from modules.modtools.ModToolsModule import ModToolsModule
 
 
 class Bot:
