@@ -18,7 +18,7 @@ class Bot:
         self.c = self.conn.cursor()
 
         self.logger = logger
-        self.modules = {}
+        self.modules = set()
 
     def _extend_instance(self, cls):
         # Apply mixin to self
@@ -27,18 +27,16 @@ class Bot:
         self.__class__ = type(base_cls_name, (base_cls, cls), {})
 
     def plug_in_module(self, module_name):
-        allowed_modules = ['misc', 'music', 'permissions', 'messages', 'modtools']
-        if module_name in allowed_modules:
-            if module_name == 'misc':
-                self._extend_instance(MiscModule)
-            elif module_name == 'music':
-                self._extend_instance(MusicModule)
-            elif module_name == 'permissions':
-                self._extend_instance(PermissionsModule)
-            elif module_name == 'messages':
-                self._extend_instance(MessagesModule)
-            elif module_name == 'modtools':
-                self._extend_instance(ModToolsModule)
+        modules = {
+            'misc': MiscModule,
+            'music': MusicModule,
+            'permissions': PermissionsModule,
+            'messages': MessagesModule,
+            'modtools': ModToolsModule
+        }
+        if module_name in modules:
+            self._extend_instance(modules[module_name])
+            self.modules.add(module_name)
             self.logger.info('[cakebot]: module {} plugged in'.format(module_name))
 
     async def say(self, channel, message):
