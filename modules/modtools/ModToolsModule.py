@@ -2,6 +2,7 @@ from datetime import datetime
 from discord import errors as discord_errors
 
 from modules.ModuleInterface import ModuleInterface
+from modules.modtools import modtools_help
 from modules.helpers import is_integer, get_full_username
 
 
@@ -243,3 +244,5 @@ class ModToolsModule(ModuleInterface):
         '!purge': purge,
         '!del': del_user_messages
     }
+
+    help_entries = modtools_help.help_entries

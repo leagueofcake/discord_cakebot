@@ -1,5 +1,6 @@
 import cakebot_config
 from modules.ModuleInterface import ModuleInterface
+from modules.permissions import permissions_help
 
 
 class PermissionsModule(ModuleInterface):
@@ -93,3 +94,5 @@ class PermissionsModule(ModuleInterface):
     command_handlers = {
         '!permissions': permissions,
     }
+
+    help_entries = permissions_help.help_entries

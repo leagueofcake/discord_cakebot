@@ -1,5 +1,6 @@
 import sys
 from modules.ModuleInterface import ModuleInterface
+from modules.messages import messages_help
 
 
 class MessagesModule(ModuleInterface):
@@ -35,3 +36,5 @@ class MessagesModule(ModuleInterface):
         '!redirect': redirect,
         '!say': say_in_room,
     }
+
+    help_entries = messages_help.help_entries

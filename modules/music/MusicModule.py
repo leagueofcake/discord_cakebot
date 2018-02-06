@@ -2,6 +2,7 @@ import asyncio
 import cakebot_config
 from modules.ModuleInterface import ModuleInterface
 from modules.helpers import is_integer
+from modules.music import music_help
 from modules.music.Song import Song
 
 
@@ -191,3 +192,5 @@ class MusicModule(ModuleInterface):
         '!playalbum': search_and_play,
         '!reqsong': req_song
     }
+
+    help_entries = music_help.help_entries

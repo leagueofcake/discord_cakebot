@@ -1,9 +1,9 @@
 import asyncio
 import sqlite3
 
-import cakebot_help
 import cakebot_config
 
+from modules.HelpEntry import HelpEntry
 from modules.misc.MiscModule import MiscModule
 from modules.music.MusicModule import MusicModule
 from modules.permissions.PermissionsModule import PermissionsModule
@@ -21,6 +21,10 @@ class Bot:
         self.modules = set()
         self.command_handlers = {}
 
+        self.help_entries = {
+            'help': HelpEntry('!help', 'Displays this message', '!help', 'general')
+        }
+
     def _extend_instance(self, cls):
         # Apply mixin to self
         base_cls = self.__class__
@@ -29,6 +33,9 @@ class Bot:
 
         # Add command handlers from module
         self.command_handlers = {**self.command_handlers, **cls.command_handlers}
+
+        # Add command handlers from module
+        self.help_entries = {**self.help_entries, **cls.help_entries}
 
     def plug_in_module(self, module_name):
         modules = {
@@ -57,17 +64,30 @@ class Bot:
     async def delete(self, message):
         await self.client.delete_message(message)
 
+    def _generate_help_summary(self):
+        sorted_keys = sorted(self.help_entries)
+        head = '\nCommand summary. For more information do ``!help <command>`` e.g. ``!help timedcats``\n'
+        summary = head
+        summary += '```'
+        for command in sorted_keys:
+            summary += self.help_entries[command].command.ljust(14, ' ')
+            summary += self.help_entries[command].short_description + '\n'
+        summary += '```'
+
+        summary += '\nFull command list can be found at https://discord-cakebot.readthedocs.io/en/latest/command_list.html'
+        return summary
+
     async def help(self, message):
         args = message.content.split()
         if len(args) > 1:  # specific command
             command = args[1]
             try:
-                await self.temp_message(message.channel, cakebot_help.get_entry(command), time=10)
+                await self.temp_message(message.channel, self.help_entries[command].get_entry(), time=10)
             except KeyError:
                 await self.temp_message(message.channel, 'Command not found! do ``!help`` for the command list.',
                                         time=10)
         else:  # command list summary
-            await self.temp_message(message.channel, cakebot_help.generate_summary(), time=10)
+            await self.temp_message(message.channel, self._generate_help_summary(), time=10)
 
     async def handle_incoming_message(self, message):
         args = message.content.split()

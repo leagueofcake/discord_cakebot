@@ -5,6 +5,7 @@ import asyncio
 import cakebot_config
 from modules.helpers import is_integer
 from modules.ModuleInterface import ModuleInterface
+from modules.misc import misc_help
 from modules.misc.repl_dict import repl_dict
 
 class MiscModule(ModuleInterface):
@@ -90,3 +91,5 @@ class MiscModule(ModuleInterface):
         '!invite': invite,
         '!google': gen_google_link
     }
+
+    help_entries = misc_help.help_entries
