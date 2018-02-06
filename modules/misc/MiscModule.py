@@ -3,19 +3,19 @@ import requests
 import asyncio
 
 import cakebot_config
-from modules.helpers import is_integer
 from modules.ModuleInterface import ModuleInterface
-from modules.misc import misc_help
-from modules.misc.repl_dict import repl_dict
+from modules.helpers import is_integer
+from modules.misc import misc_help, misc_consts
+
 
 class MiscModule(ModuleInterface):
     async def timed_cats(self, message):
         async def inner(m):
             times, duration_str = MiscModule._parse_duration_str(m.content.split())
-            unit_time = cakebot_config.time_map[duration_str][0]
+            unit_time = misc_consts.time_map[duration_str][0]
 
-            unit = cakebot_config.time_map[duration_str][1]
-            unit_plural = cakebot_config.time_map[duration_str][2]
+            unit = misc_consts.time_map[duration_str][1]
+            unit_plural = misc_consts.time_map[duration_str][2]
 
             if times == 1:
                 unit_plural = unit
@@ -60,7 +60,7 @@ class MiscModule(ModuleInterface):
 
             if len(args) > 2:
                 arg_duration = args[2]
-                if arg_duration in cakebot_config.time_map:
+                if arg_duration in misc_consts.time_map:
                     duration_str = arg_duration
         return times, duration_str
 
@@ -68,11 +68,11 @@ class MiscModule(ModuleInterface):
     def _select_repl(char):
         try:
             weight = 8
-            key = int(random.random() * (len(repl_dict[char]) + weight))
+            key = int(random.random() * (len(misc_consts.repl_dict[char]) + weight))
             if key < weight + 1:
-                return repl_dict[char][0]  # Below weight, key equals 0 (key for first/default character)
+                return misc_consts.repl_dict[char][0]  # Below weight, key equals 0 (key for first/default character)
             else:
-                return repl_dict[char][key - weight]
+                return misc_consts.repl_dict[char][key - weight]
         except KeyError:  # Return original char if char not found in dict
             return char
 
