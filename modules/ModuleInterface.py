@@ -8,8 +8,11 @@ class ModuleInterface:
         self.command_handlers = {}
         self.help_entries = {}
 
-    def auth_function(self, f):
-        pass
+    # Overwritten by PermissionsModule if loaded, otherwise defaults to this
+    def auth_function(self, f, *args, **kwargs):
+        async def ret_fun(message, *args, **kwargs):
+            await f(message)
+        return ret_fun
 
     async def say(self, channel, message):
         pass
