@@ -4,6 +4,7 @@ class ModuleInterface:
         self.conn = None
         self.c = None
 
+        self.modules = set()
         self.logger = None
         self.command_handlers = {}
         self.help_entries = {}
