@@ -34,6 +34,16 @@ Usage
 
 ------------------------------------------------------------------------------------------------------------------------
 
+!bye
+------
+Turn off cakebot.
+
+Usage
+"""""
+* ``!bye``
+
+------------------------------------------------------------------------------------------------------------------------
+
 !invite
 -------
 Generates a link to invite cakebot to your server
@@ -55,6 +65,20 @@ Usage
 Examples
 """"""""
 * Redirects message to #alt: ``!redirect #alt Hi guys, from the main channel!``
+
+------------------------------------------------------------------------------------------------------------------------
+
+!say
+---------
+Says a message in another channel. Requires *owner* permission.
+
+Usage
+"""""
+* ``!say <channel mention> <message>``
+
+Examples
+""""""""
+* Redirects message to #alt: ``!say #alt Hi guys!``
 
 ------------------------------------------------------------------------------------------------------------------------
 
