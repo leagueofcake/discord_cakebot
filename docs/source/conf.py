@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'discord_cakebot'
-copyright = u'2016, leagueofcake'
+copyright = u'2018, leagueofcake'
 author = u'leagueofcake'
 
 # The version info for the project you're documenting, acts as replacement for
