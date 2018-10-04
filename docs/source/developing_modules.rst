@@ -13,9 +13,8 @@ Sample Custom Module
 --------------------
 Here we define a simple custom module with a single command: ``!foo``, along with its corresponding help entry file.
 
-In ``mymodule_help.py``:
+In ``mymodule_help.py``: ::
 
-.. highlight:: python
     from modules.HelpEntry import HelpEntry
 
     _foo_desc = 'cakebot says foo! '
@@ -26,9 +25,8 @@ In ``mymodule_help.py``:
     }
 
 
-In ``MyModule.py``:
+In ``MyModule.py``: ::
 
-.. highlight:: python
     from modules.ModuleInterface import ModuleInterface
 
     class MyModule(ModuleInterface):
@@ -48,9 +46,8 @@ Loading Custom Modules into cakebot
 2. Add the module into Bot._modules, with a name to identify it for loading. Note this identifier cannot be a duplicate of any existing identifiers.
 3. Load the module in ``run.py`` using ``bot.load_module(identifier)``, with the identifier you chose above.
 
-In ``Bot.py``:
+In ``Bot.py``: ::
 
-.. highlight:: python
     from modules.core.Core import Core
     # Other module imports...
     from modules.mymodule.MyModule import MyModule
@@ -62,9 +59,8 @@ In ``Bot.py``:
             'mymodule': MyModule
         }
 
-In ``run.py``:
+In ``run.py``: ::
 
-.. highlight:: python
     bot = Bot(client, logger)
     bot.load_module('core')
     # Other module loaders...
