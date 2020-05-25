@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.5
-import sqlite3, cakebot_config
+import sqlite3
+from bot import cakebot_config
 conn = sqlite3.connect(cakebot_config.DB_PATH)
 c = conn.cursor()
 

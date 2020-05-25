@@ -1,5 +1,6 @@
-cakebot_config.py
-cakebot.db
+bot/cakebot_config.py
+bot/cakebot.db
+*.bak
 __pycache__
 .idea/
 docs/build/
