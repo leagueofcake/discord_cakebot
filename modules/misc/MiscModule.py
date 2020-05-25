@@ -23,7 +23,7 @@ class MiscModule(ModuleInterface):
             await self.say(m.channel, 'Sending cats every {} for {} {}!'.format(unit, times, unit_plural))
 
             for i in range(times):
-                cat_url = requests.get('http://random.cat/meow').json()['file']
+                cat_url = requests.get('http://aws.random.cat/meow').json()['file']
                 await self.say(m.channel, cat_url)
                 if i == times - 1:
                     await self.say(m.channel, 'Finished sending cats!')
