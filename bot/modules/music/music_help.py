@@ -37,7 +37,7 @@ _search_example = 'Search for songs with the keyword snow: !search snow'
 _musicpre_desc = 'Sets the prefix for queueing music for your server\'s music bot.'
 _musicpre_usage = '!musicprefix - displays the current music prefix set for the server\n' \
                  '!musicprefix <prefix> - sets the music prefix for the server to <prefix>. ' \
-                 'Requires manage_server or musicprefix permission.\n\n' \
+                 'Requires manage_guild or musicprefix permission.\n\n' \
                  'The prefix can consist of multiple words.'
 _musicpre_example = 'Set music prefix to ~play: !musicprefix ~play\n' \
                    'Set music prefix to ! lm play: !musicprefix ! lm play'

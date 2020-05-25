@@ -1,5 +1,5 @@
 from datetime import datetime
-from discord import errors as discord_errors
+from discord import errors as discord_errors, ActivityType
 
 from modules.ModuleInterface import ModuleInterface
 from modules.modtools import modtools_help
@@ -28,20 +28,20 @@ class ModToolsModule(ModuleInterface):
                     else:
                         num = int(args[1])
                         try:
-                            deleted = await self.client.purge_from(m.channel, limit=num)
+                            deleted = await m.channel.purge(limit=num)
                             await self.temp_message(m.channel, "Purged {} messages.".format(len(deleted)))
                         except discord_errors.HTTPException:  # Delete individually
-                            async for log in self.client.logs_from(m.channel, limit=num):
+                            async for log in m.channel.history(limit=num):
                                 await self.delete(log)
 
-        await self.auth_function(inner)(message, manage_server_auth=True, require_non_cakebot=True)
+        await self.auth_function(inner)(message, manage_guild_auth=True, require_non_cakebot=True)
 
     async def del_user_messages(self, message):
         async def inner(m):
             args = m.content.split()
             if len(args) == 1 or (len(args) == 2 and is_integer(args[1]) and args[1] == '1'):
                 await self.delete(m)
-                async for log in self.client.logs_from(m.channel, limit=500):
+                async for log in m.channel.history(limit=500):
                     if log.author.id == m.author.id:
                         await self.delete(log)
                         break
@@ -57,7 +57,7 @@ class ModToolsModule(ModuleInterface):
         await self.auth_function(inner)(message, require_non_cakebot=True)
 
     async def _print_log_channel(self, message):
-        log_channel = self.client.get_channel(self._get_log_channel_id(message.server.id))
+        log_channel = self.client.get_channel(self._get_log_channel_id(message.guild.id))
         if log_channel:
             await self.temp_message(message.channel, 'Log channel is: {}'.format(log_channel.mention))
         else:
@@ -65,15 +65,15 @@ class ModToolsModule(ModuleInterface):
 
     async def _set_log_channel(self, message):
         async def inner(m):
-            log_channel = self.client.get_channel(self._get_log_channel_id(m.server.id))
+            log_channel = self.client.get_channel(self._get_log_channel_id(m.guild.id))
             if log_channel:
-                self._update_log_channel(m.server.id, m.channel.id)
+                self._update_log_channel(m.guild.id, m.channel.id)
             else:
-                self._add_log_channel(m.server.id, m.channel.id)
+                self._add_log_channel(m.guild.id, m.channel.id)
             await self.say(m.channel, 'Set {} as the log channel!'.format(m.channel.mention))
             self.conn.commit()
 
-        await self.auth_function(inner)(message, manage_server_auth=True, cakebot_perm='logchannel',
+        await self.auth_function(inner)(message, manage_guild_auth=True, cakebot_perm='logchannel',
                                         require_non_cakebot=True)
 
     async def log_channel(self, message):
@@ -84,8 +84,8 @@ class ModToolsModule(ModuleInterface):
             if len(args) == 2 and args[1] == 'set':
                 await self._set_log_channel(message)
 
-    async def handle_channel_update(self, before, after):
-        log_channel = self.client.get_channel(self._get_log_channel_id(before.server.id))
+    async def handle_guild_channel_update(self, before, after):
+        log_channel = self.client.get_channel(self._get_log_channel_id(before.guild.id))
 
         if log_channel:
             local_message_time = datetime.now().strftime("%H:%M:%S")
@@ -96,25 +96,26 @@ class ModToolsModule(ModuleInterface):
                           'Before: {}\n' \
                           'After+: {}'.format(local_message_time, channel_mention, before.name, after.name)
                 await self.say(log_channel, message)
-            if before.topic != after.topic:
+
+            if hasattr(before, 'topic') and before.topic != after.topic:
                 message = '[{}] {} *changed topic contents*\n' \
                           'Before: {}\n' \
                           'After+: {}'.format(local_message_time, channel_mention, before.topic, after.topic)
                 await self.say(log_channel, message)
 
     async def handle_edited_message(self, before, after):
-        log_channel = self.client.get_channel(self._get_log_channel_id(before.server.id))
+        log_channel = self.client.get_channel(self._get_log_channel_id(before.guild.id))
         if log_channel and before.content != after.content:
             await self.say(log_channel, ModToolsModule._gen_edit_message_log(before, after))
 
     async def handle_deleted_message(self, message):
-        log_channel = self.client.get_channel(self._get_log_channel_id(message.server.id))
+        log_channel = self.client.get_channel(self._get_log_channel_id(message.guild.id))
 
         if log_channel:
             await self.say(log_channel, ModToolsModule._gen_delete_message_log(message))
 
     async def handle_member_update(self, before, after):
-        log_channel = self.client.get_channel(self._get_log_channel_id(before.server.id))
+        log_channel = self.client.get_channel(self._get_log_channel_id(before.guild.id))
 
         if log_channel:
             local_message_time = datetime.now().strftime("%H:%M:%S")
@@ -137,54 +138,63 @@ class ModToolsModule(ModuleInterface):
                                               after_roles)
                 await self.say(log_channel, message)
 
-        if before.game != after.game:
-            await self._auto_rename_voice_channel(before, after)
+        # TODO UPDATE FOR discord.py 1.0+
+        """
+        before_activities = [a for a in before.activities if a.type == ActivityType.playing]
+        after_activities = [a for a in after.activities if a.type == ActivityType.playing]
+        if before_activities != after_activities:
+            await self._auto_rename_voice_channel(after, before, after)
+        """
 
     async def _auto_rename_voice_channel(self, before, after):
-        if before.server.id in ("139345703800406016", "178312027041824768"):  # Only use on main/dev server
+        # TODO UPDATE FOR discord.py 1.0+
+        pass
+        """
+        if member.guild.id in (139345703800406016, 178312027041824768):  # Only use on main/dev server
             default_list = ["Gaming Channel 1", "Gaming Channel 2", "Gaming Channel 3", "Music Channel"]
 
-            if after.voice_channel:
+            if after.channel:
                 game_count = {}
-                voice_members = after.voice_channel.voice_members
 
-                for member in voice_members:
-                    if member.game:
-                        if member.game.name not in game_count:
-                            game_count[member.game.name] = 1
+                for member in after.channel.members:
+                    member_activities = [a for a in member.activities if a.type == ActivityType.playing]
+                    if member_activities:
+                        if member_activities[0].name not in game_count:
+                            game_count[member_activities[0].name] = 1
                         else:
-                            game_count[member.game.name] += 1
+                            game_count[member_activities[0].name] += 1
                 if game_count:
                     # Select game with highest current players
                     new_channel_names = [key for m in [max(game_count.values())] for key, val in game_count.items() if
                                          val == m]
                     for new_channel_name in new_channel_names:
                         if new_channel_name:  # Non-blank new channel name, set as new channel name
-                            await self.client.edit_channel(after.voice_channel, name=new_channel_name)
+                            await before.channel.edit(name=new_channel_name)
                             break
                 else:
-                    default_name = default_list[after.voice_channel.position]
-                    await self.client.edit_channel(after.voice_channel, name=default_name)
+                    default_name = default_list[after.channel.position]
+                    await after.channel.edit(name=default_name)
 
-                if before.voice_channel:
-                    if len(before.voice_channel.voice_members) == 0:  # No more members, reset to default name
-                        default_name = default_list[before.voice_channel.position]
-                        await self.client.edit_channel(before.voice_channel, name=default_name)
+                if before.channel:
+                    if len(before.channel.members) == 0:  # No more members, reset to default name
+                        default_name = default_list[before.channel.position]
+                        await before.channel.edit(name=default_name)
 
             # If voice channel being left has no more members, reset to default name
-            if before.voice_channel:
-                if len(before.voice_channel.voice_members) == 0:
-                    default_name = default_list[before.voice_channel.position]
-                    await self.client.edit_channel(before.voice_channel, name=default_name)
+            if before.channel:
+                if len(before.channel.members) == 0:
+                    default_name = default_list[before.channel.position]
+                    await before.channel.edit(name=default_name)
+        """
 
-    async def handle_voice_channel_update(self, before, after):
-        await self._auto_rename_voice_channel(before, after)
+    async def handle_voice_channel_update(self, member, before, after):
+        await self._auto_rename_voice_channel(member, before, after)
 
     def _get_log_channel_id(self, server_id):
         self.c.execute("SELECT channel_id FROM log_channel WHERE server_id = ?", (server_id,))
         res = self.c.fetchone()
         if res:
-            return res[0]
+            return int(res[0])
         return None
 
     def _add_log_channel(self, server_id, channel_id):
@@ -225,16 +235,16 @@ class ModToolsModule(ModuleInterface):
     async def _purge_messages(self, message, purge_user, num):
         if 1 <= num <= 100:
             to_delete = []
-            async for log in self.client.logs_from(message.channel, limit=500):
+            async for log in message.channel.history(limit=500):
                 if log.author.id == purge_user.id:
                     to_delete.append(log)
                 if len(to_delete) == num:  # Found num amount of messages
                     break
 
             if len(to_delete) == 1:
-                await self.client.delete_message(to_delete[0])
+                await to_delete[0].delete()
             else:
-                await self.client.delete_messages(to_delete)
+                await message.channel.delete_messages(to_delete)
             await self.temp_message(message.channel,
                                     "Purged {} messages from {}.".format(len(to_delete),
                                                                          purge_user))

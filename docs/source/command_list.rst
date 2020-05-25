@@ -93,7 +93,7 @@ Sets the prefix for queueing music for your server's music bot.
 Usage
 """""
 * ``!musicprefix`` - displays the current music prefix set for the server
-* ``!musicprefix <prefix>`` - sets the music prefix to <prefix>. Requires *manage_server* or *musicprefix* permission.
+* ``!musicprefix <prefix>`` - sets the music prefix to <prefix>. Requires *manage_guild* or *musicprefix* permission.
 
 The prefix can consist of multiple words.
 
@@ -199,7 +199,7 @@ Gets or sets the channel for logging messages.
 Usage
 """""
 * ``!logchannel`` - displays the current channel for logging messages
-* ``!logchannel set`` - sets the current channel as the logging channel. Requires *manage_server* or *logchannel* permission.
+* ``!logchannel set`` - sets the current channel as the logging channel. Requires *manage_guild* or *logchannel* permission.
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -209,8 +209,8 @@ Purges a given amount of messages from the current channel. Can specify a user t
 
 Usage
 """""
-* ``!purge <number>`` - purges <number> of messages in the current channel. Requires *manage_server* permission.
-* ``!purge <user mention> <number>`` - purges <number> of messages by <user mention> within the last 500 messages. Max <number> is 100. Requires *manage_server* permission.
+* ``!purge <number>`` - purges <number> of messages in the current channel. Requires *manage_guild* permission.
+* ``!purge <user mention> <number>`` - purges <number> of messages by <user mention> within the last 500 messages. Max <number> is 100. Requires *manage_guild* permission.
 
 Examples
 """"""""
@@ -236,7 +236,7 @@ Usage
 """""
 * ``!permissions`` - displays your current cakebot permissions
 * ``!permissions <user mention>`` - displays current cakebot permissions for the mentioned user
-* ``permissions <user mention> <command|commands>`` - add permissionsf or the given user. Requires *manage_server* permission.
+* ``permissions <user mention> <command|commands>`` - add permissionsf or the given user. Requires *manage_guild* permission.
 
 Examples
 """"""""

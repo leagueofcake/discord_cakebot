@@ -9,7 +9,7 @@ _perms_usage = 'NOTE: This does NOT set server permissions but only permissions 
               '!permissions - displays your current cakebot permissions\n' \
               '!permissions <user mention> - displays current cakebot permissions for the mentioned user.\n' \
               '!permissions <user mention> <command|commands> - add permissions to the given user. Requires ' \
-              'manage_server permission.'
+              'manage_guild permission.'
 _perms_example = 'Give Clyde musicprefix permissions: !permissions @Clyde#1234 musicprefix\n' \
                 'Give Clyde musicprefix and logchannel permissions: !permissions @Clyde#1234 musicprefix logchannel'
 
