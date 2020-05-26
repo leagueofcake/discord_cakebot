@@ -5,7 +5,7 @@ from modules.HelpEntry import HelpEntry
 
 class Core(ModuleInterface):
     async def say(self, channel, message):
-        return await self.client.send_message(channel, message)
+        return await channel.send(message)
 
     async def temp_message(self, channel, message, time=5):
         tmp = await self.say(channel, message)
@@ -13,7 +13,7 @@ class Core(ModuleInterface):
         await self.delete(tmp)
 
     async def delete(self, message):
-        await self.client.delete_message(message)
+        await message.delete()
 
     def _generate_help_summary(self):
         sorted_keys = sorted(self.help_entries)

@@ -63,11 +63,11 @@ class Bot:
     async def handle_deleted_message(self, message):  # Overriden by modtools module
         pass
 
-    async def handle_channel_update(self, before, after):  # Overriden by modtools module
+    async def handle_guild_channel_update(self, before, after):  # Overriden by modtools module
         pass
 
     async def handle_member_update(self, before, after):  # Overriden by modtools module
         pass
 
-    async def handle_voice_channel_update(self, before, after):  # Overriden by modtools module
+    async def handle_voice_channel_update(self, member, before, after):  # Overriden by modtools module
         pass

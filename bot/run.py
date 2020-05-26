@@ -20,7 +20,7 @@ bot.plug_in_module('misc')
 
 @client.event
 async def on_ready():
-    dashes = '-' * max(len('Logged in as'), len(client.user.name), len(client.user.id))
+    dashes = '-' * max(len('Logged in as'), len(client.user.name), len(str(client.user.id)))
     logger.info(dashes)
     logger.info('Logged in as')
     logger.info(client.user.name)
@@ -44,8 +44,8 @@ async def on_message_delete(message):
 
 
 @client.event
-async def on_channel_update(before, after):
-    await bot.handle_channel_update(before, after)
+async def on_guild_channel_update(before, after):
+    await bot.handle_guild_channel_update(before, after)
 
 
 @client.event
@@ -54,7 +54,7 @@ async def on_member_update(before, after):
 
 
 @client.event
-async def on_voice_state_update(before, after):
-    await bot.handle_voice_channel_update(before, after)
+async def on_voice_state_update(member, before, after):
+    await bot.handle_voice_channel_update(member, before, after)
 
 client.run(cakebot_config.TOKEN)

@@ -2,16 +2,16 @@ from modules.HelpEntry import HelpEntry
 
 _logchannel_desc = 'Gets or sets the channel for logging messages.'
 _logchannel_usage = '!logchannel - displays the current channel for logging messages\n' \
-                   '!logchannel set - sets the current channel as the logging channel. Requires manage_server ' \
+                   '!logchannel set - sets the current channel as the logging channel. Requires manage_guild ' \
                    'or logchannel permission.'
 
 
 _purge_desc = 'Purges a given amount of messages from the current channel. Can purge up to 100 ' \
              'messages.'
-_purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_server ' \
+_purge_usage = '!purge <number> - purges <number> of messages in the current channel. Requires manage_guild ' \
               'permission.\n' \
               '!purge <user mention> <number> - purges <number> of messages by <user mention> within the last ' \
-              '500 messages. Max <number> is 100. Requires manage_server permission.'
+              '500 messages. Max <number> is 100. Requires manage_guild permission.'
 _purge_example = 'Purge last 5 messages: !purge 5\n' \
                 'Purge Clyde\'s last 10 messages: !purge @Clyde#1234 10'
 
