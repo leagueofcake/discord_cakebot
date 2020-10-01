@@ -8,4 +8,4 @@ def is_integer(text):
 
 # Returns a string in the form username#descriptor e.g. Clyde#1234
 def get_full_username(user):
-    return '{}#{}'.format(user.name, user.discriminator)
+    return "{}#{}".format(user.name, user.discriminator)

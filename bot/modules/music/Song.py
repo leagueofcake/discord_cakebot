@@ -11,4 +11,3 @@ class Song:
         args = [self.song_id, self.name, self.artist, self.album, self.alias]
         args = [str(arg) for arg in args]
         return "{:4} {:45.45} {:25.25} {:35.35} {:20.20}".format(*args)
-
