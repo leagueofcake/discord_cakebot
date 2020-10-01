@@ -1,4 +1,4 @@
-from modules.HelpEntry import HelpEntry
+from bot.modules.HelpEntry import HelpEntry
 
 _play_desc = 'Queues music using the musicprefix for the channel (check with !musicprefix)'
 _play_usage = '!play <keyword/title/alias>\n' \

@@ -1,4 +1,4 @@
-from modules.HelpEntry import HelpEntry
+from bot.modules.HelpEntry import HelpEntry
 
 _perms_desc = 'Gets or sets the cakebot permissions for a given user.'
 _perms_usage = 'NOTE: This does NOT set server permissions but only permissions for cakebot commands.\n' \

@@ -1,4 +1,4 @@
-from modules.HelpEntry import HelpEntry
+from bot.modules.HelpEntry import HelpEntry
 
 _timedcats_desc = 'Sends random cat images in timed intervals :3'
 _timedcats_usage = '!timedcats <number> <interval>\n' \

@@ -1,10 +1,10 @@
-import cakebot_config
+import bot.cakebot_config as cakebot_config
 from asyncio import sleep as asyncio_sleep
 
-from modules.ModuleInterface import ModuleInterface
-from modules.helpers import is_integer
-from modules.music import music_help
-from modules.music.Song import Song
+from bot.modules.ModuleInterface import ModuleInterface
+from bot.modules.helpers import is_integer
+from bot.modules.music import music_help
+from bot.modules.music.Song import Song
 
 
 class MusicModule(ModuleInterface):

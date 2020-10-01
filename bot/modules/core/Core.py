@@ -1,6 +1,6 @@
 from asyncio import sleep as asyncio_sleep
-from modules.ModuleInterface import ModuleInterface
-from modules.HelpEntry import HelpEntry
+from bot.modules.ModuleInterface import ModuleInterface
+from bot.modules.HelpEntry import HelpEntry
 
 
 class Core(ModuleInterface):

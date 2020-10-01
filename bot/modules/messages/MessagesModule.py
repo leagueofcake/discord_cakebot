@@ -1,7 +1,7 @@
 import sys
 
-from modules.ModuleInterface import ModuleInterface
-from modules.messages import messages_help
+from bot.modules.ModuleInterface import ModuleInterface
+from bot.modules.messages import messages_help
 
 
 class MessagesModule(ModuleInterface):

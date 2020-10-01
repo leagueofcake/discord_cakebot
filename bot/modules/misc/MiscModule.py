@@ -1,11 +1,11 @@
 import random
 import requests
 import asyncio
-import cakebot_config
+import bot.cakebot_config as cakebot_config
 
-from modules.ModuleInterface import ModuleInterface
-from modules.helpers import is_integer
-from modules.misc import misc_help, misc_consts
+from bot.modules.ModuleInterface import ModuleInterface
+from bot.modules.helpers import is_integer
+from bot.modules.misc import misc_help, misc_consts
 
 
 class MiscModule(ModuleInterface):

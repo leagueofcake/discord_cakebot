@@ -2,8 +2,8 @@ import logging
 
 import discord
 
-import cakebot_config
-from Bot import Bot
+import bot.cakebot_config as cakebot_config
+from bot.Bot import Bot
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()

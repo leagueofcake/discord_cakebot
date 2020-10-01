@@ -1,9 +1,9 @@
 from datetime import datetime
 from discord import errors as discord_errors, ActivityType
 
-from modules.ModuleInterface import ModuleInterface
-from modules.modtools import modtools_help
-from modules.helpers import is_integer, get_full_username
+from bot.modules.ModuleInterface import ModuleInterface
+from bot.modules.modtools import modtools_help
+from bot.modules.helpers import is_integer, get_full_username
 
 
 class ModToolsModule(ModuleInterface):
