@@ -1,4 +1,4 @@
-from modules.HelpEntry import HelpEntry
+from bot.modules.HelpEntry import HelpEntry
 
 _hello_desc = 'cakebot says hello! Use to check if cakebot is online. '
 _hello_usage = '!hello'

@@ -1,7 +1,7 @@
-import cakebot_config
+import bot.cakebot_config as cakebot_config
 
-from modules.ModuleInterface import ModuleInterface
-from modules.permissions import permissions_help
+from bot.modules.ModuleInterface import ModuleInterface
+from bot.modules.permissions import permissions_help
 
 
 class PermissionsModule(ModuleInterface):

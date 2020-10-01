@@ -1,4 +1,4 @@
-from modules.HelpEntry import HelpEntry
+from bot.modules.HelpEntry import HelpEntry
 
 _logchannel_desc = 'Gets or sets the channel for logging messages.'
 _logchannel_usage = '!logchannel - displays the current channel for logging messages\n' \

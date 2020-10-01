@@ -26,11 +26,11 @@ Rename `sample_config.py` to `cakebot_config.py` and update the values (mainly `
 
 	mv sample_config.py cakebot_config.py
 
-Run `run_bot.sh` or run the bot directly with `python`:
+Run `run_bot.sh` or run the bot module directly with `python`:
 
-	sh run_bot.sh
+	sh scripts/run_bot.sh
     # OR
-    python run.py
+    python -m bot
     
 ## Functionality
 * **Music queuing (for music bots)**

@@ -1,12 +1,12 @@
 from sqlite3 import connect as sqlite3_connect
 
-import cakebot_config
-from modules.core.Core import Core
-from modules.messages.MessagesModule import MessagesModule
-from modules.misc.MiscModule import MiscModule
-from modules.modtools.ModToolsModule import ModToolsModule
-from modules.music.MusicModule import MusicModule
-from modules.permissions.PermissionsModule import PermissionsModule
+import bot.cakebot_config as cakebot_config
+from bot.modules.core.Core import Core
+from bot.modules.messages.MessagesModule import MessagesModule
+from bot.modules.misc.MiscModule import MiscModule
+from bot.modules.modtools.ModToolsModule import ModToolsModule
+from bot.modules.music.MusicModule import MusicModule
+from bot.modules.permissions.PermissionsModule import PermissionsModule
 
 
 class Bot:
