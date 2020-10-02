@@ -1,3 +1,4 @@
+from asyncio import sleep as asyncio_sleep
 from bot.modules.ModuleInterface import ModuleInterface
 from sqlite3 import connect as sqlite3_connect
 from typing import Dict, Set, Type, TypeVar, Union
@@ -65,12 +66,30 @@ class Bot:
             )
         return self
 
+    async def say(self, channel, message):
+        return await channel.send(message)
+
+    async def temp_message(self, channel, message, time=5):
+        tmp = await self.say(channel, message)
+        await asyncio_sleep(time)
+        await self.delete(tmp)
+
+    async def delete(self, message):
+        await message.delete()
+
     async def handle_incoming_message(self, message):
         args = message.content.split()
         command = args[0]
 
         if command in self.command_handlers:
             await self.command_handlers[command](self, message)
+
+    # Overwritten by PermissionsModule if loaded, otherwise defaults to this
+    def auth_function(self, f, *args, **kwargs):
+        async def ret_fun(message, *args, **kwargs):
+            await f(message)
+
+        return ret_fun
 
     async def handle_edited_message(
         self, before, after

@@ -15,12 +15,3 @@ class ModuleInterface:
             await f(message)
 
         return ret_fun
-
-    async def say(self, channel, message):
-        pass
-
-    async def temp_message(self, channel, message, time=5):
-        pass
-
-    async def delete(self, message):
-        pass
