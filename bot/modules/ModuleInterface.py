@@ -13,6 +13,7 @@ class ModuleInterface:
     def auth_function(self, f, *args, **kwargs):
         async def ret_fun(message, *args, **kwargs):
             await f(message)
+
         return ret_fun
 
     async def say(self, channel, message):
