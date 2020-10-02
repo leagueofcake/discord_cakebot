@@ -10,12 +10,14 @@ logger = logging.getLogger()
 
 client = discord.Client()
 bot = Bot(client, logger)
-bot.plug_in_module("core")
-bot.plug_in_module("permissions")
-bot.plug_in_module("modtools")
-bot.plug_in_module("messages")
-bot.plug_in_module("music")
-bot.plug_in_module("misc")
+(
+    bot.plug_in_module("core")
+    .plug_in_module("permissions")
+    .plug_in_module("modtools")
+    .plug_in_module("messages")
+    .plug_in_module("music")
+    .plug_in_module("misc")
+)
 
 
 @client.event

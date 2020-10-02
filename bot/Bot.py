@@ -45,7 +45,7 @@ class Bot:
         # Add command handlers from module
         self.help_entries = {**self.help_entries, **cls.help_entries}
 
-    def plug_in_module(self, module_name: str) -> None:
+    def plug_in_module(self: B, module_name: str) -> B:
         modules = {
             "core": Core,
             "misc": MiscModule,
@@ -63,6 +63,7 @@ class Bot:
             self.logger.info(
                 "[cakebot][modules]: unknown module {}".format(module_name)
             )
+        return self
 
     async def handle_incoming_message(self, message):
         args = message.content.split()
