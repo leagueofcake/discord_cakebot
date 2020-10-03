@@ -3,7 +3,7 @@ from bot.modules.ModuleInterface import ModuleInterface
 from sqlite3 import connect as sqlite3_connect
 from typing import Dict, Set, Type, TypeVar, Union
 
-from discord import Client
+from discord import Client, Message, TextChannel
 from logging import Logger
 import bot.cakebot_config as cakebot_config
 
@@ -66,15 +66,17 @@ class Bot:
             )
         return self
 
-    async def say(self, channel, message):
+    async def say(self, channel: TextChannel, message: str) -> Message:
         return await channel.send(message)
 
-    async def temp_message(self, channel, message, time=5):
+    async def temp_message(
+        self, channel: TextChannel, message: str, time: float = 5
+    ) -> None:
         tmp = await self.say(channel, message)
         await asyncio_sleep(time)
         await self.delete(tmp)
 
-    async def delete(self, message):
+    async def delete(self, message: Message) -> None:
         await message.delete()
 
     async def handle_incoming_message(self, message):
