@@ -1,20 +1,8 @@
-from asyncio import sleep as asyncio_sleep
 from bot.modules.ModuleInterface import ModuleInterface
 from bot.modules.HelpEntry import HelpEntry
 
 
 class Core(ModuleInterface):
-    async def say(self, channel, message):
-        return await channel.send(message)
-
-    async def temp_message(self, channel, message, time=5):
-        tmp = await self.say(channel, message)
-        await asyncio_sleep(time)
-        await self.delete(tmp)
-
-    async def delete(self, message):
-        await message.delete()
-
     def _generate_help_summary(self):
         sorted_keys = sorted(self.help_entries)
         head = "\nCommand summary. For more information do ``!help <command>`` e.g. ``!help timedcats``\n"

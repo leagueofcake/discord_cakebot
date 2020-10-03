@@ -1,8 +1,11 @@
+from asyncio import sleep as asyncio_sleep
 from bot.modules.ModuleInterface import ModuleInterface
 from sqlite3 import connect as sqlite3_connect
-from typing import Dict, Set, Type, TypeVar, Union
+from typing import Any, Callable, Coroutine, Dict, Optional, Set, Type, TypeVar, Union
 
 from discord import Client
+from discord.message import Message
+from discord.channel import TextChannel, DMChannel, GroupChannel
 from logging import Logger
 import bot.cakebot_config as cakebot_config
 
@@ -13,7 +16,7 @@ from bot.modules.misc.MiscModule import MiscModule
 from bot.modules.modtools.ModToolsModule import ModToolsModule
 from bot.modules.music.MusicModule import MusicModule
 from bot.modules.permissions.PermissionsModule import PermissionsModule
-from bot.types import CommandHandler
+from bot.types import AuthInnerFunction, AuthedFunction, CommandHandler
 
 
 B = TypeVar("B", bound="Bot")
@@ -51,44 +54,64 @@ class Bot:
             "misc": MiscModule,
             "music": MusicModule,
             "permissions": PermissionsModule,
-            "messages": MessagesModule,
             "modtools": ModToolsModule,
+        }
+        new_abstract_modules = {
+            "messages": MessagesModule,
         }
 
         if module_name in modules:
             self._extend_instance(modules[module_name])
             self.modules.add(module_name)
             self.logger.info("[cakebot][modules]: {} plugged in".format(module_name))
+        elif module_name in new_abstract_modules:
+            # Add command handlers from module
+            self.command_handlers = {
+                **self.command_handlers,
+                **new_abstract_modules[module_name].command_handlers,
+            }
+
+            # Add command handlers from module
+            self.help_entries = {
+                **self.help_entries,
+                **new_abstract_modules[module_name].help_entries,
+            }
         else:
             self.logger.info(
                 "[cakebot][modules]: unknown module {}".format(module_name)
             )
         return self
 
-    async def handle_incoming_message(self, message):
+    async def say(
+        self, channel: Union[TextChannel, DMChannel, GroupChannel], message: str
+    ) -> Message:
+        return await channel.send(message)
+
+    async def temp_message(
+        self, channel: TextChannel, message: str, time: float = 5
+    ) -> None:
+        tmp = await self.say(channel, message)
+        await asyncio_sleep(time)
+        await self.delete(tmp)
+
+    async def delete(self, message: Message) -> None:
+        await message.delete()
+
+    async def handle_incoming_message(self, message: Message) -> None:
         args = message.content.split()
         command = args[0]
 
         if command in self.command_handlers:
-            await self.command_handlers[command](self, message)
+            await self.command_handlers[command](self, message)  # type: ignore # TODO Argument 1 has incompatible type "Bot"; expected "BotABC"
 
-    async def handle_edited_message(
-        self, before, after
-    ):  # Overriden by modtools module
-        pass
+    # Overwritten by PermissionsModule if loaded, otherwise defaults to this
+    def auth_function(self, f: AuthInnerFunction) -> AuthedFunction:
+        async def mock_inner(
+            message: Message,
+            owner_auth: Optional[bool] = False,
+            require_non_cakebot: Optional[bool] = False,
+            manage_guild_auth: Optional[bool] = False,
+        ) -> None:
+            await f(message)
 
-    async def handle_deleted_message(self, message):  # Overriden by modtools module
-        pass
-
-    async def handle_guild_channel_update(
-        self, before, after
-    ):  # Overriden by modtools module
-        pass
-
-    async def handle_member_update(self, before, after):  # Overriden by modtools module
-        pass
-
-    async def handle_voice_channel_update(
-        self, member, before, after
-    ):  # Overriden by modtools module
-        pass
+        return mock_inner
