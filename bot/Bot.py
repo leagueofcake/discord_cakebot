@@ -45,19 +45,19 @@ class Bot:
         # Add command handlers from module
         self.command_handlers = {**self.command_handlers, **cls.command_handlers}
 
-        # Add command handlers from module
+        # Add help entries from module
         self.help_entries = {**self.help_entries, **cls.help_entries}
 
     def plug_in_module(self: B, module_name: str) -> B:
         modules = {
             "core": Core,
-            "misc": MiscModule,
             "music": MusicModule,
             "permissions": PermissionsModule,
             "modtools": ModToolsModule,
         }
         new_abstract_modules = {
             "messages": MessagesModule,
+            "misc": MiscModule,
         }
 
         if module_name in modules:
@@ -71,11 +71,12 @@ class Bot:
                 **new_abstract_modules[module_name].command_handlers,
             }
 
-            # Add command handlers from module
+            # Add help entries from module
             self.help_entries = {
                 **self.help_entries,
                 **new_abstract_modules[module_name].help_entries,
             }
+            self.logger.info("[cakebot][modules]: {} plugged in".format(module_name))
         else:
             self.logger.info(
                 "[cakebot][modules]: unknown module {}".format(module_name)

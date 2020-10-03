@@ -4,8 +4,9 @@ from discord.message import Message
 from discord.channel import TextChannel, DMChannel, GroupChannel
 
 
-
 AuthInnerFunction = Callable[[Message], Coroutine[Any, Any, None]]
+
+
 class AuthedFunction(Protocol):
     def __call__(
         self,
@@ -15,6 +16,8 @@ class AuthedFunction(Protocol):
         manage_guild_auth: Optional[bool] = False,
     ) -> Coroutine[Any, Any, None]:
         ...
+
+
 class BotABC(ABC):
     async def say(
         self, channel: Union[TextChannel, DMChannel, GroupChannel], message: str
@@ -52,5 +55,6 @@ class BotABC(ABC):
         self, member, before, after
     ):  # Overriden by modtools module
         ...
+
 
 CommandHandler = Callable[[BotABC, Message], Coroutine[Any, Any, None]]

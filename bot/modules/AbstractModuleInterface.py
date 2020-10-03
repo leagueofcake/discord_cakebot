@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from bot.modules.HelpEntry import HelpEntry
 from bot.types import BotABC
 from typing import Dict
 from bot.types import CommandHandler
@@ -14,14 +15,5 @@ handle_x methods also (internal) command handler instances.
 
 
 class AbstractModuleInterface(ABC):
-    @staticmethod
-    @property
-    @abstractmethod
-    def command_handlers(self: BotABC) -> Dict[str, CommandHandler]:
-        ...
-
-    @staticmethod
-    @property
-    @abstractmethod
-    def help_entries(self):
-        ...
+    command_handlers: Dict[str, CommandHandler]
+    help_entries: Dict[str, HelpEntry]

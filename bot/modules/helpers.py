@@ -1,4 +1,7 @@
-def is_integer(text):
+from discord.abc import User
+
+
+def is_integer(text: str) -> bool:
     try:
         int(text)
         return True
@@ -7,5 +10,5 @@ def is_integer(text):
 
 
 # Returns a string in the form username#descriptor e.g. Clyde#1234
-def get_full_username(user):
+def get_full_username(user: User) -> str:
     return "{}#{}".format(user.name, user.discriminator)
