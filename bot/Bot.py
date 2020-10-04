@@ -48,14 +48,14 @@ class Bot:
         # Add help entries from module
         self.help_entries = {**self.help_entries, **cls.help_entries}
 
-    def plug_in_module(self: B, module_name: str) -> B:
+    def load_module(self: B, module_name: str) -> B:
         modules = {
-            "core": Core,
             "music": MusicModule,
             "permissions": PermissionsModule,
             "modtools": ModToolsModule,
         }
         new_abstract_modules = {
+            "core": Core,
             "messages": MessagesModule,
             "misc": MiscModule,
         }
@@ -76,6 +76,7 @@ class Bot:
                 **self.help_entries,
                 **new_abstract_modules[module_name].help_entries,
             }
+            self.modules.add(module_name)
             self.logger.info("[cakebot][modules]: {} plugged in".format(module_name))
         else:
             self.logger.info(

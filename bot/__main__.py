@@ -11,12 +11,12 @@ logger = logging.getLogger()
 client = discord.Client()
 bot = Bot(client, logger)
 (
-    bot.plug_in_module("core")
-    .plug_in_module("permissions")
-    .plug_in_module("modtools")
-    .plug_in_module("messages")
-    .plug_in_module("music")
-    .plug_in_module("misc")
+    bot.load_module("core")
+    .load_module("permissions")
+    .load_module("modtools")
+    .load_module("messages")
+    .load_module("music")
+    .load_module("misc")
 )
 
 

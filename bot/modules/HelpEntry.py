@@ -18,7 +18,7 @@ class HelpEntry:
         self.category = category
         self.short_description = description.split("\n")[0]
 
-    def get_markdown(self):
+    def get_markdown(self) -> str:
         attr = [self.description, self.usage]
         for i in range(len(attr)):
             attr[i] = re.sub(
@@ -42,7 +42,7 @@ class HelpEntry:
         marked_down += "  \n  \n"  # Ending newline
         return marked_down
 
-    def get_entry(self):
+    def get_entry(self) -> str:
         formatted = (
             "\n"
             "**Command:** ``" + self.command + "``\n\n"

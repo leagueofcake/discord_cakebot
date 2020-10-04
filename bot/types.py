@@ -1,5 +1,6 @@
 from abc import ABC
-from typing import Any, Callable, Coroutine, Optional, Protocol, Union
+from bot.modules.HelpEntry import HelpEntry
+from typing import Any, Callable, Coroutine, Dict, Optional, Protocol, Set, Union
 from discord.message import Message
 from discord.channel import TextChannel, DMChannel, GroupChannel
 
@@ -19,13 +20,24 @@ class AuthedFunction(Protocol):
 
 
 class BotABC(ABC):
+    @property
+    def help_entries(self) -> Dict[str, HelpEntry]:
+        ...
+
+    @property
+    def modules(self) -> Set[str]:
+        ...
+
     async def say(
         self, channel: Union[TextChannel, DMChannel, GroupChannel], message: str
     ) -> Message:
         ...
 
     async def temp_message(
-        self, channel: TextChannel, message: str, time: float = 5
+        self,
+        channel: Union[TextChannel, DMChannel, GroupChannel],
+        message: str,
+        time: float = 5,
     ) -> None:
         ...
 
